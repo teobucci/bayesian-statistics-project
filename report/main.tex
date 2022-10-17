@@ -1,0 +1,93 @@
+\documentclass{article}
+
+\newcommand{\schoolname}{Bayesian Statistics}
+\newcommand{\schoolcode}{052499}
+\newcommand{\schoolcoordinator}{Alessandro Colombi}%A. Guglielmi}
+\newcommand{\papertitle}{Stochastic Block Model Prior with Ordering Constraints for Gaussian Graphical Models}
+
+\usepackage[british]{babel} % british per avere l'access date nella bibliografia come i comuni mortali
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1.5in]{geometry}
+\usepackage{amsmath,amsthm,amsfonts,amssymb}
+\usepackage{lipsum}
+
+\usepackage{multicol}
+\usepackage[none]{hyphenat}
+\usepackage[small]{titlesec}
+
+% Bibliography
+\usepackage{csquotes}% Recommended
+\usepackage[
+    style=numeric,
+    url=true,
+    sorting=none
+    ]{biblatex}
+\addbibresource{bibliography.bib}% Syntax for version >= 1.2
+
+\usepackage{import}
+\usepackage{pdfpages}
+\usepackage{transparent}
+\usepackage{xcolor}
+\usepackage{graphicx}
+\graphicspath{ {./images/} } % Path relative to the main .tex file
+\usepackage{float}
+\usepackage[font=footnotesize]{caption}
+\usepackage{booktabs}
+
+\usepackage{bookmark}% loads hyperref too
+    \hypersetup{
+        %pdftitle={Fundamentos de C\'alculo},
+        %pdfsubject={C\'alculo diferencial},
+        bookmarksnumbered=true,
+        bookmarksopen=true,
+        bookmarksopenlevel=1,
+        hidelinks,% remove border and color
+        pdfstartview=Fit, % Fits the page to the window.
+        pdfpagemode=UseOutlines, %Determines how the file is opening in Acrobat; the possibilities are UseNone, UseThumbs (show thumbnails), UseOutlines (show bookmarks), FullScreen, UseOC (PDF 1.5), and UseAttachments (PDF 1.6). If no mode if explicitly chosen, but the bookmarks option is set, UseOutlines is used.
+    }
+
+\setlength{\marginparwidth}{3.4cm}
+
+%#########################################################
+
+\title{
+    \begin{figure}[htpb]
+        \centering
+        \includegraphics[scale=0.2]{images/logo-polimi}
+    \end{figure}
+    \normalfont \normalsize 
+    \textsc{Master of Science in Mathematical Engineering \\ 
+    Project Report of \schoolname\ (\schoolcode) -- Prof. A. Guglielmi \\
+    Tutor: \schoolcoordinator} \\
+    [10pt] 
+    \rule{\linewidth}{0.5pt} \\ [6pt] 
+    \huge \papertitle \\
+    \rule{\linewidth}{2pt}  \\ [10pt]
+}
+
+%\author{\textsc{Teo Bucci\footnote{Politecnico di Milano, Mathematical Engineering, \url{teo.bucci@mail.polimi.it}}} \\ \normalsize{ASP: 100097, Polimi: 993998}}
+%\author{Teo Bucci, Filippo Cipriani, Filippo Pagella,\\ Flavia Petruso, Andrea Puricelli, Giulio Venturini}
+\author{T. Bucci, F. Cipriani, F. Pagella,\\ F. Petruso, A. Puricelli, G. Venturini}
+
+\date{\normalsize \today}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+    \lipsum
+\end{abstract}
+
+\setlength{\columnsep}{0.8cm}
+\begin{multicols}{2}
+    \input{content}
+\end{multicols}
+
+% USE NOCITE TO ADD SOURCES TO THE BIBLIOGRAPHY WITHOUT SPECIFICALLY CITING THEM IN THE DOCUMENT
+%\nocite{zhixiong_modelling_2015}
+%\nocite{*}
+
+\printbibliography
+
+\end{document}
