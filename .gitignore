@@ -59,3 +59,9 @@ rsconnect/
 *.pdf
 *.xml
 *.gz
+*_minted-main*
+*.toc
+*.vrb
+*.snm
+*.out
+*.nav
