@@ -4,175 +4,22 @@
 \usefonttheme{professionalfonts}
 \usecolortheme{rose} % rose o orchid
 \beamertemplatenavigationsymbolsempty
-%\usetheme[titleformat=smallcaps,block=fill]{metropolis}
-%\definecolor{Purple}{HTML}{911146}
-%\definecolor{Orange}{HTML}{CF4A30}
-%\definecolor{BG}{HTML}{689F38}
-%\setbeamercolor{alerted text}{fg=Orange}
-%\setbeamercolor{frametitle}{bg=BG}
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \title{Stochastic Block Model Prior \\ with Ordering Constraints \\ for Gaussian Graphical Models}
 \author{T. Bucci, F. Cipriani \texorpdfstring{\\}{,} F. Pagella, F. Petruso \texorpdfstring{\\}{,} A. Puricelli, G. Venturini}
-%\titlegraphic{\includegraphics[scale=0.15]{../report/images/logo-polimi-transparent}}
-\institute{Politecnico di Milano \\ Mathematical Engineering \\ Bayesian Statistics Project \\ A.Y. 2022/2023}
+\institute{Politecnico di Milano, Mathematical Engineering \\ Bayesian Statistics Project, A.Y. 2022/2023 \\ Supervisor: Alessandro Colombi}
 \date{\today}
 
 \usepackage{minted}
 
 \begin{document}
 
-
 \begin{frame}
     \maketitle
 \end{frame}
 
-\begin{frame}
-Thank you!
-\end{frame}
+\input{content}
 
-\begin{frame}[fragile]
-\frametitle{Python Code listing in Beamer}
-The following Python code adds two numbers and display the result using \verb|print()| function:
-\rule{\textwidth}{1pt}
-\scriptsize
-\begin{minted}{python}
-    # This program adds two numbers
-    num1 = 1.5
-    num2 = 6.3
-    # Add two numbers
-    sum = num1 + num2
-    # Display the sum
-    print('The sum of {0} and {1} is {2}'.format(num1, num2, sum))
-\end{minted}
-\rule{\textwidth}{1pt}
-\end{frame}
-
-
-% Use starred version (e.g. \section*{Section name})
-    % to disable (sub)section page.
-    \section{Section 1}
-    \subsection{Subsection 1.1}
-    \begin{frame}{Simple frame}
-        This is a simple frame.
-    \end{frame}
-
-    \begin{frame}[plain]{Plain frame}
-        This is a frame with plain style and it is numbered.
-    \end{frame}
-    
-    \subsection{Subsection 1.2}
-    \begin{frame}[t]
-        This frame has an empty title and is aligned to top.
-    \end{frame}
-    
-    \begin{frame}[noframenumbering]{No frame numbering}
-        This frame is not numbered and is citing reference \cite{knuth74}.
-    \end{frame}
-    
-    \begin{frame}{Typesetting and Math}
-        The packages \texttt{fontenc} and \texttt{FiraSans}\footnote{\url{https://fonts.google.com/specimen/Fira+Sans}}\textsuperscript{,}\footnote{\url{http://mozilla.github.io/Fira/}} are used to properly set the main fonts.
-        \vfill
-        This theme provides styling commands to typeset \emph{emphasized}, \alert{alerted}, \textbf{bold}, \dots
-        \vfill
-        \texttt{FiraSans} also provides support for mathematical symbols:
-        \begin{align*}
-            e^{i\pi} + 1 & = 0, \\
-            \int_{-\infty}^\infty e^{-x^2}\,\mathrm{d}x & = \sqrt{\pi}.
-        \end{align*}
-    \end{frame}
-
-    \section{Section 2}
-    \begin{frame}{Blocks}
-        \begin{block}{Block}
-            Text.
-        \end{block}
-        \pause
-        \begin{alertblock}{Alert block}
-            Alert \alert{text}.
-        \end{alertblock}
-        \pause
-        \begin{exampleblock}{Example block}
-            Example
-        \end{exampleblock}
-    \end{frame}
-    
-    \begin{frame}{Lists}
-        \begin{columns}[t, onlytextwidth]
-            \column{0.33\textwidth}
-                Items:
-                \begin{itemize}
-                    \item Item 1
-                    \begin{itemize}
-                        \item Subitem 1.1
-                        \item Subitem 1.2
-                    \end{itemize}
-                    \item Item 2
-                    \item Item 3
-                \end{itemize}
-            
-            \column{0.33\textwidth}
-                Enumerations:
-                \begin{enumerate}
-                    \item First
-                    \item Second
-                    \begin{enumerate}
-                        \item Sub-first
-                        \item Sub-second
-                    \end{enumerate}
-                    \item Third
-                \end{enumerate}
-            
-            \column{0.33\textwidth}
-                Descriptions:
-                \begin{description}
-                    \item[First] Yes.
-                    \item[Second] No.
-                \end{description}
-        \end{columns}
-    \end{frame}
-\setbeamertemplate{caption}[numbered]
-    \begin{frame}{Figures and Tables}
-        \begin{columns}
-            \column{0.4\textwidth}
-                \begin{figure}
-                    \centering
-                    \includegraphics[scale=0.15]{../report/images/logo-polimi-transparent}
-                    \caption{Figure caption.}
-                    \label{fig:focuslogo}
-                \end{figure}
-                
-            \column{0.6\textwidth}
-                \begin{table}
-                    \centering
-                    \begin{tabular}{rcc}
-                         & Heading 1 & Heading 2 \\\hline
-                        Row 1 & \(v_{11}\) & \(v_{12}\) \\
-                        Row 2 & \(v_{21}\) & \(v_{22}\) \\
-                        Row 3 & \(v_{31}\) & \(v_{32}\) \\
-                    \end{tabular}
-                    \caption{Table caption.}
-                    \label{tab:demo}
-                \end{table}
-        \end{columns}
-    \end{frame}
-    
-    \begin{frame}
-        Thanks for using \textbf{Focus}!
-    \end{frame}
-
-    \appendix
-    \begin{frame}{References}
-        \nocite{*}
-        \bibliography{bibliography}
-        \bibliographystyle{plain}
-    \end{frame}
-    
-    \begin{frame}{Backup frame}
-        This is a backup frame, useful to include additional material for questions from the audience.
-        \vfill
-        The package \texttt{appendixnumberbeamer} is used not to number appendix frames.
-    \end{frame}
 \end{document}
