@@ -6,7 +6,7 @@
 %Gaussian graphical models-------------------------------
 \subsection{Gaussian Graphical Models}
 \begin{frame}{Gaussian Graphical Models}
-    Models used to learn the \alert{conditional dependence structure} among variables, represented through an undirected graph G = (V,E)
+    Models used to learn the \alert{conditional dependence structure} among variables, represented through an undirected graph $G=(V,E)$
 \begin{columns}
 \begin{column}{0.5\textwidth}
 
@@ -14,8 +14,8 @@
 
 \centering
 \begin{align*}
-    y_{1}, \ldots, y_{n} \mid \mathbf{K} \iid N_\mathbf{{p}}(0,\mathbf{K}), \mathbf{K}=\Sigma^{-1}\\ 
-    \mathbf{K} \mid G \iid G-Wishart(B,d) ,  K \in \mathbb{R}^{p\times p}\\
+    y_{1}, \ldots, y_{n} \mid \mathbf{K} \iid \mathcal{N}_{p}(0,\mathbf{K}), \mathbf{K}=\Sigma^{-1}\\ 
+    \mathbf{K} \mid G \iid \text{G-Wishart}(B,d) ,  K \in \mathbb{R}^{p\times p}\\
     G_{ij} \mid z \iid ?\\ 
     z \iid ?
 \end{align*}
