@@ -6,55 +6,59 @@
 %Gaussian graphical models-------------------------------
 \subsection{Gaussian Graphical Models}
 \begin{frame}{Gaussian Graphical Models}
-    Models used to learn the \alert{conditional dependence structure} among variables, represented through an undirected graph $G=(V,E)$
-\begin{columns}
-\begin{column}{0.5\textwidth}
-
 \newcommand{\iid}{\overset{\mathrm{iid}}{\sim}}
+\newcommand{\ind}{\overset{\mathrm{ind}}{\sim}}
 
+    Models for the \textbf{conditional dependence structure} among variables, represented through an undirected graph $G=(V,E)$
+    \begin{align*}
+    \mathbf{y_{1}}, \ldots, \mathbf{y_{n}} \mid \mathbf{K} &\iid N_\mathbf{{p}}(0,\mathbf{K^{-1}}), \mathbf{K}=\Sigma^{-1}, \mathbf{K} \in \mathbb{R}^{p\times p}  %%%%add bold
+    \end{align*}
+Conditional independence described through a \textbf{map} between a \textbf{graph} and a family of multivariate \textbf{probability models}
+\begin{align*}
+X_{i}\perp X_{j} \mid X_{-(ij)}\Leftrightarrow (i,j) \notin E \Leftrightarrow k_{ij}=0
+\end{align*}
+Usual prior for K conditionally to the graph is a G-Wishart
 \centering
 \begin{align*}
-    y_{1}, \ldots, y_{n} \mid \mathbf{K} \iid \mathcal{N}_{p}(0,\mathbf{K}), \mathbf{K}=\Sigma^{-1}\\ 
-    \mathbf{K} \mid G \iid \text{G-Wishart}(B,d) ,  K \in \mathbb{R}^{p\times p}\\
-    G_{ij} \mid z \iid ?\\ 
-    z \iid ?
+    \mathbf{K} \mid G &\iid G-Wishart(B,d)
 \end{align*}
-\end{column}
-
-\begin{column}{0.5\textwidth}
-Qui metterei una immagine acattivante (tabella stile slides Colombi?) dei gaussian graphical models dove si capisce che ogni singola entry della adjacency matrix modella la dipendenza tra le componenti
-\end{column}
-
-\end{columns}
-\centering
-How to introduce an appropriate prior $\pi_{z}$ for \alert{partition generation} and a model for the \alert{edge generation} conditionally on z? 
+G is a r.v. in the space of undirected graphs with p nodes.\\
+If we assume a possible \textbf{grouping} of the variables, we need a prior $\pi(G)$ that induces a \textbf{block structure on its adjacency matrix}
+%How to introduce an appropriate prior $f_{z}(\mathbf{z})$ for the \alert{partition} and the conditional distribution OR  DENSITY???$f_{G}(G \mid \mathbf{z})$ for the \alert{edge generation}? 
 \end{frame}
 
 
+%%TO DO @Teo 
+%Add numeration of formulas from 1 to 4 - HO CAMBIATO IDEA FORSE MI PIACE DI PIU' COSI' COME  E' ORA
+%Add bold sigma
+%Add the image - STAVO PENSANDO, MA SE NE METTESSIMO DUE? UNA CON UN GRAFO CON ELEMENTI DA 1 A P STRUTTURA E UNA TABELLA - OK CHE E' SIMILE A QUELLO DI COLOMBI BUT STILL
 
 
+%%
 
-
-
-
+ 
 
 
 
 %Stochastic Block Models -----------------------
 \subsection{Stochastic Block Models}
 
-\begin{frame}{Stochastic Block Models}
-    Statistical models for \alert{community detection}\\     
-    Goal: given a random network of data, infere a node partition by clustering nodes within groups sharing similar connectivity patterns
+\begin{align*}
+    G_{ij} \mid \mathbf{z} &\ind\  f_{G}(G \mid \mathbf{z}) , 1 \le i < j \le p \\ %alternativr G_{ij} \in {Edges}
+    \mathbf{z} &\iid\ f_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
+\end{align*}
 
+
+\begin{frame}{Stochastic Block Models}
+    Statistical models for \alert{community detection}: given a random network of data, infere a node partition based on similarity of connectivity patterns\\
 
     \begin{columns}
         \begin{column}{0.30\textwidth}
             \begin{align*}
-                G_{ij} \mid \Theta,z \overset{\mathrm{iid}}{\sim} Be(\theta_{ij}),  G \in R^{p×p}, \\
+                G_{ij} \mid \Theta,z \overset{\mathrm{iid}}{\sim} Be(\theta_{ij}),  G \in \mathbb{R}^{p \times p}, \\
                 \theta_{ij} = \Theta_{z_{i}z_{j}}, 1 \le i < j \le p \\ 
                 \Theta_{rs} \overset{\mathrm{iid}}{\sim} Beta(\alpha, \beta)\\
-                z \overset{\mathrm{iid}}{\sim} \pi_{z}(z), z \in R^p
+                \mathbf{z} \overset{\mathrm{iid}}{\sim} \pi_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
             \end{align*}
             \end{column}
         \begin{column}{0.30\textwidth}
@@ -141,11 +145,15 @@ Most of the ESBM models do not pose constraints\\ on the \alert{ordering of the 
 
 
 
+
+
+
+
+
 %Changepoint models------------------
 \subsection{Changepoint Models}
 \begin{frame}{Changepoint Models}
     %\fg{0.4}{changepoint}
-
     Consider a process where at certain \textbf{changepoints} the underlying generating mechanism changes. Let $\mathbf{x}=(x_{1},\ldots,x_{n})$ be \textbf{ordered} observations each depending on a $\vartheta_{i}.$\\
     \[
         f(x_{1},\ldots,x_{n} \mid \vartheta_1, \vartheta_2, \ldots, \vartheta_{k+1}, \boldsymbol{z})=\prod_{j=1}^{k+1} \prod_{i=\tau_{j-1}+1}^{\tau_j} f(x_i \mid \vartheta_j)
@@ -156,9 +164,13 @@ Most of the ESBM models do not pose constraints\\ on the \alert{ordering of the 
         \pi(\mathbf{z}, \mathbf{\vartheta} \mid \mathbf{y}) & \propto f(\mathbf{y} \mid \mathbf{\vartheta}, \mathbf{z}) \pi(\mathbf{\vartheta} \mid \mathbf{z}) \pi(\mathbf{z}) \\
         &=\left(\prod_{j=1}^{k+1} \prod_{i=\tau_{j-1}+1}^{\tau_j} f(y_i \mid \vartheta_j)\right)\left(\prod_{j=1}^{k+1} \pi(\vartheta_j)\right) \pi(\mathbf{z})
     \end{align*}
-    
-
 \end{frame}
+
+
+
+
+
+
 
 
 %----------------------------------------
@@ -168,6 +180,7 @@ Most of the ESBM models do not pose constraints\\ on the \alert{ordering of the 
 
 
 \begin{frame}[containsverbatim]{Goal of the project}
+
 Propose a \alert {new flexible prior that accounts for a random partition of the nodes}, respects their ordering constraints and allows to learn a block structured graph
 
  \begin{itemize}
@@ -177,10 +190,6 @@ Propose a \alert {new flexible prior that accounts for a random partition of the
  \end{itemize}
 
 
-Le frasi sopra sono copiate dalla presentazione di colombi.
-
-Secondo me se riuscissimo sarebbe figo mettere un qualche schemino  Dove specifichiamo concettualmente come i tre aspetti del background si mettono insieme, 
-e anche (ma forse è troppo) la formula completa di Colombi dove il Gaussian Graphical model ha come probabilità condizionata sul grafo e come prior di z lo stochastic block model
 
 \end{frame}
 
@@ -195,9 +204,8 @@ forse dovremmo capire meglio quali sono i next steps
 \end{itemize}
 
 
-Andrà descritto il Gibbs sampler, andrà detto il termine "Monte Carlo", un pizzico di "full conitional" e sembreremo Bayesiani DOC
 
-\centering \Huge FAKE IT TILL YOU MAKE IT
+\centering \Huge 
 \end{frame}
 
 
