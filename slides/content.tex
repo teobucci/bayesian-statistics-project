@@ -1,5 +1,226 @@
 %!TEX root = ./main.tex
 
+
+\section{Background}
+
+%Gaussian graphical models-------------------------------
+\subsection{Gaussian Graphical Models}
+\begin{frame}{Gaussian Graphical Models}
+    Models used to learn the \alert{conditional dependence structure} among variables, represented through an undirected graph G = (V,E)
+\begin{columns}
+\begin{column}{0.5\textwidth}
+
+\newcommand{\iid}{\overset{\mathrm{iid}}{\sim}}
+
+\centering
+\begin{align*}
+    y_{1}, \ldots, y_{n} \mid \mathbf{K} \iid N_\mathbf{{p}}(0,\mathbf{K}), \mathbf{K}=\Sigma^{-1}\\ 
+    \mathbf{K} \mid G \iid G-Wishart(B,d) ,  K \in \mathbb{R}^{p\times p}\\
+    G_{ij} \mid z \iid ?\\ 
+    z \iid ?
+\end{align*}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+Qui metterei una immagine acattivante (tabella stile slides Colombi?) dei gaussian graphical models dove si capisce che ogni singola entry della adjacency matrix modella la dipendenza tra le componenti
+\end{column}
+
+\end{columns}
+\centering
+How to introduce an appropriate prior $\pi_{z}$ for \alert{partition generation} and a model for the \alert{edge generation} conditionally on z? 
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+%Stochastic Block Models -----------------------
+\subsection{Stochastic Block Models}
+
+\begin{frame}{Stochastic Block Models}
+    Statistical models for \alert{community detection}\\     
+    Goal: given a random network of data, infere a node partition by clustering nodes within groups sharing similar connectivity patterns
+
+
+    \begin{columns}
+        \begin{column}{0.30\textwidth}
+            \begin{align*}
+                G_{ij} \mid \Theta,z \overset{\mathrm{iid}}{\sim} Be(\theta_{ij}),  G \in R^{p×p}, \\
+                \theta_{ij} = \Theta_{z_{i}z_{j}}, 1 \le i < j \le p \\ 
+                \Theta_{rs} \overset{\mathrm{iid}}{\sim} Beta(\alpha, \beta)\\
+                z \overset{\mathrm{iid}}{\sim} \pi_{z}(z), z \in R^p
+            \end{align*}
+            \end{column}
+        \begin{column}{0.30\textwidth}
+            \alert{Adjacency matrix G}
+            \begin{table}[htpb]
+            %\setlength{\arrayrulewidth}{1pt}
+            \centering
+            \begin{tabular}{c|c|c|c|c|c|} 
+            \hline
+            1   & &    &    &   &     \\ 
+            \hline
+            2  &  $y_{21}$ &    &    &   &     \\ 
+            \hline
+            ...  &   &    &    &   &     \\ 
+            \hline
+            ...  &   &    &    &   &     \\ 
+            \hline
+            N  & $y_{n1}$   &    &    &   &  
+            \end{tabular}
+            \end{table}
+        \end{column}
+
+
+        \begin{column}{0.25\textwidth}
+        %\centering
+        \alert{Cluster matrix $\Theta$}
+
+        Inserire come nelle note mie e di Andre, sistemare anche la adjacency matrix
+        \end{column}
+
+    \end{columns}
+
+
+
+    \begin{center}
+    Critical task: \alert{identification of the number of clusters H}
+    \end{center}
+
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{frame}{Choosing the prior for the number of clusters}
+
+\begin{columns}
+
+\begin{column}{0.5\textwidth} 
+
+    Number of clusters H usually estimated \textit{before} running the model
+    \begin{itemize}
+        \item prior knowledge
+        \item BIC
+        \item Cross-validation methods
+    \end{itemize}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+    Problems: underestimation of model uncertainty (?). prediction: impossible to classify elements in a new cluster
+\end{column}
+\end{columns}
+
+\alert{Extended stochastic block models (ESBM)}\\  
+Use priors for z that naturally allow to increase the number of groups, e.g., 
+    \begin{itemize}
+        \item Chinese restaurant process (CRP)
+        \item Mixture of finite mixtures (MFM)
+    \end{itemize}
+
+Most of the ESBM models do not pose constraints\\ on the \alert{ordering of the elements} in the partition
+\end{frame}
+
+
+
+%Changepoint models------------------
+\subsection{Changepoint Models}
+\begin{frame}{Changepoint Models}
+
+Changepoint models allow generations of random partitions that with ordering constraints (or sth like this)
+
+qui nei changepoints inserirei la prima formula sui changepoints 
+per fare vedere cosa sono, e poi forse l'algoritmo per anew e dnew stile Metropolis Hastings, insieme a una frase sulla loro utilità contestualizzata alla generazione di partizioni
+forse ci spammerei anche la bellissima prova di Martinez che avete dimostrato , SO CHE ALLA GUGLIELMI PIACE
+
+
+\end{frame}
+
+
+%----------------------------------------
+% Project goals
+%-------------------------------------
+\section{Project goals}
+
+
+\begin{frame}[containsverbatim]{Goal of the project}
+Propose a \alert {new flexible prior that accounts for a random partition of the nodes}, respects their ordering constraints and allows to learn a block structured graph
+
+ \begin{itemize}
+     \item Ordering Constraint: borrow ideas from changepoint models
+     \item Random partition: nonparametric prior on ordered partitions
+     \item Block Structure: use a stochastic block model prior
+ \end{itemize}
+
+
+Le frasi sopra sono copiate dalla presentazione di colombi.
+
+Secondo me se riuscissimo sarebbe figo mettere un qualche schemino  Dove specifichiamo concettualmente come i tre aspetti del background si mettono insieme, 
+e anche (ma forse è troppo) la formula completa di Colombi dove il Gaussian Graphical model ha come probabilità condizionata sul grafo e come prior di z lo stochastic block model
+
+\end{frame}
+
+\section{Next steps}
+\begin{frame}
+
+forse dovremmo capire meglio quali sono i next steps
+
+\begin{itemize}
+    \item sampling strategy
+    \item simulation strategy
+\end{itemize}
+
+
+Andrà descritto il Gibbs sampler, andrà detto il termine "Monte Carlo", un pizzico di "full conitional" e sembreremo Bayesiani DOC
+
+\centering \Huge FAKE IT TILL YOU MAKE IT
+\end{frame}
+
+
+
+
+
+\begin{frame}{Main References}
+       \nocite{*}
+        \bibliography{bibliography}
+        \bibliographystyle{plain}
+\end{frame}
+
+\section*{Questions}
+
+
+\begin{frame}{Extra slide 1}
+metterei le formule di 
+\begin{itemize}
+    \item Dirichlet multinomial
+    \item CRP
+    \item Mixture of finite mixtures (not strictly necessary)
+
+    
+
+\end{itemize} 
+\end{frame}
+
+
+
 %\begin{frame}
 %    \tableofcontents
 %\end{frame}
@@ -168,5 +389,5 @@ The following Python code adds two numbers and display the result using \verb|pr
     \end{frame}
 
 \begin{frame}
-	Thank you!
+    Thank you!
 \end{frame}
