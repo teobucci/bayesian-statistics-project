@@ -6,50 +6,48 @@
 %Gaussian graphical models-------------------------------
 \subsection{Gaussian Graphical Models}
 \begin{frame}{Gaussian Graphical Models}
-    Models which describe the \alert{conditional dependence structure} among variables, represented through an undirected graph G = (V,E)
-\begin{columns}
-\begin{column}{0.5\textwidth}
-
 \newcommand{\iid}{\overset{\mathrm{iid}}{\sim}}
 \newcommand{\ind}{\overset{\mathrm{ind}}{\sim}}
 
-
+    Models for the \textbf{conditional dependence structure} among variables, represented through an undirected graph G = (V,E)
+    \begin{align*}
+    \mathbf{y_{1}}, \ldots, \mathbf{y_{n}} \mid \mathbf{K} &\iid N_\mathbf{{p}}(0,\mathbf{K^{-1}}), \mathbf{K}=\Sigma^{-1}, \mathbf{K} \in \mathbb{R}^{p\times p}  %%%%add bold
+    \end{align*}
+Conditional independence described through a \textbf{map} between a \textbf{graph} and a family of multivariate \textbf{probability models}
+\begin{align*}
+X_{i}\perp X_{j} \mid X_{-(ij)}\Leftrightarrow (i,j) \notin E \Leftrightarrow k_{ij}=0
+\end{align*}
+Usual prior for K conditionally to the graph is a G-Wishart
 \centering
 \begin{align*}
-    \mathbf{y_{1}}, \ldots, \mathbf{y_{n}} \mid \mathbf{K} &\iid N_\mathbf{{p}}(0,\mathbf{K}), \mathbf{K}=\Sigma^{-1}\\  %%%%add bold
-    \mathbf{K} \mid G &\iid G-Wishart(B,d) ,  \mathbf{K} \in \mathbb{R}^{p\times p}\\
-    G_{ij} \mid \mathbf{z} &\ind\  f_{G}(G \mid \mathbf{z}) , 1 \le i < j \le p \\
-    \mathbf{z} &\iid\ f_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
+    \mathbf{K} \mid G &\iid G-Wishart(B,d)
 \end{align*}
-\end{column}
-
-\begin{column}{0.5\textwidth}
-Qui metterei una immagine acattivante (tabella stile slides Colombi?) dei gaussian graphical models dove si capisce che ogni singola entry della adjacency matrix modella la dipendenza tra le componenti
-\end{column}
-
-\end{columns}
-\centering
-How to introduce an appropriate prior $f_{z}(\mathbf{z})$ for the \alert{partition generation} and the conditional distribution $f_{G}(G \mid \mathbf{z})$ for the \alert{edge generation}? 
+G is a r.v. in the space of undirected graphs with p nodes.\\
+If we assume a possible \textbf{grouping} of the variables, we need a prior $\pi(G)$ that induces a \textbf{block structure on its adjacency matrix}
+%How to introduce an appropriate prior $f_{z}(\mathbf{z})$ for the \alert{partition} and the conditional distribution OR  DENSITY???$f_{G}(G \mid \mathbf{z})$ for the \alert{edge generation}? 
 \end{frame}
 
 
 %%TO DO @Teo 
-% Add numeration of formulas from 1 to 4
-%Add the tap for the block underligning point 3 and 4
+%Add numeration of formulas from 1 to 4 - HO CAMBIATO IDEA FORSE MI PIACE DI PIU' COSI' COME  E' ORA
 %Add bold sigma
-%Add the image
+%Add the image - STAVO PENSANDO, MA SE NE METTESSIMO DUE? UNA CON UN GRAFO CON ELEMENTI DA 1 A P STRUTTURA E UNA TABELLA - OK CHE E' SIMILE A QUELLO DI COLOMBI BUT STILL
 
 
-
+%%
 
  
 
 
 
-
-
 %Stochastic Block Models -----------------------
 \subsection{Stochastic Block Models}
+
+\begin{align*}
+    G_{ij} \mid \mathbf{z} &\ind\  f_{G}(G \mid \mathbf{z}) , 1 \le i < j \le p \\ %alternativr G_{ij} \in {Edges}
+    \mathbf{z} &\iid\ f_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
+\end{align*}
+
 
 \begin{frame}{Stochastic Block Models}
     Statistical models for \alert{community detection}: given a random network of data, infere a node partition based on similarity of connectivity patterns\\
@@ -57,10 +55,10 @@ How to introduce an appropriate prior $f_{z}(\mathbf{z})$ for the \alert{partiti
     \begin{columns}
         \begin{column}{0.30\textwidth}
             \begin{align*}
-                G_{ij} \mid \Theta,z \overset{\mathrm{iid}}{\sim} Be(\theta_{ij}),  G \in \mathbb{R}^{p×p}, \\
+                G_{ij} \mid \Theta,z \overset{\mathrm{iid}}{\sim} Be(\theta_{ij}),  G \in \mathbb{R}^{p \times p}, \\
                 \theta_{ij} = \Theta_{z_{i}z_{j}}, 1 \le i < j \le p \\ 
                 \Theta_{rs} \overset{\mathrm{iid}}{\sim} Beta(\alpha, \beta)\\
-                z \overset{\mathrm{iid}}{\sim} \pi_{z}(z), z \in \mathbb{R}^p
+                \mathbf{z} \overset{\mathrm{iid}}{\sim} \pi_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
             \end{align*}
             \end{column}
         \begin{column}{0.30\textwidth}
@@ -160,7 +158,7 @@ Changepoint models allow generations of random partitions that with ordering con
 
 qui nei changepoints inserirei la prima formula sui changepoints 
 per fare vedere cosa sono, e poi forse l'algoritmo per anew e dnew stile Metropolis Hastings, insieme a una frase sulla loro utilità contestualizzata alla generazione di partizioni
-forse ci spammerei anche la bellissima prova di Martinez che avete dimostrato , SO CHE ALLA GUGLIELMI PIACE
+forse ci spammerei anche la bellissima prova di Martinez che avete dimostrato 
 
 
 \end{frame}
@@ -203,9 +201,8 @@ forse dovremmo capire meglio quali sono i next steps
 \end{itemize}
 
 
-Andrà descritto il Gibbs sampler, andrà detto il termine "Monte Carlo", un pizzico di "full conitional" e sembreremo Bayesiani DOC
 
-\centering \Huge FAKE IT TILL YOU MAKE IT
+\centering \Huge 
 \end{frame}
 
 
