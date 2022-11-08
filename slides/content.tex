@@ -29,7 +29,7 @@ Qui metterei una immagine acattivante (tabella stile slides Colombi?) dei gaussi
 
 \end{columns}
 \centering
-How to introduce an appropriate prior for \alert{partition generation} x(4) and a model for the \alert{edge generation} conditionally on z (3)? 
+How to introduce an appropriate prior $f_{z}(\mathbf{z})$ for the \alert{partition generation} and the conditional distribution $f_{G}(G \mid \mathbf{z})$ for the \alert{edge generation}? 
 \end{frame}
 
 
@@ -52,17 +52,15 @@ How to introduce an appropriate prior for \alert{partition generation} x(4) and 
 \subsection{Stochastic Block Models}
 
 \begin{frame}{Stochastic Block Models}
-    Statistical models for \alert{community detection}\\     
-    Goal: given a random network of data, infere a node partition by clustering nodes within groups sharing similar connectivity patterns
-
+    Statistical models for \alert{community detection}: given a random network of data, infere a node partition based on similarity of connectivity patterns\\
 
     \begin{columns}
         \begin{column}{0.30\textwidth}
             \begin{align*}
-                G_{ij} \mid \Theta,z \overset{\mathrm{iid}}{\sim} Be(\theta_{ij}),  G \in R^{p×p}, \\
+                G_{ij} \mid \Theta,z \overset{\mathrm{iid}}{\sim} Be(\theta_{ij}),  G \in \mathbb{R}^{p×p}, \\
                 \theta_{ij} = \Theta_{z_{i}z_{j}}, 1 \le i < j \le p \\ 
                 \Theta_{rs} \overset{\mathrm{iid}}{\sim} Beta(\alpha, \beta)\\
-                z \overset{\mathrm{iid}}{\sim} \pi_{z}(z), z \in R^p
+                z \overset{\mathrm{iid}}{\sim} \pi_{z}(z), z \in \mathbb{R}^p
             \end{align*}
             \end{column}
         \begin{column}{0.30\textwidth}
@@ -149,6 +147,11 @@ Most of the ESBM models do not pose constraints\\ on the \alert{ordering of the 
 
 
 
+
+
+
+
+
 %Changepoint models------------------
 \subsection{Changepoint Models}
 \begin{frame}{Changepoint Models}
@@ -163,6 +166,12 @@ forse ci spammerei anche la bellissima prova di Martinez che avete dimostrato , 
 \end{frame}
 
 
+
+
+
+
+
+
 %----------------------------------------
 % Project goals
 %-------------------------------------
@@ -170,6 +179,7 @@ forse ci spammerei anche la bellissima prova di Martinez che avete dimostrato , 
 
 
 \begin{frame}[containsverbatim]{Goal of the project}
+
 Propose a \alert {new flexible prior that accounts for a random partition of the nodes}, respects their ordering constraints and allows to learn a block structured graph
 
  \begin{itemize}
@@ -179,10 +189,6 @@ Propose a \alert {new flexible prior that accounts for a random partition of the
  \end{itemize}
 
 
-Le frasi sopra sono copiate dalla presentazione di colombi.
-
-Secondo me se riuscissimo sarebbe figo mettere un qualche schemino  Dove specifichiamo concettualmente come i tre aspetti del background si mettono insieme, 
-e anche (ma forse è troppo) la formula completa di Colombi dove il Gaussian Graphical model ha come probabilità condizionata sul grafo e come prior di z lo stochastic block model
 
 \end{frame}
 
