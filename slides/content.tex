@@ -1,21 +1,21 @@
-%!TEX root = ./main.tex
+ %!TEX root = ./main.tex
 
 
 \section{Background}
+\newcommand{\iid}{\overset{\mathrm{iid}}{\sim}}
+\newcommand{\ind}{\overset{\mathrm{ind}}{\sim}}
 
 %Gaussian graphical models-------------------------------
 \subsection{Gaussian Graphical Models}
 \begin{frame}{Gaussian Graphical Models}
-\newcommand{\iid}{\overset{\mathrm{iid}}{\sim}}
-\newcommand{\ind}{\overset{\mathrm{ind}}{\sim}}
 
     Models for the \textbf{conditional dependence structure} among variables, represented through an undirected graph G = (V,E)
     \begin{align*}
-    \mathbf{y_{1}}, \ldots, \mathbf{y_{n}} \mid \mathbf{K} &\iid N_\mathbf{{p}}(0,\mathbf{K^{-1}}), \mathbf{K}=\Sigma^{-1}, \mathbf{K} \in \mathbb{R}^{p\times p}  %%%%add bold
+    \mathbf{a_{1}}, \ldots, \mathbf{a_{n}} \mid \mathbf{K} &\iid N_\mathbf{{p}}(0,\mathbf{K^{-1}}), \mathbf{K}=\Sigma^{-1}, \mathbf{K} \in \mathbb{R}^{p\times p}  %%%%add bold
     \end{align*}
 Conditional independence described through a \textbf{map} between a \textbf{graph} and a family of multivariate \textbf{probability models}
 \begin{align*}
-X_{i}\perp X_{j} \mid X_{-(ij)}\Leftrightarrow (i,j) \notin E \Leftrightarrow k_{ij}=0
+Y_{i}\perp Y_{j} \mid Y_{-(ij)}\Leftrightarrow (i,j) \notin E \Leftrightarrow k_{ij}=0
 \end{align*}
 Usual prior for K conditionally to the graph is a G-Wishart
 \centering
@@ -24,89 +24,61 @@ Usual prior for K conditionally to the graph is a G-Wishart
 \end{align*}
 G is a r.v. in the space of undirected graphs with p nodes.\\
 If we assume a possible \textbf{grouping} of the variables, we need a prior $\pi(G)$ that induces a \textbf{block structure on its adjacency matrix}
-%How to introduce an appropriate prior $f_{z}(\mathbf{z})$ for the \alert{partition} and the conditional distribution OR  DENSITY???$f_{G}(G \mid \mathbf{z})$ for the \alert{edge generation}? 
+
 \end{frame}
 
 
 %%TO DO @Teo 
-%Add numeration of formulas from 1 to 4 - HO CAMBIATO IDEA FORSE MI PIACE DI PIU' COSI' COME  E' ORA
 %Add bold sigma
 %Add the image - STAVO PENSANDO, MA SE NE METTESSIMO DUE? UNA CON UN GRAFO CON ELEMENTI DA 1 A P STRUTTURA E UNA TABELLA - OK CHE E' SIMILE A QUELLO DI COLOMBI BUT STILL
-
-
 %%
 
  
 
 
-
 %Stochastic Block Models -----------------------
 \subsection{Stochastic Block Models}
+\begin{frame}{Stochastic Block Models for the prior on G}
 
+Given a random network of data, they \textbf{infere a node partition} based on similarity of connectivity patterns\\
+
+Let's assume H = fixed number of cluster, and define 
+\begin{itemize}
+    \item $\mathbf{z} \in \mathbb{R}^p$ vector of group memberships, $z_{i} \in [1,...,H]$
+    \item $\Theta \in \textbb{R}^{H\times H}$ matrix of probability of edges between groups
+\end{itemize} 
+\centering
 \begin{align*}
-    G_{ij} \mid \mathbf{z} &\ind\  f_{G}(G \mid \mathbf{z}) , 1 \le i < j \le p \\ %alternativr G_{ij} \in {Edges}
-    \mathbf{z} &\iid\ f_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
+    G_{ij} \mid \Theta,\mathbf{z} \overset{\mathrm{iid}}{\sim} & Be(\theta_{ij}),  G \in \mathbb{R}^{p \times p}, \\
+    \theta_{ij} = &\Theta_{z_{i}z_{j}}, 1 \le i < j \le p \\ 
+    \Theta_{z_{i}z_{j}} \iid& Beta(\alpha, \beta)\\
+    \mathbf{z} \iid & \pi_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
 \end{align*}
 
-
-\begin{frame}{Stochastic Block Models}
-    Statistical models for \alert{community detection}: given a random network of data, infere a node partition based on similarity of connectivity patterns\\
-
-    \begin{columns}
-        \begin{column}{0.30\textwidth}
-            \begin{align*}
-                G_{ij} \mid \Theta,z \overset{\mathrm{iid}}{\sim} Be(\theta_{ij}),  G \in \mathbb{R}^{p \times p}, \\
-                \theta_{ij} = \Theta_{z_{i}z_{j}}, 1 \le i < j \le p \\ 
-                \Theta_{rs} \overset{\mathrm{iid}}{\sim} Beta(\alpha, \beta)\\
-                \mathbf{z} \overset{\mathrm{iid}}{\sim} \pi_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
-            \end{align*}
-            \end{column}
-        \begin{column}{0.30\textwidth}
-            \alert{Adjacency matrix G}
-            \begin{table}[htpb]
-            %\setlength{\arrayrulewidth}{1pt}
-            \centering
-            \begin{tabular}{c|c|c|c|c|c|} 
-            \hline
-            1   & &    &    &   &     \\ 
-            \hline
-            2  &  $y_{21}$ &    &    &   &     \\ 
-            \hline
-            ...  &   &    &    &   &     \\ 
-            \hline
-            ...  &   &    &    &   &     \\ 
-            \hline
-            N  & $y_{n1}$   &    &    &   &  
-            \end{tabular}
-            \end{table}
-        \end{column}
-
-
-        \begin{column}{0.25\textwidth}
-        %\centering
-        \alert{Cluster matrix $\Theta$}
-
-        Inserire come nelle note mie e di Andre, sistemare anche la adjacency matrix
-        \end{column}
-
-    \end{columns}
-
-
-
-    \begin{center}
-    Critical task: \alert{identification of the number of clusters H}
-    \end{center}
-
+\fg{0.8}{sbm}
+%Aggiungere da dove viene la caption
+ %% Critical task: \alert{identification of the number of clusters H}
 
 \end{frame}
 
 
 
 
+%%Questa la voglio come se fosse un tap dove faccio vedere fuori come cambia dopo che integro fuori theta
+\begin{frame}{Stochastic Block Models for the prior on G}
+%Given a random network of data, they \textbf{infere a node partition} based on similarity of connectivity patterns\\
+%idealmente li vogliamo alla stessa altezza oppure lo leviamo
 
+$\Theta$ can be marginalized out via beta-binomial conjugacy, leading to the folllowing model for the prior of G conditionally on z 
+\centering
+\begin{align*}
+    G_{ij} \mid \mathbf{z} &\ind\  f_{G}(G \mid \mathbf{z}) , 1 \le i < j \le p \\ %alternativr G_{ij} \in {Edges}
+    \mathbf{z} &\iid\ f_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
+  \end{align*}
 
+ \large Critical task: \textbf{identification of the number of clusters H}
 
-
+\end{frame}
 
 
 
@@ -116,31 +88,24 @@ If we assume a possible \textbf{grouping} of the variables, we need a prior $\pi
 
 \begin{frame}{Choosing the prior for the number of clusters}
 
-\begin{columns}
+Number of clusters H usually estimated \textit{before} running the model via prior knowledge, BIC, Cross-validation methods\\
+Problems of this approaches: 
+\begin{itemize}
+    \item\textbf{prediction}: impossible to classify elements in a new cluster
+    \item \textbf{error quantification} ??????
+\end{itemize}
+\hline 
+%%%%%%%%qui spunta un tap
+\textbf{\alert{Extended stochastic block models (ESBM)}}\\  
+Use priors for z that naturally allow to adaptively modify the number of groups H, e.g., 
+\begin{itemize}
+    \item Chinese restaurant process (CRP)
+    \item Infinite Dirichlet (assicurarsi che sia diverso da CRP)
+    \item Mixture of finite mixtures (MFM)\\
+\end{itemize}
 
-\begin{column}{0.5\textwidth} 
-
-    Number of clusters H usually estimated \textit{before} running the model
-    \begin{itemize}
-        \item prior knowledge
-        \item BIC
-        \item Cross-validation methods
-    \end{itemize}
-\end{column}
-
-\begin{column}{0.5\textwidth}
-    Problems: underestimation of model uncertainty (?). prediction: impossible to classify elements in a new cluster
-\end{column}
-\end{columns}
-
-\alert{Extended stochastic block models (ESBM)}\\  
-Use priors for z that naturally allow to increase the number of groups, e.g., 
-    \begin{itemize}
-        \item Chinese restaurant process (CRP)
-        \item Mixture of finite mixtures (MFM)
-    \end{itemize}
-
-Most of the ESBM models do not pose constraints\\ on the \alert{ordering of the elements} in the partition
+\centering
+Most of the ESBM models do not pose constraints\\ on the \textbf{order of the elements} in the partition, that may be of relevance in real-life context (i.e., gene expression)
 \end{frame}
 
 
