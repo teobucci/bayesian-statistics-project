@@ -6,18 +6,20 @@
 %Gaussian graphical models-------------------------------
 \subsection{Gaussian Graphical Models}
 \begin{frame}{Gaussian Graphical Models}
-    Models used to learn the \alert{conditional dependence structure} among variables, represented through an undirected graph G = (V,E)
+    Models which describe the \alert{conditional dependence structure} among variables, represented through an undirected graph G = (V,E)
 \begin{columns}
 \begin{column}{0.5\textwidth}
 
 \newcommand{\iid}{\overset{\mathrm{iid}}{\sim}}
+\newcommand{\ind}{\overset{\mathrm{ind}}{\sim}}
+
 
 \centering
 \begin{align*}
-    y_{1}, \ldots, y_{n} \mid \mathbf{K} \iid N_\mathbf{{p}}(0,\mathbf{K}), \mathbf{K}=\Sigma^{-1}\\ 
-    \mathbf{K} \mid G \iid G-Wishart(B,d) ,  K \in \mathbb{R}^{p\times p}\\
-    G_{ij} \mid z \iid ?\\ 
-    z \iid ?
+    \mathbf{y_{1}}, \ldots, \mathbf{y_{n}} \mid \mathbf{K} &\iid N_\mathbf{{p}}(0,\mathbf{K}), \mathbf{K}=\Sigma^{-1}\\  %%%%add bold
+    \mathbf{K} \mid G &\iid G-Wishart(B,d) ,  \mathbf{K} \in \mathbb{R}^{p\times p}\\
+    G_{ij} \mid \mathbf{z} &\ind\  f_{G}(G \mid \mathbf{z}) , 1 \le i < j \le p \\
+    \mathbf{z} &\iid\ f_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
 \end{align*}
 \end{column}
 
@@ -27,14 +29,20 @@ Qui metterei una immagine acattivante (tabella stile slides Colombi?) dei gaussi
 
 \end{columns}
 \centering
-How to introduce an appropriate prior $\pi_{z}$ for \alert{partition generation} and a model for the \alert{edge generation} conditionally on z? 
+How to introduce an appropriate prior for \alert{partition generation} x(4) and a model for the \alert{edge generation} conditionally on z (3)? 
 \end{frame}
 
 
+%%TO DO @Teo 
+% Add numeration of formulas from 1 to 4
+%Add the tap for the block underligning point 3 and 4
+%Add bold sigma
+%Add the image
 
 
 
 
+ 
 
 
 
