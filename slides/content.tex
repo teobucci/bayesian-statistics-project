@@ -33,24 +33,25 @@ If we assume a possible \textbf{grouping} of the variables, we need a prior $\pi
 
 %Stochastic Block Models -----------------------
 \subsection{Stochastic Block Models}
-\begin{frame}{Stochastic Block Models for the prior on G}
+\begin{frame}{Stochastic Block Models for the prior on $G$}
 
-Given a random network of data, they \textbf{infere a node partition} based on similarity of connectivity patterns\\
-
-Let's assume H = fixed number of clusters, and define 
+Given a random network of data, SBM \textbf{infere a node partition} based on similarity of connectivity patterns. Let
 \begin{itemize}
-    \item $\mathbf{z} \in \mathbb{R}^p$ vector of group memberships, $z_{i} \in [1,...,H]$
- \end{itemize}
+    \item $H$ be the fixed number of clusters
+    \item $\bm{z} \in \mathbb{R}^p$ be the vector of group memberships, $z_{i} \in \{1,\ldots,H\}$
+\end{itemize} 
 
-Then the model for the prior of G conditionally on z is the following
-  \begin{align*}
-    G_{ij} \mid \mathbf{z} &\ind\  f_{G}(G \mid \mathbf{z}) , 1 \le i < j \le p \\ %alternativr G_{ij} \in {Edges}
-    \mathbf{z} &\iid\ f_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
-  \end{align*}
+Then the model for the prior of $G$ conditionally on $\bm{z}$ is the following
+\begin{align*}
+    G_{ij} \mid \bm{z} &\ind\  f_{G}(G \mid \bm{z}) , \quad 1 \le i < j \le p \\ %alternativr G_{ij} \in {Edges}
+    \bm{z} &\iid\ f_{z}(\bm{z})
+\end{align*}
+Where $f_{G}(G \mid \bm{z})$ and $f_{z}(\bm{z})$ can be chosen from different parametric families
+\pause
+\begin{center}
+    Critical task: \alert{identification of the number of clusters H}
+\end{center}
 
-  Where $f_{G}(G \mid \mathbf{z})$ and $f_{z}(\mathbf{z})$ can be chosen from different parametric families\\
-
- Critical task: \alert{identification of the number of clusters H}
 \end{frame}
 
 
@@ -59,25 +60,24 @@ Then the model for the prior of G conditionally on z is the following
 
 
 
-\begin{frame}{Choosing the number of clusters H}
+\begin{frame}{Choosing the number of clusters $H$}
 
-Number of clusters H usually estimated \textit{before} running the model via prior knowledge, BIC, Cross-validation methods\\
-Problems of this approaches: 
+$H$ is usually estimated before using the model to update the prior knowledge. However
 \begin{itemize}
-    \item\textbf{prediction}: impossible to classify elements in a new cluster
-    \item \textbf{error quantification} ??????
+    \item uncertainty at this stage is ignored (\textbf{error quantification})
+    \item the model does not account for new clusters (\textbf{prediction})
 \end{itemize}
 \horiz
 %%%%%%%%qui spunta un tap
 \textbf{\alert{Extended stochastic block models (ESBM)}}\\  
-Use priors for z that naturally allow to adaptively modify the number of groups H, e.g., 
+Use priors for $\bm{z}$ that naturally allow to adaptively modify the number of groups $H$, \emph{e.g.},
 \begin{itemize}
-    \item Chinese restaurant process (CRP)
-    \item Infinite Dirichlet (assicurarsi che sia diverso da CRP)
-    \item Mixture of finite mixtures (MFM)\\
+    \item Finite Dirichlet
+    \item Infinite Dirichlet
+    \item Mixture of Finite Mixtures (MFM)
 \end{itemize}
 \centering
-Most of the ESBM models do not pose constraints\\ on the \textbf{order of the elements} in the partition, that may be of relevance in real-life context (i.e., gene expression)
+Most of the ESBM models do not pose constraints\\ on the \textbf{ordering of the nodes} when generating the partition, that may be of relevance in real-life context (i.e., gene expression)
 \end{frame}
 
 
@@ -113,25 +113,18 @@ Most of the ESBM models do not pose constraints\\ on the \textbf{order of the el
 %----------------------------------------
 % Project goals
 %-------------------------------------
-\section{Project goals}
+\section{Project goals and next steps}
 
 
-\begin{frame}[containsverbatim]{Goal of the project}
+\begin{frame}{Goal of the project}
 
-Propose a \alert {new flexible prior that accounts for a random partition of the nodes}, respects their ordering constraints and allows to learn a block structured graph
+Propose a \alert{new flexible prior that accounts for a random partition of the nodes}, respects their ordering constraints and allows to learn a block structured graph
 
  \begin{itemize}
      \item Ordering Constraint: borrow ideas from changepoint models
      \item Random partition: nonparametric prior on ordered partitions
      \item Block Structure: use a stochastic block model prior
  \end{itemize}
-
-
-
-\end{frame}
-
-\section{Next steps}
-\begin{frame}
 
 forse dovremmo capire meglio quali sono i next steps
 
@@ -140,209 +133,33 @@ forse dovremmo capire meglio quali sono i next steps
     \item simulation strategy
 \end{itemize}
 
-
-
-\centering \Huge 
-\end{frame}
-
-
-
-
-\begin{frame}{Bibliography}
-    \nocite{bensonAdaptiveMCMCMultiple2018}
-    \nocite{martinezNonparametricChangePoint2014}
-    \renewcommand*{\bibfont}{\tiny}
-    \printbibliography
-\end{frame}
-
-\section*{Questions}
-
-
-\begin{frame}{Extra slide 1}
-metterei le formule di 
+Backup slides: metterei le formule di 
 \begin{itemize}
     \item Dirichlet multinomial
     \item CRP
     \item Mixture of finite mixtures (not strictly necessary)
 
-    
-
 \end{itemize} 
 \end{frame}
 
 
 
-%\begin{frame}
-%    \tableofcontents
-%\end{frame}
-
-
-
-%Stochastic Block Models -----------------------
-\subsection{Stochastic Block Models}
-\begin{frame}{Stochastic Block Models for the prior on G}
-
-Given a random network of data, SBM \textbf{infere a node partition} based on similarity of connectivity patterns\\
-Let's assume H = fixed number of clusters, and define 
-\begin{itemize}
-    \item $\mathbf{z} \in \mathbb{R}^p$ vector of group memberships, $z_{i} \in {1,\ldots,H}$
-    \item $\Theta \in \mathbb{R}^{H\times H}$ matrix of probability of edges between groups
-\end{itemize} 
-\centering
-\begin{align*}
-    G_{ij} \mid \Theta,\mathbf{z} \overset{\mathrm{iid}}{\sim} & Be(\theta_{ij}),  G \in \mathbb{R}^{p \times p}, \\
-    \theta_{ij} = &\Theta_{z_{i}z_{j}}, 1 \le i < j \le p \\ 
-    \Theta_{z_{i}z_{j}} \iid& Beta(\alpha, \beta)\\
-    \mathbf{z} \iid & \pi_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
-\end{align*}
-
-%Tattica: farei comparire la figura con un tap, e intanto si commenta che "per brevità non entriamo nel dettaglio ma se sono interessati si"
-\fg{0.8}{sbm}
-%Aggiungere da dove viene la caption
- %% Critical task: \alert{identification of the number of clusters H}
+\begin{frame}{Main references}
+    % GGM
+    \nocite{colombiLearningBlockStructured2022a}
+    \nocite{mohammadiBayesianStructureLearning2015a}
+    % SBM
+    \nocite{legramantiExtendedStochasticBlock2022}
+    % Changepoint
+    \nocite{bensonAdaptiveMCMCMultiple2018}
+    \nocite{martinezNonparametricChangePoint2014}
+    
+    \renewcommand*{\bibfont}{\small}
+    \printbibliography
 \end{frame}
-
-
-
-
-%%Questa la voglio come se fosse un tap dove faccio vedere fuori come cambia dopo che integro fuori theta
-\begin{frame}{Stochastic Block Models for the prior on G}
-%Given a random network of data, they \textbf{infere a node partition} based on similarity of connectivity patterns\\
-%idealmente li vogliamo alla stessa altezza oppure lo leviamo
-
-$\Theta$ can be marginalized out via beta-binomial conjugacy, leading to the folllowing model for the prior of G conditionally on z 
-\centering
-\begin{align*}
-    G_{ij} \mid \mathbf{z} &\ind\  f_{G}(G \mid \mathbf{z}) , 1 \le i < j \le p \\ %alternativr G_{ij} \in {Edges}
-    \mathbf{z} &\iid\ f_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
-  \end{align*}
-
- \large Critical task: \textbf{identification of the number of clusters H}
-
-\end{frame}
-
-
-% \begin{frame}{All together}
-%     \emph{``Are you getting it? These are not three separate devices: This is one device''}
-%     \fg{1}{steve-mod}
-% \end{frame}
-
-
-% Use starred version (e.g. \section*{Section name})
-    % to disable (sub)section page.
-    \section{Section 1}
-    \subsection{Subsection 1.1}
-    \begin{frame}{Simple frame}
-        This is a simple frame.
-    \end{frame}
-
-    \begin{frame}[plain]{Plain frame}
-        This is a frame with plain style and it is numbered.
-    \end{frame}
-    
-    \subsection{Subsection 1.2}
-    \begin{frame}[t]
-        This frame has an empty title and is aligned to top.
-    \end{frame}
-    
-    \begin{frame}[noframenumbering]{No frame numbering}
-        This frame is not numbered and is citing reference \cite{knuth74}.
-    \end{frame}
-    
-    \begin{frame}{Typesetting and Math}
-        The packages \texttt{fontenc} and \texttt{FiraSans}\footnote{\url{https://fonts.google.com/specimen/Fira+Sans}}\textsuperscript{,}\footnote{\url{http://mozilla.github.io/Fira/}} are used to properly set the main fonts.
-        \vfill
-        This theme provides styling commands to typeset \emph{emphasized}, \alert{alerted}, \textbf{bold}, \dots
-        \vfill
-        \texttt{FiraSans} also provides support for mathematical symbols:
-        \begin{align*}
-            e^{i\pi} + 1 & = 0, \\
-            \int_{-\infty}^\infty e^{-x^2}\,\mathrm{d}x & = \sqrt{\pi}.
-        \end{align*}
-    \end{frame}
-
-    \section{Section 2}
-    \begin{frame}{Blocks}
-        \begin{block}{Block}
-            Text.
-        \end{block}
-        \pause
-        \begin{alertblock}{Alert block}
-            Alert \alert{text}.
-        \end{alertblock}
-        \pause
-        \begin{exampleblock}{Example block}
-            Example
-        \end{exampleblock}
-    \end{frame}
-    
-    %\begin{frame}{Lists}
-    %    \begin{columns}[t, onlytextwidth]
-    %        \column{0.33\textwidth}
-    %            Items:
-    %            \begin{itemize}
-    %                \item Item 1
-    %                \begin{itemize}
-    %                    \item Subitem 1.1
-    %                    \item Subitem 1.2
-    %                \end{itemize}
-    %                \item Item 2
-    %                \item Item 3
-    %            \end{itemize}
-    %        
-    %        \column{0.33\textwidth}
-    %            Enumerations:
-    %            \begin{enumerate}
-    %                \item First
-    %                \item Second
-    %                \begin{enumerate}
-    %                    \item Sub-first
-    %                    \item Sub-second
-    %                \end{enumerate}
-    %                \item Third
-    %            \end{enumerate}
-    %        
-    %        \column{0.33\textwidth}
-    %            Descriptions:
-    %            \begin{description}
-    %                \item[First] Yes.
-    %                \item[Second] No.
-    %            \end{description}
-    %    \end{columns}
-    %\end{frame}
-\setbeamertemplate{caption}[numbered]
-    \begin{frame}{Figures and Tables}
-        \begin{columns}
-            \column{0.4\textwidth}
-                \begin{figure}
-                    \centering
-                    \includegraphics[scale=0.15]{../report/images/logo-polimi-transparent}
-                    \caption{Figure caption.}
-                    \label{fig:focuslogo}
-                \end{figure}
-                
-            \column{0.6\textwidth}
-                \begin{table}
-                    \centering
-                    \begin{tabular}{rcc}
-                         & Heading 1 & Heading 2 \\\hline
-                        Row 1 & \(v_{11}\) & \(v_{12}\) \\
-                        Row 2 & \(v_{21}\) & \(v_{22}\) \\
-                        Row 3 & \(v_{31}\) & \(v_{32}\) \\
-                    \end{tabular}
-                    \caption{Table caption.}
-                    \label{tab:demo}
-                \end{table}
-        \end{columns}
-    \end{frame}
-
-    
-    \begin{frame}{Backup frame}
-        This is a backup frame, useful to include additional material for questions from the audience.
-        \vfill
-        The package \texttt{appendixnumberbeamer} is used not to number appendix frames.
-    \end{frame}
 
 \begin{frame}
     Thank you!
+    \pause
+    Questions?
 \end{frame}
