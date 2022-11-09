@@ -20,18 +20,19 @@
 
 \documentclass[compress,aspectratio=169]{beamer}
 \input{style}
-% \usepackage[
-% backend=biber, %default
-% bibstyle=authoryear-comp,
-% citestyle=numeric-comp,
-% isbn=false,
-% url=false,
-% doi=false,
-% eprint=false,
-% firstinits=true,
-% minbibnames=1,maxbibnames=5
-% ]{biblatex}
-% \addbibresource{bibliography.bib}
+\usepackage[
+backend=biber, %default
+bibstyle=authoryear,
+citestyle=authoryear,
+isbn=false,
+url=false,
+doi=false,
+eprint=false,
+firstinits=true,
+minbibnames=1,maxbibnames=5
+]{biblatex}
+\addbibresource{../../bibliography.bib}
+%\setbeamertemplate{bibliography item}{\insertbiblabel}
 
 \usepackage{bm}
 

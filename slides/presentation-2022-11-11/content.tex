@@ -8,7 +8,7 @@
 \begin{frame}{Gaussian Graphical Models}
     Models for the \alert{conditional dependence structure} among variables, represented through an undirected graph $G=(V,E)$
     \begin{align*}
-    \bm{y}_{1}, \ldots, \bm{y}_{n} \mid \bm{K} &\iid \mathcal{N}_{p}(\bm{0},\bm{K}^{-1}), \quad \bm{K} \in \mathbb{R}^{p\times p}  %%%%add bold
+    \bm{y}_{1}, \ldots, \bm{y}_{n} \mid \bm{K} &\iid \mathcal{N}_{p}(\bm{0},\bm{K}^{-1})
     \end{align*}
 Conditional independence described through a \alert{map} between a \alert{graph} and a family of multivariate \alert{probability models}
 \begin{align*}
@@ -41,8 +41,8 @@ Given a random network, SBM \alert{infer a node partition} based on similarity o
 \end{itemize} 
 Then the model of the graph conditionally on $\bm{z}$ is the following
 \begin{align*}
-    P((i,j)\in E\mid \bm{z},Q) &= Q_{z_{i} z_{j}}\\
-    Q_{rs} \mid \bm{z} &\ind \Beta(a,b),\quad 1\leq r\leq s\leq H\\
+    P((i,j)\in E\mid \bm{z},Q) &= Q_{z_{i} z_{j}},\,\text{independent}\\
+    Q_{rs} &\ind \Beta(a,b),\quad 1\leq r\leq s\leq H\\
     \bm{z} &\sim f_{z}(\bm{z})
 \end{align*}
 Problems:
@@ -78,15 +78,15 @@ Problems:
 \subsection{Changepoint Models}
 \begin{frame}{Changepoint Models}
     %\fg{0.4}{changepoint}
-    Let $\bm{x}=(x_{1},\ldots,x_{n})$ be \alert{ordered} observations, each depending on a parameter $\vartheta_{i}$.
+    Let $\bm{y}=(y_{1},\ldots,y_{n})$ be \alert{ordered} observations, each depending on a parameter $\vartheta_{i}$.
     Consider a process where the underlying generating mechanism changes at time $\tau_{j}$, $j=1,\ldots,k+1$, where $\tau_{j},k$ are unknown. The likelihood can be modeled as
     \begin{align*}
-        f(x_{1},\ldots,x_{n} \mid \vartheta_1, \vartheta_2, \ldots, \vartheta_{k+1}, \bm{z})=\prod_{j=1}^{k+1} \prod_{i=\tau_{j-1}+1}^{\tau_j} f(x_i \mid \vartheta_j),
+        f(y_{1},\ldots,y_{n} \mid \vartheta_1, \vartheta_2, \ldots, \vartheta_{k+1}, \bm{z})=\prod_{j=1}^{k+1} \prod_{i=\tau_{j-1}+1}^{\tau_j} f(y_i \mid \vartheta_j),
         \qquad
         k=\sum_{i=1}^{n-1} z_i
     \end{align*}
-    where $\tau_j$ are called \alert{changepoints} and $z_{i} = 1$ if it's a changepoint, $0$ otherwise.
-    We borrow the concept of \alert{generating a random partition with ordering constraints}
+    where $\tau_j$ are called \alert{changepoints} and $z_{i} = 1$ if $i$ is a changepoint, $0$ otherwise.
+    We are interested in \alert{generating a random partition with ordering constraints}
     \begin{align*}
         \pi(\bm{z}, \bm{\vartheta} \mid \bm{y}) & \propto f(\bm{y} \mid \bm{\vartheta}, \bm{z}) \pi(\bm{\vartheta} \mid \bm{z}) \pi(\bm{z})
     \end{align*}
@@ -107,15 +107,22 @@ Let $\rho_p=\left\{C_1, \ldots, C_M\right\}$ be a partition of the $p$ nodes.
     \rho_p \text{ is admissible} \iff \forall x \in C_i, y \in C_{j}, \; i<j \text{ implies } x < y
 \]
 % In other words, if groups are contiguous.
-Martínez and Mena (2014) assigns
-\[
-P\left(\rho_p=\left\{C_1, \ldots, C_M\right\}\right)=P\left(\rho_p=\left(n_1, \ldots, n_M\right)\right)=\frac{p !}{M !} \frac{\prod_{i=1}^{M-1}(\theta+i \sigma)}{(\theta+1)_{p-1}} \prod_{j=1}^M \frac{(1-\sigma)_{n_j-1}}{n_{j} !}
-\]
-where $n_j=\left|C_j\right|$ and $\sigma\in [0,1)$ and $\vartheta>-\sigma$.
+%Martínez and Mena (2014) assign
+\cite{martinezNonparametricChangePoint2014} assign
+\begin{equation*}
+    P\left(\rho_p=\left\{C_1, \ldots, C_M\right\}\right)
+    =
+    p'(n_1, \ldots, n_k)=
+    \begin{cases}
+        \binom{n}{n_1, \ldots, n_k} \frac{1}{k !} p(n_1, \ldots, n_k), & \rho_p \text{ admissible}\\
+        0, & \rho_p \text{ not admissible}
+    \end{cases}
+\end{equation*}
+where $n_j=\left|C_j\right|$, $p(n_1, \ldots, n_k)$ any Exchangeable Partition Probability Function (EPPF).
 
 The vector $\bm{z}$ is derived by setting
 \[
-z_i=m \Longleftrightarrow i \in C_m, \quad i=1, \ldots, p, \quad m=1, \ldots, M.
+z_i=m \iff i \in C_m, \quad i=1, \ldots, p, \quad m=1, \ldots, M.
 \]
 \end{frame}
 
@@ -145,9 +152,9 @@ z_i=m \Longleftrightarrow i \in C_m, \quad i=1, \ldots, p, \quad m=1, \ldots, M.
     \end{column}
     \begin{column}{0.6\textwidth}
         \begin{align*}
-        \bm{y}_1, \ldots, \bm{y}_n \mid \bm{K} & \iid \mathcal{N}_p(\mathbf{0}, \bm{K}) \\
-        \bm{K} \mid G & \sim \GWish(b, D), \bm{K} \in \mathbb{R}^{p \times p} \\
-        P((i,j)&\in E\mid \bm{z},Q) = Q_{z_{i} z_{j}}\\
+        \bm{y}_1, \ldots, \bm{y}_n \mid \bm{K} & \iid \mathcal{N}_p(\mathbf{0}, \bm{K}^{-1} ) \\
+        \bm{K} \mid G & \sim \GWish(b, D)\\
+        P((i,j)&\in E\mid \bm{z},Q) = Q_{z_{i} z_{j}},\,\text{independent}\\
             Q_{rs} \mid \bm{z} &\ind \Beta(a,b), 1\leq r\leq s\leq H\\
         \rho_p & \sim \mathcal{L}\left(\rho_p\right)
         \end{align*}  
@@ -176,11 +183,11 @@ z_i=m \Longleftrightarrow i \in C_m, \quad i=1, \ldots, p, \quad m=1, \ldots, M.
     
     
     %biblatex
-    %\printbibliograph
-    %\renewcommand*{\bibfont}{\small}
+    \printbibliography
+    \renewcommand*{\bibfont}{\small}
     %bibtex
-    \bibliographystyle{plain} % We choose the "plain" reference style
-    \bibliography{bibliography} % Entries are in the refs.bib file
+    %\bibliographystyle{plain} % We choose the "plain" reference style
+    %\bibliography{bibliography} % Entries are in the refs.bib file
 \end{frame}
 
 \begin{frame}[plain]
@@ -225,7 +232,7 @@ $\Theta$ can be marginalized out via beta-binomial conjugacy.
 \fg{0.9}{sbm}
 %Aggiungere da dove viene la caption
  %% Critical task: \alert{identification of the number of clusters H}
-{\scriptsize From ``Colombi et al. Learning block structured graphs in Gaussian graphical models.''}
+{\scriptsize From \cite{colombiLearningBlockStructured2022a}}
 \end{frame}
 
 
@@ -249,7 +256,7 @@ $H$ is usually chosen using data driven methods \alert{before} estimating the mo
     \item the model does not account for new clusters (\alert{prediction})
 \end{itemize}
 \pause
-Among others, Legramanti et al. (2019) proposed the \alert{Extended Stochastic Block Models (ESBM)}, which use priors for $\bm{z}$ that naturally allow to adaptively modify the number of groups $H$, \emph{e.g.},
+Among others, \cite{legramantiExtendedStochasticBlock2022} proposed the \alert{Extended Stochastic Block Models (ESBM)}, which use priors for $\bm{z}$ that naturally allow to adaptively modify the number of groups $H$, \emph{e.g.},
 \begin{itemize}
     \item Finite Dirichlet
     \item Infinite Dirichlet
