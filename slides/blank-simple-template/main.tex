@@ -1,0 +1,47 @@
+%!TeX program = pdflatex
+\documentclass[handout]{beamer}
+
+\input{style}
+\usepackage[
+backend=biber, %default
+bibstyle=authoryear-comp,
+citestyle=numeric-comp,
+isbn=false,
+url=false,
+doi=false,
+eprint=false,
+firstinits=true,
+minbibnames=1,maxbibnames=5
+]{biblatex}
+\addbibresource{../bibliography.bib}
+
+\usepackage{bm}
+
+\newcommand{\iid}{\overset{\text{\tiny{iid}}}{\sim}}
+\newcommand{\ind}{\overset{\text{\tiny{ind}}}{\sim}}
+\newcommand{\horiz}{\par\noindent\rule{\textwidth}{0.4pt}\\}
+\renewcommand{\theta}{\vartheta}
+
+\usetheme{default}
+\usefonttheme{professionalfonts}
+\usecolortheme{rose} % rose o orchid
+\beamertemplatenavigationsymbolsempty
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Stochastic Block Model Prior \\ with Ordering Constraints \\ for Gaussian Graphical Models}
+\author{T. Bucci, F. Cipriani \texorpdfstring{\\}{,} F. Pagella, F. Petruso \texorpdfstring{\\}{,} A. Puricelli, G. Venturini}
+\institute{Politecnico di Milano, Mathematical Engineering \\ Bayesian Statistics Project, A.Y. 2022/2023 \\ Supervisor: Alessandro Colombi}
+\date{November 11, 2022}
+
+\usepackage{minted}
+
+\begin{document}
+
+\begin{frame}
+    \maketitle
+\end{frame}
+
+\input{content}
+
+\end{document}
