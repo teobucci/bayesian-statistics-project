@@ -8,19 +8,18 @@
 \begin{frame}{Gaussian Graphical Models}
     Models for the \textbf{conditional dependence structure} among variables, represented through an undirected graph $G=(V,E)$
     \begin{align*}
-    \mathbf{y_{1}}, \ldots, \mathbf{y_{n}} \mid \mathbf{K} &\iid N_\mathbf{{p}}(0,\mathbf{K^{-1}}), \mathbf{K}=\Sigma^{-1}, \mathbf{K} \in \mathbb{R}^{p\times p}  %%%%add bold
+    \bm{y}_{1}, \ldots, \bm{y}_{n} \mid \bm{K} &\iid N_{p}(\bm{0},\bm{K}^{-1}), \bm{K}=\Sigma^{-1}, \bm{K} \in \mathbb{R}^{p\times p}  %%%%add bold
     \end{align*}
 Conditional independence described through a \textbf{map} between a \textbf{graph} and a family of multivariate \textbf{probability models}
 \begin{align*}
-X_{i}\perp X_{j} \mid X_{-(ij)}\Leftrightarrow (i,j) \notin E \Leftrightarrow k_{ij}=0
+X_{i}\perp X_{j} \mid X_{-(ij)} \iff (i,j) \notin E \iff k_{ij}=0
 \end{align*}
-Usual prior for K conditionally to the graph is a G-Wishart
-\centering
+Usual prior for $\bm{K}$ conditionally to the graph is a G-Wishart
 \begin{align*}
-    \mathbf{K} \mid G &\iid G-Wishart(B,d)
+    \bm{K} \mid G &\iid \text{G-Wishart}(B,d)
 \end{align*}
-G is a r.v. in the space of undirected graphs with p nodes.\\
-If we assume a possible \textbf{grouping} of the variables, we need a prior $\pi(G)$ that induces a \textbf{block structure on its adjacency matrix}
+$G$ is a r.v. in the space of undirected graphs with p nodes.\\
+If we assume a possible \textbf{grouping} of the variables, we need a prior $\pi(G)$ that induces a \textbf{block structure on its adjacency matrix}.
 %How to introduce an appropriate prior $f_{z}(\mathbf{z})$ for the \alert{partition} and the conditional distribution OR  DENSITY???$f_{G}(G \mid \mathbf{z})$ for the \alert{edge generation}? 
 \end{frame}
 
@@ -151,15 +150,15 @@ Most of the ESBM models do not pose constraints\\ on the \alert{ordering of the 
 \subsection{Changepoint Models}
 \begin{frame}{Changepoint Models}
     %\fg{0.4}{changepoint}
-    Consider a process where at certain \textbf{changepoints} the underlying generating mechanism changes. Let $\mathbf{x}=(x_{1},\ldots,x_{n})$ be \textbf{ordered} observations each depending on a $\vartheta_{i}.$\\
+    Consider a process where at certain \textbf{changepoints} the underlying generating mechanism changes. Let $\bm{x}=(x_{1},\ldots,x_{n})$ be \textbf{ordered} observations each depending on a $\vartheta_{i}.$\\
     \[
-        f(x_{1},\ldots,x_{n} \mid \vartheta_1, \vartheta_2, \ldots, \vartheta_{k+1}, \boldsymbol{z})=\prod_{j=1}^{k+1} \prod_{i=\tau_{j-1}+1}^{\tau_j} f(x_i \mid \vartheta_j)
+        f(x_{1},\ldots,x_{n} \mid \vartheta_1, \vartheta_2, \ldots, \vartheta_{k+1}, \bm{z})=\prod_{j=1}^{k+1} \prod_{i=\tau_{j-1}+1}^{\tau_j} f(x_i \mid \vartheta_j)
     \]
     where $\tau_j$ are changepoint times and $z_{i} = 1$ if it's a changepoint, $0$ otherwise.
     We borrow the concept of \textbf{generating a random partition with ordering constraints}:\footnote{$\vartheta$ can be marginalized out.}
     \begin{align*}
-        \pi(\mathbf{z}, \mathbf{\vartheta} \mid \mathbf{y}) & \propto f(\mathbf{y} \mid \mathbf{\vartheta}, \mathbf{z}) \pi(\mathbf{\vartheta} \mid \mathbf{z}) \pi(\mathbf{z}) \\
-        &=\left(\prod_{j=1}^{k+1} \prod_{i=\tau_{j-1}+1}^{\tau_j} f(y_i \mid \vartheta_j)\right)\left(\prod_{j=1}^{k+1} \pi(\vartheta_j)\right) \pi(\mathbf{z})
+        \pi(\bm{z}, \bm{\vartheta} \mid \bm{y}) & \propto f(\bm{y} \mid \bm{\vartheta}, \bm{z}) \pi(\bm{\vartheta} \mid \bm{z}) \pi(\bm{z}) \\
+        &=\left(\prod_{j=1}^{k+1} \prod_{i=\tau_{j-1}+1}^{\tau_j} f(y_i \mid \vartheta_j)\right)\left(\prod_{j=1}^{k+1} \pi(\vartheta_j)\right) \pi(\bm{z})
     \end{align*}
 \end{frame}
 
