@@ -1,9 +1,7 @@
- %!TEX root = ./main.tex
+%!TEX root = ./main.tex
 
 
 \section{Background}
-\newcommand{\iid}{\overset{\mathrm{iid}}{\sim}}
-\newcommand{\ind}{\overset{\mathrm{ind}}{\sim}}
 
 %Gaussian graphical models-------------------------------
 \subsection{Gaussian Graphical Models}
@@ -42,7 +40,7 @@ Given a random network of data, they \textbf{infere a node partition} based on s
 Let's assume H = fixed number of clusters, and define 
 \begin{itemize}
     \item $\mathbf{z} \in \mathbb{R}^p$ vector of group memberships, $z_{i} \in [1,...,H]$
- \end{itemize}\\
+ \end{itemize}
 
 Then the model for the prior of G conditionally on z is the following
   \begin{align*}
@@ -51,7 +49,6 @@ Then the model for the prior of G conditionally on z is the following
   \end{align*}
 
   Where $f_{G}(G \mid \mathbf{z})$ and $f_{z}(\mathbf{z})$ can be chosen from different parametric families\\
-
 
  Critical task: \alert{identification of the number of clusters H}
 \end{frame}
@@ -70,7 +67,7 @@ Problems of this approaches:
     \item\textbf{prediction}: impossible to classify elements in a new cluster
     \item \textbf{error quantification} ??????
 \end{itemize}
-\hline 
+\horiz
 %%%%%%%%qui spunta un tap
 \textbf{\alert{Extended stochastic block models (ESBM)}}\\  
 Use priors for z that naturally allow to adaptively modify the number of groups H, e.g., 
@@ -79,7 +76,6 @@ Use priors for z that naturally allow to adaptively modify the number of groups 
     \item Infinite Dirichlet (assicurarsi che sia diverso da CRP)
     \item Mixture of finite mixtures (MFM)\\
 \end{itemize}
-
 \centering
 Most of the ESBM models do not pose constraints\\ on the \textbf{order of the elements} in the partition, that may be of relevance in real-life context (i.e., gene expression)
 \end{frame}
@@ -186,12 +182,11 @@ metterei le formule di
 \subsection{Stochastic Block Models}
 \begin{frame}{Stochastic Block Models for the prior on G}
 
-Given a random network of data, they \textbf{infere a node partition} based on similarity of connectivity patterns\\
-
+Given a random network of data, SBM \textbf{infere a node partition} based on similarity of connectivity patterns\\
 Let's assume H = fixed number of clusters, and define 
 \begin{itemize}
-    \item $\mathbf{z} \in \mathbb{R}^p$ vector of group memberships, $z_{i} \in [1,...,H]$
-    \item $\Theta \in \textbb{R}^{H\times H}$ matrix of probability of edges between groups
+    \item $\mathbf{z} \in \mathbb{R}^p$ vector of group memberships, $z_{i} \in {1,\ldots,H}$
+    \item $\Theta \in \mathbb{R}^{H\times H}$ matrix of probability of edges between groups
 \end{itemize} 
 \centering
 \begin{align*}
@@ -205,7 +200,6 @@ Let's assume H = fixed number of clusters, and define
 \fg{0.8}{sbm}
 %Aggiungere da dove viene la caption
  %% Critical task: \alert{identification of the number of clusters H}
-
 \end{frame}
 
 
