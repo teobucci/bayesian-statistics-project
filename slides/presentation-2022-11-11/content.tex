@@ -107,7 +107,7 @@ Let $\rho_p=\left\{C_1, \ldots, C_M\right\}$ be a partition of the $p$ nodes.
     \rho_p \text{ is admissible} \iff \forall x \in C_i, y \in C_{j}, \; i<j \text{ implies } x < y
 \]
 % In other words, if groups are contiguous.
-%Martínez and Mena (2014) assign
+\pause
 \cite{martinezNonparametricChangePoint2014} assign
 \begin{equation*}
     P\left(\rho_p=\left\{C_1, \ldots, C_M\right\}\right)
@@ -118,7 +118,7 @@ Let $\rho_p=\left\{C_1, \ldots, C_M\right\}$ be a partition of the $p$ nodes.
         0, & \rho_p \text{ not admissible}
     \end{cases}
 \end{equation*}
-where $n_j=\left|C_j\right|$, $p(n_1, \ldots, n_k)$ any Exchangeable Partition Probability Function (EPPF).
+where $n_j=\left|C_j\right|$, $p(n_1, \ldots, n_k)$ any Exchangeable Partition Probability Function (EPPF).\pause
 
 The vector $\bm{z}$ is derived by setting
 \[
@@ -163,7 +163,7 @@ z_i=m \iff i \in C_m, \quad i=1, \ldots, p, \quad m=1, \ldots, M.
 \vspace*{0.5cm}
 
 
-\alert{Next steps:}
+\pause\alert{Next steps:}
 \begin{itemize}
 \item understand the nonparametric prior on ordered partitions
 \item implement the sampling strategy
@@ -196,7 +196,6 @@ z_i=m \iff i \in C_m, \quad i=1, \ldots, p, \quad m=1, \ldots, M.
     \vspace*{1.2cm}
     \hspace*{1cm}{\Large Thank you!}\\
     \vspace*{0.6cm}
-    \pause
     \hspace*{1cm}{\Huge \alert{Any questions?}}
 \end{frame}
 
@@ -255,7 +254,7 @@ $H$ is usually chosen using data driven methods \alert{before} estimating the mo
     \item uncertainty quantification for $H$ at this stage is ignored
     \item the model does not account for new clusters (\alert{prediction})
 \end{itemize}
-\pause
+
 Among others, \cite{legramantiExtendedStochasticBlock2022} proposed the \alert{Extended Stochastic Block Models (ESBM)}, which use priors for $\bm{z}$ that naturally allow to adaptively modify the number of groups $H$, \emph{e.g.},
 \begin{itemize}
     \item Finite Dirichlet
@@ -263,11 +262,11 @@ Among others, \cite{legramantiExtendedStochasticBlock2022} proposed the \alert{E
     \item Finite mixtures with a random number of components
 \end{itemize}
 
-\pause
+
 \begin{center}
     \alert{None of the ESBM models pose constraints\\
     on the ordering of the nodes when generating the partition,\\
-    that may be of relevance in real-life context (i.e., gene expression).}    
+    that may be of relevance in a real-life context (e.g., gene expression).} 
 \end{center}
 
 
