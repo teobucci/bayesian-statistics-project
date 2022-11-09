@@ -67,3 +67,4 @@ rsconnect/
 *.nav
 slides/main-blx.bib
 *.pyg
+*.tex
