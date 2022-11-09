@@ -1,46 +1,4 @@
 
-%Stochastic Block Models -----------------------
-\subsection{Stochastic Block Models}
-\begin{frame}{Stochastic Block Models for the prior on G}
-
-Given a random network of data, SBM \textbf{infere a node partition} based on similarity of connectivity patterns. Let
-\begin{itemize}
-    \item $H$ be the fixed number of clusters
-    \item $\bm{z} \in \mathbb{R}^p$ vector of group memberships, $z_{i} \in {1,\ldots,H}$
-    \item $\Theta \in \mathbb{R}^{H\times H}$ matrix of probability of edges between groups
-\end{itemize} 
-\centering
-\begin{align*}
-    G_{ij} \mid \Theta,\mathbf{z} \overset{\mathrm{iid}}{\sim} & Be(\theta_{ij}),  G \in \mathbb{R}^{p \times p}, \\
-    \theta_{ij} = &\Theta_{z_{i}z_{j}}, 1 \le i < j \le p \\ 
-    \Theta_{z_{i}z_{j}} \iid& Beta(\alpha, \beta)\\
-    \mathbf{z} \iid & \pi_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
-\end{align*}
-
-%Tattica: farei comparire la figura con un tap, e intanto si commenta che "per brevità non entriamo nel dettaglio ma se sono interessati si"
-\fg{0.8}{sbm}
-%Aggiungere da dove viene la caption
- %% Critical task: \alert{identification of the number of clusters H}
-\end{frame}
-
-
-
-
-%%Questa la voglio come se fosse un tap dove faccio vedere fuori come cambia dopo che integro fuori theta
-\begin{frame}{Stochastic Block Models for the prior on G}
-%Given a random network of data, they \textbf{infere a node partition} based on similarity of connectivity patterns\\
-%idealmente li vogliamo alla stessa altezza oppure lo leviamo
-
-$\Theta$ can be marginalized out via beta-binomial conjugacy, leading to the folllowing model for the prior of G conditionally on z 
-\centering
-\begin{align*}
-    G_{ij} \mid \mathbf{z} &\ind\  f_{G}(G \mid \mathbf{z}) , 1 \le i < j \le p \\ %alternativr G_{ij} \in {Edges}
-    \mathbf{z} &\iid\ f_{z}(\mathbf{z}), \mathbf{z} \in \mathbb{R}^p
-  \end{align*}
-
- \large Critical task: \textbf{identification of the number of clusters H}
-
-\end{frame}
 
 
 % \begin{frame}{All together}
