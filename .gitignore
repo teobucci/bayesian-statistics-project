@@ -40,7 +40,7 @@ vignettes/*.pdf
 .Renviron
 
 # pkgdown site
-docs/
+#docs/
 
 # translation temp files
 po/*~
@@ -56,7 +56,6 @@ rsconnect/
 *.fdb_latexmk
 *.fls
 *.log
-*.pdf
 *.xml
 *.gz
 *_minted-main*
@@ -67,3 +66,5 @@ rsconnect/
 *.nav
 slides/main-blx.bib
 *.pyg
+report/main.pdf
+slides/blank-simple-template/main.pdf

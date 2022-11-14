@@ -1,0 +1,8 @@
+Lista: https://github.com/martinbjeldbak/ultimate-beamer-theme-list
+
+[1] https://github.com/anishathalye/auriga
+[2] https://github.com/elauksap/focus-beamertheme
+[3] https://github.com/kailashbuki/beamerthemesaarland/blob/master/slides.pdf
+[4] https://github.com/matze/mtheme
+[5] https://github.com/benjamin-weiss/hsrmbeamertheme
+[6] https://github.com/sybila/presentation-template
