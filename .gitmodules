@@ -1,0 +1,3 @@
+[submodule "FGM"]
+	path = FGM
+	url = https://github.com/SmearyTundra/FGM
