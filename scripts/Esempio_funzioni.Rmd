@@ -1,0 +1,543 @@
+---
+title: "Exam Graphical Models"
+author: "Alessandro Colombi"
+date: "18/9/2022"
+output: html_document
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+```{r}
+#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#setwd("G:/.shortcut-targets-by-id/1Ck2MctcmCBWOueSMeW4Zr8IOvOaOzdqz/BicoccaDrive/Corsi/Statistical Modelling - Graphical Models")
+
+suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
+suppressWarnings(suppressPackageStartupMessages(library(ACutils)))
+suppressWarnings(suppressPackageStartupMessages(library(mvtnorm)))
+suppressWarnings(suppressPackageStartupMessages(library(salso)))
+suppressWarnings(suppressPackageStartupMessages(library(mcclust.ext)))
+source("./funzioni.R")
+```
+## Generate data from the model
+```{r}
+z_true = c(1,1,1,2,2,3,3,3,4,4)
+counts_true = as.vector(table(z_true))
+Nclust_true  = length(counts_true)
+
+p = length(z_true)
+n = 100
+data_from_prior = Generate_data(n=n,p=p,z=z_true,seed=45679)
+nu = n
+data = data_from_prior$data
+Omega_true = data_from_prior$Omega
+Sigma_true = data_from_prior$Sigma
+V = data_from_prior$V
+U = t(data)%*%data
+
+# Plot V
+ACutils::ACheatmap(V,use_x11_device = F,horizontal = F)
+
+# Plot Omega
+ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F)
+
+#Plot empirical estimate
+ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F)
+```
+
+
+a) Fit the model with fixed partition
+```{r}
+W = solve(cov(data))
+nu = max(n,p)
+
+options = set_options( nu=nu, W=W, a_alpha = 3, b_alpha = 3,
+                       Omega0=Omega_true, z0=z_true, alpha0 = 3,
+                       var_alpha_adp0 = 1, adaptiveAlpha = T,
+                       UpdatePartition = F, UpdateOmega = T, UpdateAlpha = F)
+
+niter = 3000
+nburn = 1500
+thin = 1
+source("./funzioni.R")
+res = Gibbs_sampler(data,niter,nburn,thin,options,seed=1234,print=F)
+```
+
+Estimation
+```{r}
+Omega_est = matrix(0,p,p)
+for(i in 1:length(res$Omega))
+  Omega_est = Omega_est + res$Omega[[i]]
+
+Omega_est = Omega_est/length(res$Omega)
+
+round(Omega_true,digits = 3)
+round(Omega_est,digits = 3)
+
+# Plot Omega_true
+ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F, main = "Omega true")
+
+#Plot empirical estimate
+ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F, main = "Empirical est")
+
+#Plot Omega estimated
+ACutils::ACheatmap(Omega_est,use_x11_device = F,horizontal = F, main = "Omega estimated")
+```
+
+b) Fit the model with fixed precision matrix and learn the partition
+```{r}
+W = solve(cov(data))
+nu = max(n,p)
+
+options = set_options( nu=nu, W=W, a_alpha = 3, b_alpha = 3,
+                       Omega0=Omega_true, z0=z_true, alpha0 = 3,
+                       var_alpha_adp0 = 1, adaptiveAlpha = T,
+                       UpdatePartition = T, UpdateOmega = F, UpdateAlpha = T)
+
+niter = 3000
+nburn = 1500
+thin = 1
+source("./funzioni.R")
+res = Gibbs_sampler(data,niter,nburn,thin,options,seed=1234,print=F)
+```
+
+```{r}
+# Traceplot of alpha
+plot(res$alpha,type = 'l')
+plot(res$var_alpha_adp,type = 'l')
+
+# Diagnosis for the number of clusters
+
+nclus_per_iter = apply(res$Partition, 1, 
+                       FUN = function(x){length(unique(x))}) # res$Partition is a n_iter x p matrix
+plot(nclus_per_iter,type = 'l')
+barplot(table(nclus_per_iter)/length(nclus_per_iter) )
+
+
+# Compute VI and Binder Loss function to select best partition
+
+# Get labels for each iterations for each data point 
+part_matrix <- res$Partition # (n_iter x n_data) matrix
+
+# Compute similarity matrix
+sim_matrix <- psm(part_matrix)
+
+
+heatmap(sim_matrix)
+
+binder_sara = minbinder(sim_matrix)
+VI_sara = minVI(sim_matrix)
+
+cat('Binder loss \n')
+table(binder_sara$cl)
+cat('Variance loss \n')
+table(VI_sara$cl)
+cat('True \n')
+counts_true
+
+
+ACutils::ACheatmap(sim_matrix,use_x11_device = F,horizontal = F, main = "similarity",   center_value = 0.5,
+  col.upper = "black",
+  col.center = "grey50",
+  col.lower = "white")
+
+```
+
+
+
+
+c) Fit the model when everything is random
+```{r}
+W = solve(cov(data))
+nu = max(n,p)
+
+options = set_options( nu=nu, W=W, a_alpha = 3, b_alpha = 3,
+                       Omega0=Omega_true, z0=z_true, alpha0 = 3,
+                       var_alpha_adp0 = 1, adaptiveAlpha = T,
+                       UpdatePartition = T, UpdateOmega = T, UpdateAlpha = T)
+
+niter = 5000
+nburn = 2500
+thin = 1
+source("./funzioni.R")
+res = Gibbs_sampler(data,niter,nburn,thin,options,seed=1234,print=F)
+```
+
+Assess goodness of matrix estimation
+```{r}
+Omega_est = matrix(0,p,p)
+for(i in 1:length(res$Omega))
+  Omega_est = Omega_est + res$Omega[[i]]
+
+Omega_est = Omega_est/length(res$Omega)
+
+# Plot Omega_true
+ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F, main = "Omega true")
+
+#Plot empirical estimate
+ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F, main = "Empirical est")
+
+#Plot Omega estimated
+ACutils::ACheatmap(Omega_est,use_x11_device = F,horizontal = F, main = "Omega estimated")
+```
+
+Assess goodness of clustering
+```{r}
+# Traceplot of alpha
+plot(res$alpha,type = 'l')
+plot(res$var_alpha_adp,type = 'l')
+
+# Diagnosis for the number of clusters
+
+nclus_per_iter = apply(res$Partition, 1, 
+                       FUN = function(x){length(unique(x))}) # res$Partition is a n_iter x p matrix
+plot(nclus_per_iter,type = 'l')
+barplot(table(nclus_per_iter)/length(nclus_per_iter) )
+
+
+# Compute VI and Binder Loss function to select best partition
+
+# Get labels for each iterations for each data point 
+part_matrix <- res$Partition # (n_iter x n_data) matrix
+
+# Compute similarity matrix
+sim_matrix <- psm(part_matrix)
+
+
+heatmap(sim_matrix)
+
+binder_sara = minbinder(sim_matrix)
+VI_sara = minVI(sim_matrix)
+
+cat('Binder loss \n')
+table(binder_sara$cl)
+cat('Variance loss \n')
+table(VI_sara$cl)
+cat('True \n')
+counts_true
+
+```
+
+
+
+## Generate data as done in the paper
+```{r}
+z_true = c(1,1,
+           2,2,2,
+           3,3,3,
+           4,4,4,4)
+counts_true = as.vector(table(z_true))
+Nclust_true  = length(counts_true)
+
+p = length(z_true)
+n = 100
+p_in = 1
+p_out = 0
+nu = n
+
+# Generate precision and covariance matrices
+seed=4567
+Omega = matrix(0,nrow = p,ncol = p)
+for(i in 1:(p-1)){
+  for(j in (i+1):p){
+    
+    if(z_true[i]==z_true[j]){
+      # draw with prob p_in
+      if(runif(n=1)<p_in)
+        Omega[i,j] = 3.3
+    }else{
+      # draw with proba p_put
+        if(runif(n=1)<p_out)
+          Omega[i,j] = 3.3
+    }
+      
+  }
+}
+Omega = Omega + t(Omega)
+min_eig = eigen(Omega)$values[p]
+Omega_true = Omega + diag(x=abs(min_eig) + 2.2,nrow = p)  
+Sigma_true = solve(Omega_true)
+
+# Generate data
+data = matrix(NA,nrow = n, ncol = p)
+data = t(apply(data, 1, FUN = function(x){ mvtnorm::rmvnorm(n = 1, sigma = Sigma_true)  }))
+U = t(data)%*%data
+
+
+# Plot Omega
+ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F, center_value = 0.1)
+
+#Plot empirical estimate
+ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F, center_value = 0.1)
+
+```
+
+
+
+a) Fit the model with fixed partition
+```{r}
+W = solve(cov(data))
+nu = max(n,p)
+
+options = set_options( nu=nu, W=W, a_alpha = 3, b_alpha = 3,
+                       Omega0=Omega_true, z0=z_true, alpha0 = 3,
+                       var_alpha_adp0 = 1, adaptiveAlpha = T,
+                       UpdatePartition = F, UpdateOmega = T, UpdateAlpha = F)
+
+niter = 3000
+nburn = 1500
+thin = 1
+source("./funzioni.R")
+res = Gibbs_sampler(data,niter,nburn,thin,options,seed=1234,print=F)
+```
+
+```{r}
+Omega_est = matrix(0,p,p)
+for(i in 1:length(res$Omega))
+  Omega_est = Omega_est + res$Omega[[i]]
+
+Omega_est = Omega_est/length(res$Omega)
+
+# Plot Omega_true
+ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F, main = "Omega true", 
+                   center_value = NULL,  
+                   col.upper = "black",
+                   col.center = "grey50",
+                   col.lower = "white")
+
+#Plot empirical estimate
+ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F, main = "Empirical est", 
+                   center_value = NULL,  
+                   col.upper = "black",
+                   col.center = "grey50",
+                   col.lower = "white")
+
+#Plot Omega estimated
+ACutils::ACheatmap(Omega_est,use_x11_device = F,horizontal = F, main = "Omega estimated", 
+                   center_value = NULL,  
+                   col.upper = "black",
+                   col.center = "grey50",
+                   col.lower = "white")
+```
+
+
+
+b) Fit the model with fixed precision matrix and learn the partition
+```{r}
+W = solve(cov(data))
+nu = max(n,p)
+
+options = set_options( nu=nu, W=W, a_alpha = 3, b_alpha = 3,
+                       Omega0=Omega_true, z0=z_true, alpha0 = 3,
+                       var_alpha_adp0 = 1, adaptiveAlpha = T,
+                       UpdatePartition = T, UpdateOmega = F, UpdateAlpha = T)
+
+niter = 3000
+nburn = 1500
+thin = 1
+source("./funzioni.R")
+res = Gibbs_sampler(data,niter,nburn,thin,options,seed=1234,print=F)
+```
+
+```{r}
+# Traceplot of alpha
+plot(res$alpha,type = 'l')
+plot(res$var_alpha_adp,type = 'l')
+
+# Diagnosis for the number of clusters
+
+nclus_per_iter = apply(res$Partition, 1, 
+                       FUN = function(x){length(unique(x))}) # res$Partition is a n_iter x p matrix
+plot(nclus_per_iter,type = 'l')
+barplot(table(nclus_per_iter)/length(nclus_per_iter) )
+
+
+# Compute VI and Binder Loss function to select best partition
+
+# Get labels for each iterations for each data point 
+part_matrix <- res$Partition # (n_iter x n_data) matrix
+
+# Compute similarity matrix
+sim_matrix <- psm(part_matrix)
+
+
+heatmap(sim_matrix)
+
+binder_sara = minbinder(sim_matrix)
+VI_sara = minVI(sim_matrix)
+
+cat('Binder loss \n')
+table(binder_sara$cl)
+cat('Variance loss \n')
+table(VI_sara$cl)
+cat('True \n')
+counts_true
+
+# Plot similarity matrix
+ACutils::ACheatmap(sim_matrix,use_x11_device = F,horizontal = F, main = "similarity",   center_value = 0.5,
+  col.upper = "black",
+  col.center = "grey50",
+  col.lower = "white")
+
+
+```
+
+
+
+c) Fit the model when everything is random
+```{r}
+W = solve(cov(data))
+nu = max(n,p)
+
+# Idea for choosing alpha
+Kstar = 4 # expected number of clusters
+solver = nleqslv::nleqslv(x = 1, fn = function(x){digamma(x+n)-digamma(x) - Kstar/x})
+solver$x # final value for alpha
+solver$fvec #function value
+
+options = set_options( nu=nu, W=W, a_alpha = solver$x, b_alpha = 1,
+                       Omega0=diag(p), z0=z_true, alpha0 = solver$x,
+                       var_alpha_adp0 = 1, adaptiveAlpha = T,
+                       UpdatePartition = T, UpdateOmega = T, UpdateAlpha = T)
+
+niter = 5000
+nburn = 2500
+thin = 1
+source("./funzioni.R")
+res = Gibbs_sampler(data,niter,nburn,thin,options,seed=1234,print=F)
+```
+
+Assess goodness of matrix estimation
+```{r}
+Omega_est = matrix(0,p,p)
+for(i in 1:length(res$Omega))
+  Omega_est = Omega_est + res$Omega[[i]]
+
+Omega_est = Omega_est/length(res$Omega)
+
+# Plot Omega_true
+ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F, main = "Omega true", 
+                   center_value = NULL,  
+                   col.upper = "black",
+                   col.center = "grey50",
+                   col.lower = "white")
+
+#Plot empirical estimate
+ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F, main = "Empirical est", 
+                   center_value = NULL,  
+                   col.upper = "black",
+                   col.center = "grey50",
+                   col.lower = "white")
+
+#Plot Omega estimated
+ACutils::ACheatmap(Omega_est,use_x11_device = F,horizontal = F, main = "Omega estimated", 
+                   center_value = NULL,  
+                   col.upper = "black",
+                   col.center = "grey50",
+                   col.lower = "white")
+```
+
+Assess goodness of clustering
+```{r}
+# Traceplot of alpha
+plot(res$alpha,type = 'l')
+plot(res$var_alpha_adp,type = 'l')
+
+# Diagnosis for the number of clusters
+
+nclus_per_iter = apply(res$Partition, 1, 
+                       FUN = function(x){length(unique(x))}) # res$Partition is a n_iter x p matrix
+plot(nclus_per_iter,type = 'l')
+barplot(table(nclus_per_iter)/length(nclus_per_iter) )
+
+
+# Compute VI and Binder Loss function to select best partition
+
+# Get labels for each iterations for each data point 
+part_matrix <- res$Partition # (n_iter x n_data) matrix
+
+# Compute similarity matrix
+sim_matrix <- psm(part_matrix)
+
+
+heatmap(sim_matrix)
+
+binder_sara = minbinder(sim_matrix)
+VI_sara = minVI(sim_matrix)
+
+cat('Binder loss \n')
+table(binder_sara$cl)
+cat('Variance loss \n')
+table(VI_sara$cl)
+cat('True \n')
+counts_true
+
+# Plot similarity matrix
+ACutils::ACheatmap(sim_matrix,use_x11_device = F,horizontal = F, main = "similarity",   center_value = 0.5,
+  col.upper = "black",
+  col.center = "grey50",
+  col.lower = "white")
+
+```
+
+Correct clustering estimation but it is not mixing.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
