@@ -9,8 +9,26 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
     p = length(z)
     
     
-    # check if you want to perform a 
-    if(runif(n=1)<p_in)
+    # parameters to be set in the function header
+    alpha_add = 0.5
+    r = c(0,0,0,0,0) # con p colonne
+    
+    
+    # check if you want to perform an add or delete move
+    perform_add = F
+    if(all(r==0)){ # must perform add move
+        perform_add = T
+    }else if(all(r==1)){ # must perform delete move
+        perform_add = F
+    }else{
+        if(runif(n=1)<alpha_add) # uniform draw
+            perform_add = T # add
+        }else{
+            perform_add = F # delete (not necessary this step, kept for clarity)
+        }
+    }
+    
+    
     
     
     
