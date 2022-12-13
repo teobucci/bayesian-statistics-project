@@ -12,7 +12,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-
 ```{r}
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 #setwd("G:/.shortcut-targets-by-id/1Ck2MctcmCBWOueSMeW4Zr8IOvOaOzdqz/BicoccaDrive/Corsi/Statistical Modelling - Graphical Models")
@@ -24,7 +23,9 @@ suppressWarnings(suppressPackageStartupMessages(library(salso)))
 suppressWarnings(suppressPackageStartupMessages(library(mcclust.ext)))
 source("./funzioni.R")
 ```
+
 ## Generate data from the model
+
 ```{r}
 z_true = c(1,1,1,2,2,3,3,3,4,4)
 counts_true = as.vector(table(z_true))
@@ -50,8 +51,8 @@ ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F)
 ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F)
 ```
 
+a)  Fit the model with fixed partition
 
-a) Fit the model with fixed partition
 ```{r}
 W = solve(cov(data))
 nu = max(n,p)
@@ -69,6 +70,7 @@ res = Gibbs_sampler(data,niter,nburn,thin,options,seed=1234,print=F)
 ```
 
 Estimation
+
 ```{r}
 Omega_est = matrix(0,p,p)
 for(i in 1:length(res$Omega))
@@ -89,7 +91,8 @@ ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F, main = "E
 ACutils::ACheatmap(Omega_est,use_x11_device = F,horizontal = F, main = "Omega estimated")
 ```
 
-b) Fit the model with fixed precision matrix and learn the partition
+b)  Fit the model with fixed precision matrix and learn the partition
+
 ```{r}
 W = solve(cov(data))
 nu = max(n,p)
@@ -148,10 +151,8 @@ ACutils::ACheatmap(sim_matrix,use_x11_device = F,horizontal = F, main = "similar
 
 ```
 
+c)  Fit the model when everything is random
 
-
-
-c) Fit the model when everything is random
 ```{r}
 W = solve(cov(data))
 nu = max(n,p)
@@ -169,6 +170,7 @@ res = Gibbs_sampler(data,niter,nburn,thin,options,seed=1234,print=F)
 ```
 
 Assess goodness of matrix estimation
+
 ```{r}
 Omega_est = matrix(0,p,p)
 for(i in 1:length(res$Omega))
@@ -187,6 +189,7 @@ ACutils::ACheatmap(Omega_est,use_x11_device = F,horizontal = F, main = "Omega es
 ```
 
 Assess goodness of clustering
+
 ```{r}
 # Traceplot of alpha
 plot(res$alpha,type = 'l')
@@ -223,9 +226,8 @@ counts_true
 
 ```
 
-
-
 ## Generate data as done in the paper
+
 ```{r}
 z_true = c(1,1,
            2,2,2,
@@ -277,9 +279,8 @@ ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F, center_va
 
 ```
 
+a)  Fit the model with fixed partition
 
-
-a) Fit the model with fixed partition
 ```{r}
 W = solve(cov(data))
 nu = max(n,p)
@@ -325,9 +326,8 @@ ACutils::ACheatmap(Omega_est,use_x11_device = F,horizontal = F, main = "Omega es
                    col.lower = "white")
 ```
 
+b)  Fit the model with fixed precision matrix and learn the partition
 
-
-b) Fit the model with fixed precision matrix and learn the partition
 ```{r}
 W = solve(cov(data))
 nu = max(n,p)
@@ -387,9 +387,8 @@ ACutils::ACheatmap(sim_matrix,use_x11_device = F,horizontal = F, main = "similar
 
 ```
 
+c)  Fit the model when everything is random
 
-
-c) Fit the model when everything is random
 ```{r}
 W = solve(cov(data))
 nu = max(n,p)
@@ -413,6 +412,7 @@ res = Gibbs_sampler(data,niter,nburn,thin,options,seed=1234,print=F)
 ```
 
 Assess goodness of matrix estimation
+
 ```{r}
 Omega_est = matrix(0,p,p)
 for(i in 1:length(res$Omega))
@@ -443,6 +443,7 @@ ACutils::ACheatmap(Omega_est,use_x11_device = F,horizontal = F, main = "Omega es
 ```
 
 Assess goodness of clustering
+
 ```{r}
 # Traceplot of alpha
 plot(res$alpha,type = 'l')
@@ -486,58 +487,3 @@ ACutils::ACheatmap(sim_matrix,use_x11_device = F,horizontal = F, main = "similar
 ```
 
 Correct clustering estimation but it is not mixing.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -125,10 +125,10 @@ Generate_Block = function(n,z_true,
 }
 
 # Define true clustering
-z_true = c(1,1,
-           2,2,2,
-           3,3,3,
-           4,4,4,4)
+z_true = c(1,1, # cluster 1
+           2,2,2, # cluster 2
+           3,3,3, # cluster 3
+           4,4,4,4) # cluster 4
 counts_true = as.vector(table(z_true))
 Nclust_true  = length(counts_true)
 
