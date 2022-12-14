@@ -31,6 +31,79 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
     
     
     
+
+#' Adaptation step to update the weights vector
+#' The function takes as an input the current weights and update them as a function of
+#' the current iteration number t, the initial adaptation h, 
+#' The function works in log scale
+#' 
+#' @param logweights vector of the logaritm of the current weights
+#' @param alfaTarget scalar indicating the target acceptance probability (optimal range around 0.10-0.15)
+#' @param alfaADD probability of adding a move (usually 0.5)
+#' @param t number of the current iteration
+#' @param h initial adaptation (must be >0)
+#'
+#' @return the vector of updated logweights
+#' @export
+#'
+#' @examples
+#' 
+logAdaptation = function(logweights,t,h,alfaTarget,alfaADD){ 
+  if(h>0){ #checks that the adaptation step is positive
+    return (logweights + h*length(logweights)/t *(alfaADD - alfaTarget))
+  }
+}
+
+
+#' Partition current data
+#' Given y (vector of data) and rho_n (vector of the partition) the function splits the observations and
+#' partitions them into the current groups 
+#' partitions them into the partition rho
+#' @param y - vector of n ordered data
+#' @param rho_n - partition written in compact form 
+#' e.g. rho=c(2,4,5) means the first group has 2 elements, the second has 4 and the fifth has 5
+#'
+#' @return a list, where each element contains the corresponding group of y elements.
+#' If the dimensions of rho and y are not comparable, return an empty vector
+#' @export
+#'
+#' @examples
+partitionData <- function(y,rho_n){ 
+  if(sum(rho_n)==length(y)){ #checks that the dimensionality is okay
+  
+    dataPartition <- list()
+    
+    for (i in 1:length(rho_n)){
+      if(i == 1) 
+        {
+          dataPartition[[i]] <- y[1:rho_n[i]]
+          cumsum=rho_n[i]
+        }
+      else
+       {
+         first_index=cumsum + 1
+         last_index=rho_n[i] + cumsum
+         dataPartition[[i]] <- y[first_index : last_index]
+         cumsum=cumsum+rho_n[i]
+       }
+    }
+    return(dataPartition) 
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     
     
