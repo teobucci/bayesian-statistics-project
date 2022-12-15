@@ -77,14 +77,14 @@ partitionData <- function(y,rho_n){
       if(i == 1) 
         {
           dataPartition[[i]] <- y[1:rho_n[i]]
-          cumsum=rho_n[i]
+          cumsum_rho=rho_n[i]
         }
       else
        {
-         first_index=cumsum + 1
-         last_index=rho_n[i] + cumsum
+         first_index=cumsum_rho + 1
+         last_index=rho_n[i] + cumsum_rho
          dataPartition[[i]] <- y[first_index : last_index]
-         cumsum=cumsum+rho_n[i]
+         cumsum_rho=cumsum_rho+rho_n[i]
        }
     }
     return(dataPartition) 
@@ -197,6 +197,9 @@ proposalRatio=function(rho, alfaADD, a_weights, d_weights){
 splitPartition <- function(k,rho_n){
   n_elems=sum(rho_n)
   n_groups=length(rho_n)
+  output=list()
+  new_rho={}
+
   
   if(n_elems==(length(rho_n)) || k>n_elems-1){ #First check: all groups with 1 element or index out of bound (number of changepoints=n_elems-1)
     output[[1]] = rho_n
@@ -206,8 +209,8 @@ splitPartition <- function(k,rho_n){
   cumsum_rho=cumsum(rho_n)
   found=FALSE
   #For every index i, I store the new i-th group
-  for(i in 1:ngroups){
-    if(found==FALSE && cumsum[i]==k) #k is already a changepoint, nothing to split - returns the original rho
+  for(i in 1:n_groups){
+    if(found==FALSE && cumsum_rho[i]==k) #k is already a changepoint, nothing to split - returns the original rho
     {
       output[[1]] = rho_n
       output[[2]] = 0 # returns 0 if the change has not been performed
@@ -220,9 +223,9 @@ splitPartition <- function(k,rho_n){
     else {
         new_rho[i+1]=rho_n[i]
     }
-    if (found==FALSE && cumsum[i]>k){ #in the case I have just passed the element index - e.g. i am in the group to be split
-      new_rho[i]=k-cumsum_rho[i-1]  # is the index of the element minus the cumulative number of elements in the previous groups
-      new_rho[i+1]=rho[i]-new_rho[i] # is the dimension of the original group minus the elements moved to new_rho[i]
+    if (found==FALSE && cumsum_rho[i]>k){ #in the case I have just passed the element index - e.g. i am in the group to be split
+      new_rho[i]=k-(i!=1)*cumsum_rho[i-1*(i!=1)]  # is the index of the element minus the cumulative number of elements in the previous groups only if i!=1
+      new_rho[i+1]=rho_n[i]-new_rho[i] # is the dimension of the original group minus the elements moved to new_rho[i]
       j=i # I save the index of the group that has changed (the i-th group)- not sure it is necessary, though
       found=TRUE
     }
@@ -231,6 +234,61 @@ splitPartition <- function(k,rho_n){
   output[[2]] = j
   return(output)
 }
+
+
+
+
+
+#' mergePartition in the compact form
+#' 
+#' NOTE: maybe it would be better to switch the representation, add a changepoint and switch back... 
+#' let's think about it
+#' 
+#' @param k index of the the point where to split the group (equivalent to adding a changepoint)
+#' @param rho_n partition in compact form e.g., rho=c(2,3,4) meands the first group has 2 elements, the second has three and the third has four
+#'
+#' @return a list whose first element is the updated partition 
+#' and the second is the index of the groups that has changed (do not know if it is necessary, though)
+#' @export
+#'
+#' @examples
+mergePartition <- function(k,rho_n){
+  n_elems=sum(rho_n)
+  n_groups=length(rho_n)
+  output=list()
+  new_rho={}
+  
+  if(( length(rho_n)==1) || k>n_elems-1){ #First check: only 1 group or index out of bound (number of changepoints=n_elems-1)
+    output[[1]] = rho_n
+    output[[2]] = 0 # returns 0 if the change has not been performed
+    return (output) 
+  }
+  cumsum_rho=cumsum(rho_n)
+  found=FALSE
+  #For every index i, I store the new i-th group
+  for(i in 1:(n_groups-1)){ #ACHTUNG! Must stop at n_groups - 1 
+    if(found==FALSE && cumsum_rho[i]!=k){ #k is already a non-changepoint, nothing to merge - returns the original rho
+      output[[1]] = rho_n
+      output[[2]] = 0 # returns 0 if the change has not been performed
+      return (output) 
+      }
+    if(found==FALSE){
+      new_rho[i]=rho_n[i]
+      }
+    else {
+      new_rho[i]=rho_n[i+1]
+      }
+    if (found==FALSE && cumsum[i]==k){ #in the case I am at the changepoint between the two groups to be merged
+      new_rho[i]=rho_n[i]+rho_n[i+1]  # is the index of the element minus the cumulative number of elements in the previous groups
+      j=i # I save the index of the group that has changed (the i-th group)- not sure it is necessary, though
+      found=TRUE
+      }
+    }
+    output[[1]] = new_rho
+    output[[2]] = j
+    return(output)
+}
+
 
 
 #Useful Functions
