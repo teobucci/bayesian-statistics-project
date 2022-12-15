@@ -97,7 +97,6 @@ partitionData <- function(y,rho_n){
 #' Follows strictly the paper, just adds the possibility of having alfaADD set by the author
 #' NOTE: I have not added the checks for the range of the parameters ranging from 0 and 1. Anyway, they are easy to include in the first if
 #'
-#' @param unifsample the value from the uniform sample which allows me to choose between add or delete move. It is passed by parameter in case it must be used outside the scope of the function, but this can be changed
 #' @param rho the partition in compact form (e.. rho=c(1,4,5) means that the first group has 1 element, the second has 4 elements, the last has 5 elements)
 #' @param alfaADD fixed probability of choosing ADD or DELETE as a move
 #' @param a_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when ADDING a changepoint between point j and point j+1 (weights are non-normalized probabilities)
@@ -107,9 +106,11 @@ partitionData <- function(y,rho_n){
 #' @export
 #'
 #' @examples
-proposalRatio=function(unifsample, rho, alfaADD, a_weights, d_weights){ #unifsample>alfaADD--> delete move
+proposalRatio=function(rho, alfaADD, a_weights, d_weights){
+    
   n_groups=length(rho)
   n_elems=length(a_weights)
+  unifsample = runif(n=1)
   
   if((unifsample>alfaADD && n_groups==1) || (unifsample<alfaADD && n_groups==n_elems) ){ #Different types of checks
     return(0)
