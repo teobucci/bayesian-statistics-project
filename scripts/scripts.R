@@ -125,13 +125,13 @@ proposalRatio=function(unifsample, rho, alfaADD, a_weights, d_weights){ #unifsam
   d_weights_cp=d_weights[changepoint_indexes]
   d_weights_sum=sum(d_weights_nocp)
   
-  ifelse (unifsample<=alfaADD)
+  if (unifsample<=alfaADD)
   { #I choose ADD - the possible elements are just the ones which are NOT the changepoints, which are all the indexes except the ones from rho
     possible_indexes= elems_range[!changepoint_indexes]
     weight=a_weights_nocp
     weight_sum=a_weights_sum
     probratio=(1-alfaADD)/1 #to use just for the ratio in the case n_groups==1
-  }
+  }else
   { #I choose DELETE - the possible elements are just the ones which are the changepoints, which correspond to the values in rho
     possible_indexes=elems_range[changepoint_indexes]
     weight=d_weights_cp
@@ -146,8 +146,9 @@ proposalRatio=function(unifsample, rho, alfaADD, a_weights, d_weights){ #unifsam
     ratio= (weight_sum/weight[elem_index])*(probratio) 
     return (ratio)
   }
-  ifelse(unifsample<=alfaADD)
+  if(unifsample<=alfaADD)
   {ratio=  (1-alfaADD)/alfaADD * a_weight_sum/a_weights[elem_index]*(d_weights[elem_index]/(d_weights[elem_index]+d_weight_sum))} #case ADD
+  else
   {ratio= alfaADD/ (1-alfaADD) * d_weight_sum/d_weights[elem_index]*(a_weights[elem_index]/(a_weights[elem_index]+a_weight_sum))} #case DELETE
   
   return (ratio)
