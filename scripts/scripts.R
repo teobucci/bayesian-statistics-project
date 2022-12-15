@@ -289,7 +289,28 @@ mergePartition <- function(k,rho_n){
     return(output)
 }
 
-
+#' shufflePartition (QUESTA RESTA MOLTO SIMILE A CORRADIN, NO?)
+#' 
+#' @param k index of the the point where the shuffling between groups happens
+#' @param rho_n partition in compact form e.g., rho=c(2,3,4) means the first group has 2 elements, the second has three and the third has four
+#'
+#' @return the updated partition
+#' @export
+#'
+#' @examples
+shuffle <- function(k,rho_n){
+  new_rho={}
+  if(length(rho_n)==1){
+    new_rho=rho_n #the shuffling obviously can be done only if the number of groups is at least 2
+  }
+  else{
+  i <- sample(1:(k-1),1)
+  j <- sample(1:(rho_n[i] + rho_n[i + 1] - 1),1)
+  new_rho[i+1] <- (rho_n[i] + rho_n[i+1] - j)
+  new_rho[i] <- j 
+  }
+  return(new_rho)
+}
 
 #Useful Functions
 
