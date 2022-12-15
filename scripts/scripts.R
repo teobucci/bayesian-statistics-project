@@ -288,7 +288,7 @@ likelihoodRatio=function(rho, alfaADD, a_weights, d_weights){
     M = length(rho)
     
     # auxiliary function to evaluate the beta
-    function rhoB(arg1,arg2,log=T){
+    rhoB = function(arg1,arg2,log=T){
         if(log){
             return(lbeta(alpha + arg1, beta + arg2))
         }else{
@@ -297,7 +297,19 @@ likelihoodRatio=function(rho, alfaADD, a_weights, d_weights){
         
     }
     
-    if("il nodo non è agli estremi")
+    if("il nodo non è agli estremi"){
+        ratio = -(M+1)*rhoB(0,0)
+        
+        for(l in 1:(S-1)){
+            ratio += rhoB(C_l_star,C_S_star) + rhoB(C_l_star,C_S+1_star) # primo termine numeratore
+            ratio -= rhoB(C_l,C_S) # primo termine denominatore
+        }
+        
+        for(m in (S+2):(M+1))
+            ratio += rhoB(C_S_star,C_m_star) + rhoB(C_S+1_star,C_m_star) # secondo termine numeratore
+        
+        return(ratio)
+    }
 
 }
     
