@@ -33,11 +33,11 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
     
 
 #' Adaptation step to update the weights vector a and d
-#' The function takes as an input the current weights and update them as a function of
+#' The function takes as an input the current weights and updates them as a function of
 #' the current iteration number t, the initial adaptation h, 
 #' The function works in log scale
 #' 
-#' @param logweights vector of the logaritm of the current weights
+#' @param logweights vector of the logarithm of the current weights
 #' @param alfaTarget scalar indicating the target acceptance probability (optimal range around 0.10-0.15)
 #' @param alfaADD probability of adding a move (usually 0.5)
 #' @param t number of the current iteration
@@ -61,7 +61,7 @@ logAdaptation = function(logweights,t,h,alfaTarget,alfaADD){
 #' partitions them into the partition rho
 #' @param y - vector of n ordered data
 #' @param rho_n - partition written in compact form 
-#' e.g. rho=c(2,4,5) means the first group has 2 elements, the second has 4 and the fifth has 5
+#' e.g. rho=c(2,4,5) means the first group has 2 elements, the second has 4 and the third has 5
 #'
 #' @return a list, where each element contains the corresponding group of y elements.
 #' If the dimensions of rho and y are not comparable, return an empty vector
@@ -97,10 +97,10 @@ partitionData <- function(y,rho_n){
 #' Follows strictly the paper, just adds the possibility of having alfaADD set by the author
 #' NOTE: I have not added the checks for the range of the parameters ranging from 0 and 1. Anyway, they are easy to include in the first if
 #'
-#' @param unifsample the value from the uniform sample which allows me to choose between add or delete move. It is passed by parameter in case it must be used ouside the scope of the function, but this can be changed
+#' @param unifsample the value from the uniform sample which allows me to choose between add or delete move. It is passed by parameter in case it must be used outside the scope of the function, but this can be changed
 #' @param rho the partition in compact form (e.. rho=c(1,4,5) means that the first group has 1 element, the second has 4 elements, the last has 5 elements)
 #' @param alfaADD fixed probability of choosing ADD or DELETE as a move
-#' @param a_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when ADDING  a changepoint between point j and point j+1 (weights are  non-normalized probabilities)
+#' @param a_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when ADDING a changepoint between point j and point j+1 (weights are non-normalized probabilities)
 #' @param d_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when DELETING a changepoint between point j and point j+1 (weights are non-normalized probabilities)
 #'
 #' @return the proposal ratio, which is 
@@ -138,7 +138,7 @@ proposalRatio=function(unifsample, rho, alfaADD, a_weights, d_weights){ #unifsam
     weigth_sum=sum(d_weights_cp)
     probratio=alfaADD/1   #to use just for the ratio in the case n_groups==n_elems
   }
-  #I extract the index of the element sampling n=1 element from a categorical distribution which assigns to "possible elements" the vector of probabilities probabilities "weigth/weight_sum")
+  #I extract the index of the element sampling n=1 element from a categorical distribution which assigns to "possible elements" the vector of probabilities "weight/weight_sum")
   elem_index=sample(possible_elems, 1, replace = TRUE, prob = weight/weight_sum) #samples with replacement from a categorical
   
   #I deal with the remining case where I have all changepoints or zero changepoints
