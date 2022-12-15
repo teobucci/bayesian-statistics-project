@@ -303,14 +303,12 @@ mergePartition <- function(k,rho_n){
 #' @export
 #'
 #' @examples
-pochhammer <- function(x,n,log=FALSE){   
-  if(log==TRUE){
+pochhammer <- function(x,n,log=F){   
+  if(log){
     num_vec <- as.numeric()
     num_vec[1] = x
   
-    if (n!=0){
-      for(i in 1:(n-1)){num_vec[i+1] <- (x+i)} 
-    }
+    if (n!=0){for(i in 1:(n-1)){num_vec[i+1] <- (x+i)}}
   
     if (n==0){num_vec[1] <- 1}
   
@@ -324,11 +322,7 @@ pochhammer <- function(x,n,log=FALSE){
     
     num_vec[1] = x
     
-    if (n!=0){
-      for(i in 1:(n-1)){
-        num_vec[i+1] <- (x+i)
-      } 
-    }
+    if (n!=0){for(i in 1:(n-1)){num_vec[i+1] <- (x+i)}}
     
     if (n==0){num_vec[1] <- 1}
     
