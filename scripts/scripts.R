@@ -184,14 +184,26 @@ proposalRatio=function(rho, alfaADD, a_weights, d_weights){
 
 
 
-
-
-
-
+likelihoodRatio=function(rho, alfaADD, a_weights, d_weights){
     
+    alpha = 1
+    beta = 1
+    M = length(rho)
     
+    # auxiliary function to evaluate the beta
+    function rhoB(arg1,arg2,log=T){
+        if(log){
+            return(lbeta(alpha + arg1, beta + arg2))
+        }else{
+            return(beta(alpha + arg1, beta + arg2))
+        }
+        
+    }
     
-    
+    if("il nodo non è agli estremi")
+
+}
+
     
     
     
