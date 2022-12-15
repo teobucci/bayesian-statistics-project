@@ -183,11 +183,11 @@ proposalRatio=function(rho, alfaADD, a_weights, d_weights){
 
 #' splitPartition in the compact form
 #' 
-#' NOTE: maybe it would be bette to switch the representation, add a changepoint and switch back... 
+#' NOTE: maybe it would be better to switch the representation, add a changepoint and switch back... 
 #' let's think about it
 #'
 #' @param k index of the the point where to split the group (equivalent to adding a changepoint)
-#' @param rho_n partition in compact form e.g., rho=c(2,3,4) meands the first group has 2 elements, the second has three and the third has four
+#' @param rho_n partition in compact form e.g., rho=c(2,3,4) means the first group has 2 elements, the second has three and the third has four
 #'
 #' @return a list whose first element is the updated partition 
 #' and the second is the index of the groups that has changed (do not know if it is necessary, though)
@@ -245,7 +245,7 @@ splitPartition <- function(k,rho_n){
 #' let's think about it
 #' 
 #' @param k index of the the point where to split the group (equivalent to adding a changepoint)
-#' @param rho_n partition in compact form e.g., rho=c(2,3,4) meands the first group has 2 elements, the second has three and the third has four
+#' @param rho_n partition in compact form e.g., rho=c(2,3,4) means the first group has 2 elements, the second has three and the third has four
 #'
 #' @return a list whose first element is the updated partition 
 #' and the second is the index of the groups that has changed (do not know if it is necessary, though)
