@@ -49,9 +49,9 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
 #' @examples
 #' 
 logAdaptation = function(logweights,t,h,alfaTarget,alfaADD){ 
-  if(h>0){ #checks that the adaptation step is positive
-    return (logweights + h*length(logweights)/t *(alfaADD - alfaTarget))
-  }
+    if(!h>0)
+        stop("Adaptation step h must be positive")
+    return (logweights + h*length(logweights) / t * (alfaADD - alfaTarget))
 }
 
 
