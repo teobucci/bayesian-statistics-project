@@ -195,64 +195,12 @@ proposalRatio=function(rho, alfaADD, a_weights, d_weights){
     
     
     
-    # take a Gibbs step at each data point
-    for(j in 1:p) {
-        # get rid of the jth data point
-        c = z[j]
-        counts[c] = counts[c] - 1
-        # if the jth data point was the only point in a cluster,
-        # get rid of that cluster
-        if(counts[c]==0) {
-            counts[c] = counts[Nclust] #move last cluster in position c
-            loc_z = (z==Nclust)
-            z[loc_z] = c #remove cluster in position Nclust
-            counts = counts[-Nclust]
-            Nclust = Nclust - 1
-        }
-        z[j] = -1  # ensures z[j] doesn't get counted as a cluster
-        
-        # unnormalized log probabilities for the clusters
-        log_weights = rep(NA,Nclust+1)
-        # find the unnormalized log probabilities
-        # for each existing cluster
-        for(c in 1:Nclust) {
-            local_z = z
-            local_z[j] = c
-            log_weights[c] = log(counts[c])  + MARGINAL(local_z,counts,Nclust,marginal_params)
-            #log_eval_Wishdens(Omega,local_z,nu,W ) #- log(alpha+p-1)
-        }
-        # find the unnormalized log probability
-        # for the "new" cluster
-        local_z = z
-        local_z[j] = Nclust+1
-        log_weights[Nclust+1] = log(alpha) + MARGINAL(local_z,counts,Nclust,marginal_params)
-        #log_eval_Wishdens(Omega,local_z,nu,W ) #- log(alpha+p-1)
-        
-        # transform unnormalized log probabilities
-        # into probabilities
-        max_weight = max(log_weights)
-        log_weights = log_weights - max_weight
-        loc_probs = exp(log_weights)
-        loc_probs = loc_probs / sum(loc_probs)
-        
-        if(any(is.na(loc_probs)))
-            stop("NA values in UpdatePartition")
-        # sample which cluster this point should
-        # belong to
-        newz = sample(1:(Nclust+1), 1, replace=TRUE, prob=loc_probs)
-        # if necessary, instantiate a new cluster
-        if(newz == Nclust + 1) {
-            counts = c(counts,0)
-            Nclust = Nclust + 1
-        }
-        z[j] = newz
-        # update the cluster counts
-        counts[newz] = counts[newz] + 1
-    }
     
-    return(list("z" = z,"counts" = counts,"Nclust" = Nclust))
     
-}
+
+
+
+
 
 
 set_options = function( nu, W, a_alpha = 1, b_alpha = 1,
