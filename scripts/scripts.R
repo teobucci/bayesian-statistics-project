@@ -181,7 +181,104 @@ proposalRatio=function(rho, alfaADD, a_weights, d_weights){
 
 
 
+#' splitPartition in the compact form
+#' 
+#' NOTE: maybe it would be bette to switch the representation, add a changepoint and switch back... 
+#' let's think about it
+#'
+#' @param k index of the the point where to split the group (equivalent to adding a changepoint)
+#' @param rho_n partition in compact form e.g., rho=c(2,3,4) meands the first group has 2 elements, the second has three and the third has four
+#'
+#' @return a list whose first element is the updated partition 
+#' and the second is the index of the groups that has changed (do not know if it is necessary, though)
+#' @export
+#'
+#' @examples
+splitPartition <- function(k,rho_n){
+  n_elems=sum(rho_n)
+  n_groups=length(rho_n)
+  
+  if(n_elems==(length(rho_n)) || k>n_elems-1){ #First check: all groups with 1 element or index out of bound (number of changepoints=n_elems-1)
+    output[[1]] = rho_n
+    output[[2]] = 0 # returns 0 if the change has not been performed
+    return (output) 
+  }
+  cumsum_rho=cumsum(rho_n)
+  found=FALSE
+  #For every index i, I store the new i-th group
+  for(i in 1:ngroups){
+    if(found==FALSE && cumsum[i]==k) #k is already a changepoint, nothing to split - returns the original rho
+    {
+      output[[1]] = rho_n
+      output[[2]] = 0 # returns 0 if the change has not been performed
+      return (output) 
+    }
+    #I update the partition in the general case (either I have already split the group or not, just the indexing changes)
+    if(found==FALSE) {
+        new_rho[i]=rho_n[i]
+    }
+    else {
+        new_rho[i+1]=rho_n[i]
+    }
+    if (found==FALSE && cumsum[i]>k){ #in the case I have just passed the element index - e.g. i am in the group to be split
+      new_rho[i]=k-cumsum_rho[i-1]  # is the index of the element minus the cumulative number of elements in the previous groups
+      new_rho[i+1]=rho[i]-new_rho[i] # is the dimension of the original group minus the elements moved to new_rho[i]
+      j=i # I save the index of the group that has changed (the i-th group)- not sure it is necessary, though
+      found=TRUE
+    }
+  }
+  output[[1]] = new_rho
+  output[[2]] = j
+  return(output)
+}
 
+
+#Useful Functions
+
+#' Computes the rising factorial (also called Pochammer symbol), eventually in logarithmic form.
+#' 
+#' @param x the value for which the rising factorial is to be calculated
+#' @param n the power x is to be raised to
+#' @param log if true, the rising factorial is calculated in logarithmic form
+#'
+#' @return the rising factorial of x to the n power
+#' @export
+#'
+#' @examples
+pochhammer <- function(x,n,log=FALSE){   
+  if(log==TRUE){
+    num_vec <- as.numeric()
+    num_vec[1] = x
+  
+    if (n!=0){
+      for(i in 1:(n-1)){num_vec[i+1] <- (x+i)} 
+    }
+  
+    if (n==0){num_vec[1] <- 1}
+  
+    num <- sum(log(num_vec))
+  
+    return(num)
+  }
+  
+  else{
+    num_vec <- as.numeric()
+    
+    num_vec[1] = x
+    
+    if (n!=0){
+      for(i in 1:(n-1)){
+        num_vec[i+1] <- (x+i)
+      } 
+    }
+    
+    if (n==0){num_vec[1] <- 1}
+    
+    num <- prod(num_vec)
+    
+    return(num)
+  }
+}
 
 
 likelihoodRatio=function(rho, alfaADD, a_weights, d_weights){
@@ -203,6 +300,8 @@ likelihoodRatio=function(rho, alfaADD, a_weights, d_weights){
     if("il nodo non è agli estremi")
 
 }
+    
+
 
     
     
