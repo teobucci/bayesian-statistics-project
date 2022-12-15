@@ -256,6 +256,7 @@ mergePartition <- function(k,rho_n){
   n_elems=sum(rho_n)
   n_groups=length(rho_n)
   output=list()
+  new_rho={}
   
   if(( length(rho_n)==1) || k>n_elems-1){ #First check: only 1 group or index out of bound (number of changepoints=n_elems-1)
     output[[1]] = rho_n
