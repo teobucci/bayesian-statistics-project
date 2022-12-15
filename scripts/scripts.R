@@ -94,14 +94,14 @@ partitionData <- function(y,rho_n){
 
 
 #' Computes the proposal ratio from the file "Samplingstrategy_nonparam" at page 4
-#' Follows strictly the cord, just adds the possibility of having alfaADD set by the author
+#' Follows strictly the paper, just adds the possibility of having alfaADD set by the author
 #' NOTE: I have not added the checks for the range of the parameters ranging from 0 and 1. Anyway, they are easy to include in the first if
 #'
-#' @param unifsample the value from the uniform sample which allows me to choose between add or delete move
+#' @param unifsample the value from the uniform sample which allows me to choose between add or delete move. It is passed by parameter in case it must be used ouside the scope of the function, but this can be changed
 #' @param rho the partition in compact form (e.. rho=c(1,4,5) means that the first group has 1 element, the second has 4 elements, the last has 5 elements)
 #' @param alfaADD fixed probability of choosing ADD or DELETE as a move
-#' @param a_weights vector of size n (same size of the data) containing for each point the weights to consider when ADDING  a changepoint (weights are  non-normalized probabilities)
-#' @param d_weights vector of size n (same size of the data) containing for each point the weights to consider when DELETING a changepoint (weights are non-normalized probabilities)
+#' @param a_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when ADDING  a changepoint between point j and point j+1 (weights are  non-normalized probabilities)
+#' @param d_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when DELETING a changepoint between point j and point j+1 (weights are non-normalized probabilities)
 #'
 #' @return the proposal ratio, which is 
 #' @export
@@ -115,24 +115,25 @@ proposalRatio=function(unifsample, rho, alfaADD, a_weights, d_weights){ #unifsam
     return(0)
   }
   
-  #Now I select the element range which we will use o extract the useful indexes
-  elems_range=1:n_elem
-  
-  a_weights_nocp=a_weights[!a_weights %in% rho]
+  #Now I select the element range which we will use to extract the useful indexes
+  elems_range=1:n_elem #same size of a_weights and d_weights, i.e., n-1
+  changepoint_indexes=cumsum(rho) 
+    
+  a_weights_nocp=a_weights[!changepoint_indexes]
   a_weights_sum=sum(a_weights_nocp)
   
-  d_weights_cp=d_weights[rho]
+  d_weights_cp=d_weights[changepoint_indexes]
   d_weights_sum=sum(d_weights_nocp)
   
   ifelse (unifsample<=alfaADD)
   { #I choose ADD - the possible elements are just the ones which are NOT the changepoints, which are all the indexes except the ones from rho
-    possible_indexes= elems_range[!elems_range %in% rho ]
+    possible_indexes= elems_range[!changepoint_indexes]
     weight=a_weights_nocp
     weight_sum=a_weights_sum
     probratio=(1-alfaADD)/1 #to use just for the ratio in the case n_groups==1
   }
   { #I choose DELETE - the possible elements are just the ones which are the changepoints, which correspond to the values in rho
-    possible_indexes=elems_range[rho]
+    possible_indexes=elems_range[changepoint_indexes]
     weight=d_weights_cp
     weigth_sum=sum(d_weights_cp)
     probratio=alfaADD/1   #to use just for the ratio in the case n_groups==n_elems
