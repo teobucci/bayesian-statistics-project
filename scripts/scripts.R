@@ -108,54 +108,75 @@ partitionData <- function(y,rho_n){
 #' @examples
 proposalRatio=function(rho, alfaADD, a_weights, d_weights){
     
-  n_groups=length(rho)
-  n_elems=length(a_weights)
+    #alfaADD=0.5
+  num_groups = length(rho)
+  n_elems = length(a_weights)
   unifsample = runif(n=1)
+  choose_add = unifsample<alfaADD
   
-  # unifsample>alfaADD --> delete move
-  # unifsample<alfaADD --> add move
   # preliminary check for extreme cases
-  if((unifsample>alfaADD && n_groups==1) || (unifsample<alfaADD && n_groups==n_elems) ){
-    return(0)
+  if((!choose_add && num_groups==1) || (choose_add && num_groups==n_elems) ){
+      # incompatible to delete when only one group is present
+      # or to add when every point is a group
+      ratio=0
+      return(ratio)
   }
   
-  #Now I select the element range which we will use to extract the useful indexes
-  elems_range=1:n_elem #same size of a_weights and d_weights, i.e., n-1
-  changepoint_indexes=cumsum(rho) 
-    
-  a_weights_nocp=a_weights[!changepoint_indexes]
-  a_weights_sum=sum(a_weights_nocp)
+  # select the element range which we will use to extract the useful indexes
+  elems_range <- 1:n_elems # same size of a_weights and d_weights
   
-  d_weights_cp=d_weights[changepoint_indexes]
-  d_weights_sum=sum(d_weights_nocp)
+  # indexes of the changepoints
+  cp_indexes <- cumsum(rho)
   
-  if (unifsample<=alfaADD)
-  { #I choose ADD - the possible elements are just the ones which are NOT the changepoints, which are all the indexes except the ones from rho
-    possible_indexes= elems_range[!changepoint_indexes]
-    weight=a_weights_nocp
-    weight_sum=a_weights_sum
-    probratio=(1-alfaADD)/1 #to use just for the ratio in the case n_groups==1
-  }else
-  { #I choose DELETE - the possible elements are just the ones which are the changepoints, which correspond to the values in rho
-    possible_indexes=elems_range[changepoint_indexes]
-    weight=d_weights_cp
-    weigth_sum=sum(d_weights_cp)
-    probratio=alfaADD/1   #to use just for the ratio in the case n_groups==n_elems
+  # PER ORA SUPPONGO CHE A_WEIGHTS SIA DELLA STESSA DIMENSIONE N, NON N-1
+  # QUELLO MANCANTE SI SETTA A MANO
+  
+  #rho
+  #cumsum(rho)
+  #a_weights
+  #n_elem=length(a_weights)
+  
+  
+  a_weights_available = a_weights
+  a_weights_available[cp_indexes] = 0
+  a_weights_available_sum = sum(a_weights_available)
+  
+  d_weights_available = d_weights
+  d_weights_available[-cp_indexes] = 0
+  d_weights_available_sum = sum(d_weights_available)
+  
+  
+  if (choose_add){
+      draw_weights = a_weights_available
+  } else {
+      draw_weights = d_weights_available
   }
-  #I extract the index of the element sampling n=1 element from a categorical distribution which assigns to "possible elements" the vector of probabilities "weight/weight_sum")
-  elem_index=sample(possible_elems, 1, replace = TRUE, prob = weight/weight_sum) #samples with replacement from a categorical
   
-  #I deal with the remining case where I have all changepoints or zero changepoints
-  if (n_groups==n_elems || n_groups==1){ # I have no choice on delete or merge
-    ratio= (weight_sum/weight[elem_index])*(probratio) 
-    return (ratio)
+  candidate = sample(1:n_elem, 1, prob=draw_weights)
+  
+  if (choose_add && num_groups==1){
+      # case in which you choose to propose an add move
+      # (with just 1 group) that may or may not be accepted
+      ratio = alfaADD/1 * a_weights_available_sum / a_weights[candidate]
+      return(ratio)
   }
-  if(unifsample<=alfaADD)
-  {ratio=  (1-alfaADD)/alfaADD * a_weight_sum/a_weights[elem_index]*(d_weights[elem_index]/(d_weights[elem_index]+d_weight_sum))} #case ADD
-  else
-  {ratio= alfaADD/ (1-alfaADD) * d_weight_sum/d_weights[elem_index]*(a_weights[elem_index]/(a_weights[elem_index]+a_weight_sum))} #case DELETE
   
-  return (ratio)
+  if (!choose_add && num_groups==n_elems){
+      # case in which you choose to propose an delete move
+      # (with every point being a group) that may or may not be accepted
+      ratio = alfaADD/1 * d_weights_available_sum / d_weights[candidate]
+      return(ratio)
+  }
+  
+  # only the general cases remain
+  if (choose_add){
+      ratio = (1-alfaADD)/alfaADD * a_weights_available_sum / a_weights[candidate] * d_weights[candidate] / (d_weights[candidate] + d_weights_available_sum)
+      return (ratio)
+  } else {
+      ratio = alfaADD/ (1-alfaADD) * d_weights_available_sum / d_weights[candidate] * a_weights[candidate] / (a_weights[candidate] + a_weights_available_sum)
+      return (ratio)
+  }
+  
 }
 
 
