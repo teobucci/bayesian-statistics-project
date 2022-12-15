@@ -125,7 +125,7 @@ proposalRatio=function(unifsample, rho, alfaADD, a_weights, d_weights){ #unifsam
   d_weights_cp=d_weights[changepoint_indexes]
   d_weights_sum=sum(d_weights_nocp)
   
-  ifelse (unifsample<=alfaADD)
+  ifelse (unifsample<=alfaADD
   { #I choose ADD - the possible elements are just the ones which are NOT the changepoints, which are all the indexes except the ones from rho
     possible_indexes= elems_range[!changepoint_indexes]
     weight=a_weights_nocp
@@ -137,7 +137,7 @@ proposalRatio=function(unifsample, rho, alfaADD, a_weights, d_weights){ #unifsam
     weight=d_weights_cp
     weigth_sum=sum(d_weights_cp)
     probratio=alfaADD/1   #to use just for the ratio in the case n_groups==n_elems
-  }
+  })
   #I extract the index of the element sampling n=1 element from a categorical distribution which assigns to "possible elements" the vector of probabilities probabilities "weigth/weight_sum")
   elem_index=sample(possible_elems, 1, replace = TRUE, prob = weight/weight_sum) #samples with replacement from a categorical
   
@@ -146,15 +146,58 @@ proposalRatio=function(unifsample, rho, alfaADD, a_weights, d_weights){ #unifsam
     ratio= (weight_sum/weight[elem_index])*(probratio) 
     return (ratio)
   }
-  ifelse(unifsample<=alfaADD)
+  ifelse(unifsample<=alfaADD
   {ratio=  (1-alfaADD)/alfaADD * a_weight_sum/a_weights[elem_index]*(d_weights[elem_index]/(d_weights[elem_index]+d_weight_sum))} #case ADD
-  {ratio= alfaADD/ (1-alfaADD) * d_weight_sum/d_weights[elem_index]*(a_weights[elem_index]/(a_weights[elem_index]+a_weight_sum))} #case DELETE
-  
+  {ratio= alfaADD/ (1-alfaADD) * d_weight_sum/d_weights[elem_index]*(a_weights[elem_index]/(a_weights[elem_index]+a_weight_sum))}) #case DELETE
   return (ratio)
 }
 
 
 
+#' splitPartition in the compact form
+#' 
+#' NOTE: maybe it would be bette to switch the representation, add a changepoint and switch back... 
+#' let's think about it
+#'
+#' @param k index of the the point where to split the group (equivalent to adding a changepoint)
+#' @param rho_n partition in compact form e.g., rho=c(2,3,4) meands the first group has 2 elements, the second has three and the third has four
+#'
+#' @return a list whose first element is the updated partition 
+#' and the second is the index of the groups that has changed (do not know if it is necessary, though)
+#' @export
+#'
+#' @examples
+splitPartition <- function(k,rho_n){
+  n_elems=sum(rho_n)
+  n_groups=length(rho_n)
+  
+  if(n_elems==(length(rho_n)) || k>n_elems-1){ #First check: all groups with 1 element or index out of bound (number of changepoints=n_elems-1)
+    output[[1]] = rho_n
+    output[[2]] = 0 # returns 0 if the change has not been performed
+    return (output) 
+  }
+  cumsum_rho=cumsum(rho_n)
+  found=FALSE
+  #For every index i, I store the new i-th group
+  for(i in 1:ngroups){
+    if(found==FALSE && cumsum[i]==k) #k is already a changepoint, nothing to split - returns the original rho
+    {
+      output[[1]] = rho_n
+      output[[2]] = 0 # returns 0 if the change has not been performed
+      return (output) 
+    }
+    if (found==FALSE && cumsum[i]>k){ #in the case I have just passed the element index - e.g. i am in the group to be split
+      new_rho[i]=k-cumsum_rho[i-1]  # is the index of the element minus the cumulative number of elements in the previous groups
+      new_rho[i+1]=rho[i]-new_rho[i] # is the dimension of the original group minus the elements moved to new_rho[i]
+      j=i # I save the index of the group that has changed (the i-th group)- not sure it is necessary, though
+      found=TRUE
+    }
+    ifelse(found==FALSE, {new_rho[i]=rho_n[i]},{new_rho[i+1]=rho_n[i]})
+  }
+  output[[1]] = new_rho
+  output[[2]] = j
+  return(output)
+}
 
 
 
