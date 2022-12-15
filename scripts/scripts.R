@@ -142,7 +142,7 @@ proposalRatio=function(rho, alfaADD, a_weights, d_weights){
     weight=d_weights_cp
     weigth_sum=sum(d_weights_cp)
     probratio=alfaADD/1   #to use just for the ratio in the case n_groups==n_elems
-  })
+  }
   #I extract the index of the element sampling n=1 element from a categorical distribution which assigns to "possible elements" the vector of probabilities "weight/weight_sum")
   elem_index=sample(possible_elems, 1, replace = TRUE, prob = weight/weight_sum) #samples with replacement from a categorical
   
@@ -213,9 +213,52 @@ splitPartition <- function(k,rho_n){
 
 
 
+#Useful Functions
 
-
-
+#' Computes the rising factorial (also called Pochammer symbol), eventually in logarithmic form.
+#' 
+#' @param x the value for which the rising factorial is to be calculated
+#' @param n the power x is to be raised to
+#' @param log if true, the rising factorial is calculated in logarithmic form
+#'
+#' @return the rising factorial of x to the n power
+#' @export
+#'
+#' @examples
+pochhammer <- function(x,n,log=FALSE){   
+  if(log==TRUE){
+    num_vec <- as.numeric()
+    num_vec[1] = x
+  
+    if (n!=0){
+      for(i in 1:(n-1)){num_vec[i+1] <- (x+i)} 
+    }
+  
+    if (n==0){num_vec[1] <- 1}
+  
+    num <- sum(log(num_vec))
+  
+    return(num)
+  }
+  
+  else{
+    num_vec <- as.numeric()
+    
+    num_vec[1] = x
+    
+    if (n!=0){
+      for(i in 1:(n-1)){
+        num_vec[i+1] <- (x+i)
+      } 
+    }
+    
+    if (n==0){num_vec[1] <- 1}
+    
+    num <- prod(num_vec)
+    
+    return(num)
+  }
+}
 
     
     
@@ -281,7 +324,7 @@ splitPartition <- function(k,rho_n){
     
     return(list("z" = z,"counts" = counts,"Nclust" = Nclust))
     
-}
+
 
 
 set_options = function( nu, W, a_alpha = 1, b_alpha = 1,
