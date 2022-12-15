@@ -33,11 +33,11 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
     
 
 #' Adaptation step to update the weights vector a and d
-#' The function takes as an input the current weights and update them as a function of
+#' The function takes as an input the current weights and updates them as a function of
 #' the current iteration number t, the initial adaptation h, 
 #' The function works in log scale
 #' 
-#' @param logweights vector of the logaritm of the current weights
+#' @param logweights vector of the logarithm of the current weights
 #' @param alfaTarget scalar indicating the target acceptance probability (optimal range around 0.10-0.15)
 #' @param alfaADD probability of adding a move (usually 0.5)
 #' @param t number of the current iteration
@@ -49,9 +49,9 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
 #' @examples
 #' 
 logAdaptation = function(logweights,t,h,alfaTarget,alfaADD){ 
-  if(h>0){ #checks that the adaptation step is positive
-    return (logweights + h*length(logweights)/t *(alfaADD - alfaTarget))
-  }
+    if(!h>0)
+        stop("Adaptation step h must be positive")
+    return (logweights + h*length(logweights) / t * (alfaADD - alfaTarget))
 }
 
 
@@ -61,7 +61,7 @@ logAdaptation = function(logweights,t,h,alfaTarget,alfaADD){
 #' partitions them into the partition rho
 #' @param y - vector of n ordered data
 #' @param rho_n - partition written in compact form 
-#' e.g. rho=c(2,4,5) means the first group has 2 elements, the second has 4 and the fifth has 5
+#' e.g. rho=c(2,4,5) means the first group has 2 elements, the second has 4 and the third has 5
 #'
 #' @return a list, where each element contains the corresponding group of y elements.
 #' If the dimensions of rho and y are not comparable, return an empty vector
@@ -97,21 +97,25 @@ partitionData <- function(y,rho_n){
 #' Follows strictly the paper, just adds the possibility of having alfaADD set by the author
 #' NOTE: I have not added the checks for the range of the parameters ranging from 0 and 1. Anyway, they are easy to include in the first if
 #'
-#' @param unifsample the value from the uniform sample which allows me to choose between add or delete move. It is passed by parameter in case it must be used ouside the scope of the function, but this can be changed
 #' @param rho the partition in compact form (e.. rho=c(1,4,5) means that the first group has 1 element, the second has 4 elements, the last has 5 elements)
 #' @param alfaADD fixed probability of choosing ADD or DELETE as a move
-#' @param a_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when ADDING  a changepoint between point j and point j+1 (weights are  non-normalized probabilities)
+#' @param a_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when ADDING a changepoint between point j and point j+1 (weights are non-normalized probabilities)
 #' @param d_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when DELETING a changepoint between point j and point j+1 (weights are non-normalized probabilities)
 #'
 #' @return the proposal ratio, which is 
 #' @export
 #'
 #' @examples
-proposalRatio=function(unifsample, rho, alfaADD, a_weights, d_weights){ #unifsample>alfaADD--> delete move
+proposalRatio=function(rho, alfaADD, a_weights, d_weights){
+    
   n_groups=length(rho)
   n_elems=length(a_weights)
+  unifsample = runif(n=1)
   
-  if((unifsample>alfaADD && n_groups==1) || (unifsample<alfaADD && n_groups==n_elems) ){ #Different types of checks
+  # unifsample>alfaADD --> delete move
+  # unifsample<alfaADD --> add move
+  # preliminary check for extreme cases
+  if((unifsample>alfaADD && n_groups==1) || (unifsample<alfaADD && n_groups==n_elems) ){
     return(0)
   }
   
@@ -124,21 +128,22 @@ proposalRatio=function(unifsample, rho, alfaADD, a_weights, d_weights){ #unifsam
   
   d_weights_cp=d_weights[changepoint_indexes]
   d_weights_sum=sum(d_weights_nocp)
-  
-  ifelse (unifsample<=alfaADD
+ 
+
+  if (unifsample<=alfaADD)
   { #I choose ADD - the possible elements are just the ones which are NOT the changepoints, which are all the indexes except the ones from rho
     possible_indexes= elems_range[!changepoint_indexes]
     weight=a_weights_nocp
     weight_sum=a_weights_sum
     probratio=(1-alfaADD)/1 #to use just for the ratio in the case n_groups==1
-  }
+  }else
   { #I choose DELETE - the possible elements are just the ones which are the changepoints, which correspond to the values in rho
     possible_indexes=elems_range[changepoint_indexes]
     weight=d_weights_cp
     weigth_sum=sum(d_weights_cp)
     probratio=alfaADD/1   #to use just for the ratio in the case n_groups==n_elems
   })
-  #I extract the index of the element sampling n=1 element from a categorical distribution which assigns to "possible elements" the vector of probabilities probabilities "weigth/weight_sum")
+  #I extract the index of the element sampling n=1 element from a categorical distribution which assigns to "possible elements" the vector of probabilities "weight/weight_sum")
   elem_index=sample(possible_elems, 1, replace = TRUE, prob = weight/weight_sum) #samples with replacement from a categorical
   
   #I deal with the remining case where I have all changepoints or zero changepoints
@@ -146,9 +151,10 @@ proposalRatio=function(unifsample, rho, alfaADD, a_weights, d_weights){ #unifsam
     ratio= (weight_sum/weight[elem_index])*(probratio) 
     return (ratio)
   }
-  ifelse(unifsample<=alfaADD
+  if(unifsample<=alfaADD)
   {ratio=  (1-alfaADD)/alfaADD * a_weight_sum/a_weights[elem_index]*(d_weights[elem_index]/(d_weights[elem_index]+d_weight_sum))} #case ADD
-  {ratio= alfaADD/ (1-alfaADD) * d_weight_sum/d_weights[elem_index]*(a_weights[elem_index]/(a_weights[elem_index]+a_weight_sum))}) #case DELETE
+  else
+  {ratio= alfaADD/ (1-alfaADD) * d_weight_sum/d_weights[elem_index]*(a_weights[elem_index]/(a_weights[elem_index]+a_weight_sum))} #case DELETE 
   return (ratio)
 }
 
@@ -186,13 +192,19 @@ splitPartition <- function(k,rho_n){
       output[[2]] = 0 # returns 0 if the change has not been performed
       return (output) 
     }
+    #I update the partition in the general case (either I have already split the group or not, just the indexing changes)
+    if(found==FALSE) {
+        new_rho[i]=rho_n[i]
+    }
+    else {
+        new_rho[i+1]=rho_n[i]
+    }
     if (found==FALSE && cumsum[i]>k){ #in the case I have just passed the element index - e.g. i am in the group to be split
       new_rho[i]=k-cumsum_rho[i-1]  # is the index of the element minus the cumulative number of elements in the previous groups
       new_rho[i+1]=rho[i]-new_rho[i] # is the dimension of the original group minus the elements moved to new_rho[i]
       j=i # I save the index of the group that has changed (the i-th group)- not sure it is necessary, though
       found=TRUE
     }
-    ifelse(found==FALSE, {new_rho[i]=rho_n[i]},{new_rho[i+1]=rho_n[i]})
   }
   output[[1]] = new_rho
   output[[2]] = j
