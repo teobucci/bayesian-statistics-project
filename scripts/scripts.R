@@ -112,7 +112,10 @@ proposalRatio=function(rho, alfaADD, a_weights, d_weights){
   n_elems=length(a_weights)
   unifsample = runif(n=1)
   
-  if((unifsample>alfaADD && n_groups==1) || (unifsample<alfaADD && n_groups==n_elems) ){ #Different types of checks
+  # unifsample>alfaADD --> delete move
+  # unifsample<alfaADD --> add move
+  # preliminary check for extreme cases
+  if((unifsample>alfaADD && n_groups==1) || (unifsample<alfaADD && n_groups==n_elems) ){
     return(0)
   }
   
