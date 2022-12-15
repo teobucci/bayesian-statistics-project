@@ -356,6 +356,18 @@ likelihoodRatio=function(rho, alfaADD, a_weights, d_weights){
     }
     
     if("il nodo non è agli estremi"){
+        
+        # ipotizzo la situa in cui aggiungo un cp NEL MEZZO
+        C=c(20,20,5)
+        C_star=c(20,7,13,5)
+        
+        M = length(C)
+        S = 2 # è quello che è stato splittato
+        # due nuovi sono in S e S+1 (2 e 3)
+        M, M+1
+        
+        # bisogna gestire S_lm e S^star_lm
+        
         ratio = -(M+1)*rhoB(0,0)
         
         for(l in 1:(S-1)){
@@ -366,7 +378,16 @@ likelihoodRatio=function(rho, alfaADD, a_weights, d_weights){
         for(m in (S+2):(M+1))
             ratio += rhoB(C_S_star,C_m_star) + rhoB(C_S+1_star,C_m_star) # secondo termine numeratore
         
-        return(ratio)
+        # terzo termine numeratore
+        ratio += rhoB(C_S_star,C_S+1_star) + rhoB(C_S_star,C_S_star) + rhoB(C_S+1_star,C_S+1_star)
+        
+        for(m in (S+1):M)
+            ratio -= rhoB(C_S,C_m) # secondo termine denominatore
+        
+        # terzo termine denominatore
+        ratio -= rhoB(C_S,C_S)
+        
+        return(exp(ratio))
     }
 
 }
