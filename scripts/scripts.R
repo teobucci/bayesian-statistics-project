@@ -324,7 +324,7 @@ shuffle <- function(k,rho_n){
 #' @export
 #'
 #' @examples
-pochhammer <- function(x,n,log=F){   
+pochhammer <- function(x,n,log=F){
   if(log){
     num_vec <- as.numeric()
     num_vec[1] = x
@@ -485,7 +485,7 @@ Gibbs_sampler = function(data,niter,nburn,thin,
     save_res$var_alpha_adp = rep(NA,niter)
     
     it_saved = 0 #initialize iteration counter
-    pb = txtProgressBar(min = 1, max = n_total_iter, initial = 1, style = 3)  #initialize progress bar
+    pb = txtProgressBar(min = 1, max = n_total_iter, initial = 1, style = 3) # initialize progress bar
     for(iter in 1:n_total_iter){
         
         
