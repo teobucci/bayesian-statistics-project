@@ -386,21 +386,21 @@ likelihoodRatio=function(rho, alfaADD, a_weights, d_weights){
         ratio = -(M+1)*rhoB(0,0)
         
         for(l in 1:(S-1)){
-            ratio += rhoB(C_l_star,C_S_star) + rhoB(C_l_star,C_S+1_star) # primo termine numeratore
-            ratio -= rhoB(C_l,C_S) # primo termine denominatore
+            ratio = ratio + rhoB(C_l_star,C_S_star) + rhoB(C_l_star,C_S+1_star) # primo termine numeratore
+            ratio = ratio - rhoB(C_l,C_S) # primo termine denominatore
         }
         
         for(m in (S+2):(M+1))
-            ratio += rhoB(C_S_star,C_m_star) + rhoB(C_S+1_star,C_m_star) # secondo termine numeratore
+            ratio = ratio + rhoB(C_S_star,C_m_star) + rhoB(C_S+1_star,C_m_star) # secondo termine numeratore
         
         # terzo termine numeratore
-        ratio += rhoB(C_S_star,C_S+1_star) + rhoB(C_S_star,C_S_star) + rhoB(C_S+1_star,C_S+1_star)
+        ratio = ratio + rhoB(C_S_star,C_S+1_star) + rhoB(C_S_star,C_S_star) + rhoB(C_S+1_star,C_S+1_star)
         
         for(m in (S+1):M)
-            ratio -= rhoB(C_S,C_m) # secondo termine denominatore
+            ratio = ratio - rhoB(C_S,C_m) # secondo termine denominatore
         
         # terzo termine denominatore
-        ratio -= rhoB(C_S,C_S)
+        ratio = ratio - rhoB(C_S,C_S)
         
         return(exp(ratio))
     }
