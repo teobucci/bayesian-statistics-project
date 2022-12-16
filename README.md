@@ -3,7 +3,7 @@
 ## How to clone the repository
 
 ```
-git clone https://github.com/cameronmcnz/surface.git
+git clone https://github.com/teobucci/bayesian-statistics-project
 git submodule update --init
 git submodule update --recursive
 ```
