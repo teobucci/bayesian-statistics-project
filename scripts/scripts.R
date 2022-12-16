@@ -409,9 +409,27 @@ likelihoodRatio=function(rho, alfaADD, a_weights, d_weights){
     
 
 
+
+
+
+
+priorRatio = function(theta, sigma, M, qualcos'altro'){
     
+    #n_star_s
+    #n_s
+    #n_s_minus_1
+    #n_star_s_plus_1
     
-    
+    ratio = - log(M) + (theta + M*sigma) + pochhammer(1-sigma, n_star_s - 1, log=T)
+                                         + pochhammer(1-sigma, n_star_s_plus_1 - 1, log=T)
+                                         - pochhammer(1-sigma, n_s - 1, log=T)
+                                         + lfactorial(n_s)
+                                         - lfactorial(n_star_s)
+                                         - lfactorial(n_star_s_plus_1)
+    return(ratio)
+
+}
+
     
     
 
