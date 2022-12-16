@@ -406,19 +406,33 @@ likelihoodRatio=function(rho, alfaADD, a_weights, d_weights){
     }
 
 }
+
+
+
+priorRatio = function(theta, sigma, current_rho, proposed_rho){
     
-
-
-
-
-
-
-priorRatio = function(theta, sigma, M, qualcos'altro'){
+    #current_rho = c(2,4,2,2)
+    #proposed_rho = c(2,4,1,1,2)
+    M = length(current_rho)
     
-    #n_star_s
-    #n_s
-    #n_s_minus_1
-    #n_star_s_plus_1
+    # ORA È IMPLEMENTATO SOLO IL CASO ADD (CIOÈ SPLIT)
+    
+    current_r = rep(0, sum(current_rho))
+    current_r[cumsum(current_rho)] = 1
+    
+    proposed_r = rep(0, sum(proposed_rho))
+    proposed_r[cumsum(proposed_rho)] = 1
+    
+    tau = which.max(proposed_r-current_r)
+    
+    indexes = cumsum(current_rho)
+    temp = which(indexes < tau)
+    S = temp[length(temp)] + 1
+    
+    n_star_s = proposed_rho[S]
+    n_star_s_plus_1 = proposed_rho[S+1]
+    n_s = n_star_s + n_star_s_plus_1
+    
     
     ratio = - log(M) + (theta + M*sigma) + pochhammer(1-sigma, n_star_s - 1, log=T)
                                          + pochhammer(1-sigma, n_star_s_plus_1 - 1, log=T)
