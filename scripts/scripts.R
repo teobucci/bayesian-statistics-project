@@ -1,5 +1,35 @@
 UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
     
+    
+    
+    # sampling dalla partizione
+    # metropolis hastings per aggiornare la partizione
+    
+    likelihoodRatioNow = likelihoodRatio
+    priorRatioNow = priorRatio
+    proposalRatioNow = proposalRatio
+    
+    alpha_accept <- min(1,likelihoodRatioNow*priorRatioNow*proposalRatioNow)
+    if (runif(n=1) < alpha_accept){
+        # accept the move
+        if(merge){ # accepted move is a merge
+            mergePartition
+        }
+        else{ # accepted move is a split
+            splitPartition
+        }
+        partitionData
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     marginal_params = list(...) #get list with parameters to be used in MARGINAL function
     n_params = length(marginal_params) #get number of parameters to be used in MARGINAL function
     
