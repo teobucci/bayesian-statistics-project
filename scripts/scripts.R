@@ -355,6 +355,8 @@ shuffle <- function(k,rho_n){
 #'
 #' @examples
 pochhammer <- function(x,n,log=F){
+    if(n<0)
+        stop("Non si fa")
   if(log){
     num_vec <- as.numeric()
     num_vec[1] = x
