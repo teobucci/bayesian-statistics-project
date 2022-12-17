@@ -485,14 +485,14 @@ priorRatio = function(theta, sigma, current_rho, proposed_rho){
 
 
 set_options = function( nu, W, a_alpha = 1, b_alpha = 1,
-                        Omega0, z0, alpha0,
+                        Kappa0, z0, alpha0,
                         var_alpha_adp0 = 1, adaptiveAlpha = T,
-                        UpdatePartition = T, UpdateOmega = T, UpdateAlpha = T){
+                        UpdatePartition = T, UpdateKappa = T, UpdateAlpha = T){
     
     option = list("nu"=nu, "W"=W, "a_alpha" = a_alpha, "b_alpha" = b_alpha,
-                  "Omega0"=Omega0, "z0"=z0, "alpha0"=alpha0,
+                  "Kappa0"=Kappa0, "z0"=z0, "alpha0"=alpha0,
                   "var_alpha_adp0"=var_alpha_adp0, "adaptiveAlpha" = adaptiveAlpha,
-                  "UpdatePartition" = UpdatePartition, "UpdateOmega" = UpdateOmega, "UpdateAlpha" = UpdateAlpha)
+                  "UpdatePartition"=UpdatePartition, "UpdateKappa" = UpdateKappa, "UpdateAlpha" = UpdateAlpha)
     return (option)
 }
 
@@ -509,11 +509,11 @@ Gibbs_sampler = function(data,niter,nburn,thin,
         stop("length p0 not coherent with ncol(data)")
     if(nrow(options$W)!=p)
         stop("nrow W not coherent with ncol(data)")  
-    if(nrow(options$Omega0)!=p)
-        stop("nrow Omega0 not coherent with ncol(data)")
+    if(nrow(options$Kappa0)!=p)
+        stop("nrow Kappa0 not coherent with ncol(data)")
     
     # get initial values
-    Omega = options$Omega0
+    Kappa = options$Kappa0
     z     = options$z0
     alpha = options$alpha0
     var_alpha_adp = options$var_alpha_adp0
@@ -524,8 +524,8 @@ Gibbs_sampler = function(data,niter,nburn,thin,
     
     # Define structure to save sampled values
     save_res = vector("list",length = 4)
-    names(save_res) = c("Omega","Partition","alpha","var_alpha_adp")
-    save_res$Omega = vector("list",length = niter) 
+    names(save_res) = c("Kappa","Partition","alpha","var_alpha_adp")
+    save_res$Kappa = vector("list",length = niter) 
     save_res$Partition = matrix(NA,nrow = niter, ncol = p)
     save_res$alpha = rep(NA,niter)
     save_res$var_alpha_adp = rep(NA,niter)
@@ -536,17 +536,22 @@ Gibbs_sampler = function(data,niter,nburn,thin,
         
         
         # Update precision matrix
-        if(options$UpdateOmega)
-            Omega = UpdatePrecision(options$nu,options$W,n,U,z)
+        if(options$UpdateKappa){
+            cat("Updating the precision matrix...")
+            # TODO aggiorna precision matrix da bdgraph
+            Kappa = UpdatePrecision(options$nu,options$W,n,U,z)
         
+        }
+            
         # Update partition
         if(options$UpdatePartition){
+            cat("Updating the partition...")
             # cat('\n pre z = ', z, '\n')
             # cat('\n pre counts = ', counts, '\n')
             # cat('\n pre Nclust = ', Nclust, '\n')
             list_update_part = UpdatePartition(z,counts,Nclust,alpha,
                                                MARGINAL = marginal_Wishartdes,
-                                               Omega,options$nu,options$W)
+                                               Kappa,options$nu,options$W)
             z = list_update_part$z
             counts = list_update_part$counts
             Nclust = list_update_part$Nclust
@@ -557,19 +562,20 @@ Gibbs_sampler = function(data,niter,nburn,thin,
         
         # Update alpha 
         if(options$UpdateAlpha){
+            cat("Updating the a and d weights...")
             #alpha = Updatealpha_augmentation(alpha,Nclust,p,options$a_alpha,options$b_alpha)
-            list_update_alpha = Updatealpha_MH(alpha,Nclust,p,options$a_alpha,options$b_alpha, var_alpha_adp, iter, options$adaptiveAlpha)
-            alpha = list_update_alpha$alpha
-            var_alpha_adp = list_update_alpha$var_alpha_adp
+            #list_update_alpha = Updatealpha_MH(alpha,Nclust,p,options$a_alpha,options$b_alpha, var_alpha_adp, iter, options$adaptiveAlpha)
+            #alpha = list_update_alpha$alpha
+            #var_alpha_adp = list_update_alpha$var_alpha_adp
         }
         
         # save results
         if(iter>nburn && (iter-nburn)%%thin == 0){
             it_saved = it_saved + 1 
-            save_res$Omega[[it_saved]] = Omega
-            save_res$Partition[it_saved,] = z
-            save_res$alpha[it_saved] = alpha
-            save_res$var_alpha_adp[it_saved] = var_alpha_adp
+            #save_res$Kappa[[it_saved]] = Kappa
+            #save_res$Partition[it_saved,] = z
+            #save_res$alpha[it_saved] = alpha
+            #save_res$var_alpha_adp[it_saved] = var_alpha_adp
         }
         
         if(print){
