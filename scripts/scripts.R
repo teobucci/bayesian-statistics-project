@@ -535,6 +535,21 @@ Gibbs_sampler = function(data,niter,nburn,thin,
     for(iter in 1:n_total_iter){
         
         
+        
+        
+        
+        
+        # pseudocode
+        
+        
+        
+        
+        if('voglio adattare i pesi'){
+            logAdaptation
+        }
+        
+        
+        
         # Update precision matrix
         if(options$UpdateKappa){
             cat("Updating the precision matrix...")
