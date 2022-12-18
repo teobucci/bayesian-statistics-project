@@ -12,5 +12,6 @@ git submodule update --recursive
 
 ```
 git submodule foreach git pull
+git commit -a -m 'Update submodule with fixes'
 ```
 
