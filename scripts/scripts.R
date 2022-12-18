@@ -328,18 +328,46 @@ mergePartition <- function(k,rho_n){
 #' @export
 #'
 #' @examples
-shuffle <- function(k,rho_n){
-  new_rho={}
-  if(length(rho_n)==1){
-    new_rho=rho_n #the shuffling obviously can be done only if the number of groups is at least 2
-  }
-  else{
-  i <- sample(1:(k-1),1)
-  j <- sample(1:(rho_n[i] + rho_n[i + 1] - 1),1)
-  new_rho[i+1] <- (rho_n[i] + rho_n[i+1] - j)
-  new_rho[i] <- j 
-  }
-  return(new_rho)
+shuffle <- function(rho){ # vedi Corradin p.16
+
+    k = length(rho)
+    new_rho = rho
+    
+    if(k>1){ # shuffling can be done only if the number of groups is at least 2
+        
+        j <- sample(1:(k-1),1)
+        l <- sample(1:(rho[j]+rho[j+1]-1),1)
+        
+        new_rho[j+1] <- rho[j+1] + rho[j] - l
+        new_rho[j] <- l
+    }
+    
+    # compute alpha_shuffle
+
+    prior_ratio = lpochhammer(1-sigma, l)
+                + lpochhammer(1-sigma, rho[j] + rho[j+1] - l)
+                - lpochhammer(1-sigma, rho[j] - 1)
+                - lpochhammer(1-sigma, rho[j+1] - 1)
+                + lfactorial(rho[j])
+                + lfactorial(rho[j+1])
+                - lfactorial(l)
+                - lfactorial(rho[j] + rho[j+1] - l)
+    
+    likelihood_ratio = 
+        # TODO bisogna scrivere S e avere i due casi tenendo conto
+        # di quanti elementi vanno da una parte a un'altra
+    
+    
+    
+    alpha_shuffle = min(1, likelihood_ratio * prior_ratio)
+    
+    if(runif(n=1) < alpha_shuffle){
+        # accept the shuffle
+        return(new_rho)
+    } else {
+        return(rho)
+    }
+    
 }
 
 #Useful Functions
@@ -354,7 +382,7 @@ shuffle <- function(k,rho_n){
 #' @export
 #'
 #' @examples
-pochhammer <- function(x,n,log=F){
+lpochhammer <- function(x,n,log=T){
     if(n<0)
         stop("Non si fa")
   if(log){
@@ -466,9 +494,9 @@ priorRatio = function(theta, sigma, current_rho, proposed_rho){
     n_s = n_star_s + n_star_s_plus_1
     
     
-    ratio = - log(M) + (theta + M*sigma) + pochhammer(1-sigma, n_star_s - 1, log=T)
-                                         + pochhammer(1-sigma, n_star_s_plus_1 - 1, log=T)
-                                         - pochhammer(1-sigma, n_s - 1, log=T)
+    ratio = - log(M) + (theta + M*sigma) + lpochhammer(1-sigma, n_star_s - 1)
+                                         + lpochhammer(1-sigma, n_star_s_plus_1 - 1)
+                                         - lpochhammer(1-sigma, n_s - 1)
                                          + lfactorial(n_s)
                                          - lfactorial(n_star_s)
                                          - lfactorial(n_star_s_plus_1)
