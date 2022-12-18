@@ -7,10 +7,10 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
     
     
     unifsample = runif(n=1)
-    choose_add = unifsample<alfaAdd
+    choose_add = unifsample<alpha_add
     
     # OK
-    proposal_list = proposalRatio(rho, alfaAdd, a_weights, d_weights, unifsample)
+    proposal_list = proposalRatio(rho, alpha_add, a_weights, d_weights, unifsample)
     proposalRatioNow = log(proposal_list$ratio)
     candidate = proposal_list$candidate
     
@@ -63,8 +63,8 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
 #' The function works in log scale
 #' 
 #' @param logweights vector of the logarithm of the current weights
-#' @param alfaTarget scalar indicating the target acceptance probability (optimal range around 0.10-0.15)
-#' @param alfaAdd probability of adding a move (usually 0.5)
+#' @param alpha_target scalar indicating the target acceptance probability (optimal range around 0.10-0.15)
+#' @param alpha_add probability of adding a move (usually 0.5)
 #' @param t number of the current iteration
 #' @param h initial adaptation (must be >0)
 #'
@@ -73,10 +73,10 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
 #'
 #' @examples
 #' 
-logAdaptation = function(logweights, t, h, alpha_target, alfaAdd){ 
+logAdaptation = function(logweights, t, h, alpha_target, alpha_add){ 
     if(!h>0)
         stop("Adaptation step h must be positive")
-    return (logweights + h*length(logweights) / t * (alfaAdd - alpha_target))
+    return (logweights + h*length(logweights) / t * (alpha_add - alpha_target))
 }
 
 
@@ -119,11 +119,11 @@ partitionData <- function(y,rho_n){
 
 
 #' Computes the proposal ratio from the file "Samplingstrategy_nonparam" at page 4
-#' Follows strictly the paper, just adds the possibility of having alfaAdd set by the author
+#' Follows strictly the paper, just adds the possibility of having alpha_add set by the author
 #' NOTE: I have not added the checks for the range of the parameters ranging from 0 and 1. Anyway, they are easy to include in the first if
 #'
 #' @param rho the partition in compact form (e.. rho=c(1,4,5) means that the first group has 1 element, the second has 4 elements, the last has 5 elements)
-#' @param alfaAdd fixed probability of choosing ADD or DELETE as a move
+#' @param alpha_add fixed probability of choosing ADD or DELETE as a move
 #' @param a_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when ADDING a changepoint between point j and point j+1 (weights are non-normalized probabilities)
 #' @param d_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when DELETING a changepoint between point j and point j+1 (weights are non-normalized probabilities)
 #'
@@ -131,11 +131,11 @@ partitionData <- function(y,rho_n){
 #' @export
 #'
 #' @examples
-proposalRatio=function(rho, alfaAdd, a_weights, d_weights, unifsample){
+proposalRatio=function(rho, alpha_add, a_weights, d_weights, unifsample){
     
-    #alfaAdd=0.5
+    #alpha_add=0.5
     num_groups = length(rho)
-    choose_add = unifsample < alfaAdd
+    choose_add = unifsample < alpha_add
     n_elems = length(a_weights)
     
     # preliminary check for extreme cases
@@ -179,25 +179,25 @@ proposalRatio=function(rho, alfaAdd, a_weights, d_weights, unifsample){
     if (choose_add && num_groups==1){
         # case in which you choose to propose an add move
         # (with just 1 group) that may or may not be accepted
-        ratio = alfaAdd/1 * a_weights_available_sum / a_weights[candidate]
+        ratio = alpha_add/1 * a_weights_available_sum / a_weights[candidate]
         return(list("ratio"=ratio,"candidate"=candidate))
     }
     
     if (!choose_add && num_groups==n_elems){
         # case in which you choose to propose an delete move
         # (with every point being a group) that may or may not be accepted
-        ratio = alfaAdd/1 * d_weights_available_sum / d_weights[candidate]
+        ratio = alpha_add/1 * d_weights_available_sum / d_weights[candidate]
         return(list("ratio"=ratio,"candidate"=candidate))
     }
     
     
     # only the general cases remain
     if (choose_add){
-        ratio = (1-alfaAdd)/alfaAdd * 
+        ratio = (1-alpha_add)/alpha_add * 
             a_weights_available_sum / a_weights[candidate] * 
             d_weights[candidate] / (d_weights[candidate] + d_weights_available_sum)
     } else {
-        ratio = alfaAdd/ (1-alfaAdd) * 
+        ratio = alpha_add/ (1-alpha_add) * 
             d_weights_available_sum / d_weights[candidate] *
             a_weights[candidate] / (a_weights[candidate] + a_weights_available_sum)
     }
@@ -410,7 +410,7 @@ lpochhammer <- function(x,n,log=T){
 }
 
 
-log_likelihoodRatio = function(rho, alfaAdd, a_weights, d_weights){
+log_likelihoodRatio = function(rho, alpha_add, a_weights, d_weights){
     
     alpha = 1
     beta = 1
@@ -544,7 +544,7 @@ set_options = function(sigma0,
                        alpha_target,
                        a,
                        b,
-                       alphaAdd=0.5,
+                       alpha_add=0.5,
                        update_sigma=T,
                        update_theta=T,
                        update_weights=T,
@@ -561,7 +561,7 @@ set_options = function(sigma0,
         "alpha_target"     = alpha_target,
         "a"                = a,
         "b"                = b,
-        "alphaAdd"         = alphaAdd,
+        "alpha_add"        = alpha_add,
         "update_sigma"     = update_sigma,
         "update_theta"     = update_theta,
         "update_weights"   = update_weights,
@@ -588,7 +588,7 @@ Gibbs_sampler = function(data, niter, nburn, thin,
     weights_d = options$weights_d0 # del weights
     
     # constant parameters
-    alphaAdd = options$alphaAdd # probability of choosing add over delete
+    alpha_add = options$alpha_add # probability of choosing add over delete
     alpha_target = options$alpha_target # target alpha for adapting weights
     
     a = options$a # parameter for the likelihood of the graph (Beta(a,b))
@@ -646,10 +646,10 @@ Gibbs_sampler = function(data, niter, nburn, thin,
         if(options$update_weights){
             
             weights_a = exp(logAdaptation(
-                log(weights_a), iter, 1/p, alpha_target, alfaAdd))
+                log(weights_a), iter, 1/p, alpha_target, alpha_add))
             
             weights_d = exp(logAdaptation(
-                log(weights_d), iter, 1/p, alpha_target, 1-alfaAdd))
+                log(weights_d), iter, 1/p, alpha_target, 1-alpha_add))
         }
         
         if(options$perform_shuffle){
