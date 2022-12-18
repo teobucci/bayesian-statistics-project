@@ -11,6 +11,7 @@ git submodule update --recursive
 ## How to update the submodule
 
 ```
+git pull origin master
 git submodule foreach git pull
 git commit -a -m 'Update submodule with fixes'
 git push origin master
