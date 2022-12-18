@@ -7,7 +7,7 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
     
     
     unifsample = runif(n=1)
-    choose_add = unifsample<alpha_add
+    choose_add = unifsample < alpha_add
     
     # OK
     proposal_list = proposalRatio(rho, alpha_add, a_weights, d_weights, unifsample)
@@ -386,35 +386,27 @@ shuffle <- function(rho){ # vedi Corradin p.16
 #' @export
 #'
 #' @examples
-lpochhammer <- function(x,n,log=T){
-    if(n<0)
-        stop("Non si fa")
-  if(log){
-    num_vec <- as.numeric()
-    num_vec[1] = x
-  
-    if (n!=0){for(i in 1:(n-1)){num_vec[i+1] <- (x+i)}}
-  
-    if (n==0){num_vec[1] <- 1}
-  
-    num <- sum(log(num_vec))
-  
-    return(num)
-  }
-  
-  else{
-    num_vec <- as.numeric()
+lpochhammer <- function(x, n, log = T) {
+    if (n < 0)
+        stop("The pochhammer operator doesn't allow n < 0")
     
-    num_vec[1] = x
+    num_vec <- numeric(n)
     
-    if (n!=0){for(i in 1:(n-1)){num_vec[i+1] <- (x+i)}}
+    if (n != 0) {
+        num_vec[1] = x
+        for (i in 1:(n - 1)) {
+            num_vec[i + 1] = (x + i)
+        }
+    }
     
-    if (n==0){num_vec[1] <- 1}
+    if (n == 0) {
+        num_vec[1] = 1
+    }
     
-    num <- prod(num_vec)
-    
-    return(num)
-  }
+    if (log)
+        return(sum(log(num_vec)))
+    else
+        return(prod(num_vec))
 }
 
 # ---------------------------------------------
