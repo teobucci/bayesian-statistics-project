@@ -20,8 +20,8 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
     } else {
         t = mergePartition(candidate, rho)
     }
-    proposed_rho = t[[1]]
-    THE_GROUP = t[[2]] # TODO cambiare questo nome per renderlo coerente con ciò che c'è sotto
+    proposed_rho = t$rho
+    THE_GROUP = t$group_index # TODO cambiare questo nome per renderlo coerente con ciò che c'è sotto
     
     # OK qua dentro guarda che forse c'è un ricalcolo inutile dell'indice del gruppo da splittare o mergiare
     priorRatioNow = log_priorRatio(theta, sigma, current_rho, proposed_rho, choose_add)
@@ -223,14 +223,11 @@ proposalRatio=function(rho, alpha_add, a_weights, d_weights, unifsample){
 splitPartition <- function(k,rho_n){ # TODO rename k -> candidate index
   n_elems=sum(rho_n)
   n_groups=length(rho_n)
-  output=list()
   new_rho={}
 
   
   if(n_elems==(length(rho_n)) || k>n_elems-1){ #First check: all groups with 1 element or index out of bound (number of changepoints=n_elems-1)
-    output[[1]] = rho_n
-    output[[2]] = 0 # returns 0 if the change has not been performed
-    return (output) 
+      return(list('rho'=rho_n,'group_index'=-1)) 
   }
   cumsum_rho=cumsum(rho_n)
   found=FALSE
@@ -238,9 +235,7 @@ splitPartition <- function(k,rho_n){ # TODO rename k -> candidate index
   for(i in 1:n_groups){
     if(found==FALSE && cumsum_rho[i]==k) #k is already a changepoint, nothing to split - returns the original rho
     {
-      output[[1]] = rho_n
-      output[[2]] = 0 # returns 0 if the change has not been performed
-      return (output) 
+      return(list('rho'=rho_n,'group_index'=-1)) 
     }
     #I update the partition in the general case (either I have already split the group or not, just the indexing changes)
     if(found==FALSE) {
@@ -256,9 +251,7 @@ splitPartition <- function(k,rho_n){ # TODO rename k -> candidate index
       found=TRUE
     }
   }
-  output[[1]] = new_rho
-  output[[2]] = j
-  return(output)
+  return(list('rho'=new_rho,'group_index'=j)) 
 }
 
 
@@ -281,22 +274,17 @@ splitPartition <- function(k,rho_n){ # TODO rename k -> candidate index
 mergePartition <- function(k,rho_n){
   n_elems=sum(rho_n)
   n_groups=length(rho_n)
-  output=list()
   new_rho={}
   
   if(( length(rho_n)==1) || k>n_elems-1){ #First check: only 1 group or index out of bound (number of changepoints=n_elems-1)
-    output[[1]] = rho_n
-    output[[2]] = 0 # returns 0 if the change has not been performed
-    return (output) 
+    return(list('rho'=rho_n,'group_index'=-1)) 
   }
   cumsum_rho=cumsum(rho_n)
   found=FALSE
   #For every index i, I store the new i-th group
   for(i in 1:(n_groups-1)){ #ACHTUNG! Must stop at n_groups - 1 
     if(found==FALSE && cumsum_rho[i]!=k){ #k is already a non-changepoint, nothing to merge - returns the original rho
-      output[[1]] = rho_n
-      output[[2]] = 0 # returns 0 if the change has not been performed
-      return (output) 
+      return(list('rho'=rho_n,'group_index'=-1)) 
       }
     if(found==FALSE){
       new_rho[i]=rho_n[i]
@@ -310,9 +298,7 @@ mergePartition <- function(k,rho_n){
       found=TRUE
       }
     }
-    output[[1]] = new_rho
-    output[[2]] = j
-    return(output)
+    return(list('rho'=new_rho,'group_index'=j)) 
 }
 
 #' shufflePartition (QUESTA RESTA MOLTO SIMILE A CORRADIN, NO?)
