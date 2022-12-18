@@ -505,41 +505,49 @@ priorRatio = function(theta, sigma, current_rho, proposed_rho){
 # }
 
 
-set_options = function(){
+set_options = function(sigma0,
+                       theta0,
+                       rho0,
+                       weights_a0,
+                       weights_d0,
+                       alpha_target,
+                       a,
+                       b,
+                       alphaAdd=0.5,
+                       update_sigma=T,
+                       update_theta=T,
+                       update_weights=T,
+                       update_partition=T,
+                       update_graph=T,
+                       perform_shuffle=T){
     
     options = list(
         "sigma0"           = sigma0,
         "theta0"           = theta0,
         "rho0"             = rho0,
-        "alphaAdd"         = alphaAdd,
         "weights_a0"       = weights_a0,
         "weights_d0"       = weights_d0,
         "alpha_target"     = alpha_target,
         "a"                = a,
         "b"                = b,
+        "alphaAdd"         = alphaAdd,
         "update_sigma"     = update_sigma,
         "update_theta"     = update_theta,
         "update_weights"   = update_weights,
-        "update_partition" = update_partition
+        "update_partition" = update_partition,
+        "update_graph"     = update_graph,
+        "perform_shuffle"  = perform_shuffle,
         )
     return(options)
 }
 
-Gibbs_sampler = function(data,niter,nburn,thin,
+Gibbs_sampler = function(data, niter, nburn, thin,
                          options,
-                         seed=1234,print=T)
+                         seed=1234, print=T)
 {
     n = nrow(data) # number of observations
     p = ncol(data) # number of nodes
     n_total_iter = nburn + niter*thin # total iterations to be made
-    
-    # TODO check qui
-    # if(length(options$z0)!=p)
-    #     stop("length p0 not coherent with ncol(data)")
-    # if(nrow(options$W)!=p)
-    #     stop("nrow W not coherent with ncol(data)")  
-    # if(nrow(options$Kappa0)!=p)
-    #     stop("nrow Kappa0 not coherent with ncol(data)")
     
     # dynamic parameters
     sigma     = options$sigma0 # initial parameter of the nonparametric prior
@@ -557,6 +565,15 @@ Gibbs_sampler = function(data,niter,nburn,thin,
     
     # TODO add graph parameters
     # REGAZ DIAMOCI UNA MOSSAAAA
+    
+    
+    # TODO check qui
+    if(sum(rho) != p)
+        stop("The partition rho must sum to p")
+    # if(nrow(options$W)!=p)
+    #     stop("nrow W not coherent with ncol(data)")  
+    # if(nrow(options$Kappa0)!=p)
+    #     stop("nrow Kappa0 not coherent with ncol(data)")
     
     
     #   var_alpha_adp = options$var_alpha_adp0
@@ -581,58 +598,88 @@ Gibbs_sampler = function(data,niter,nburn,thin,
     
     for(iter in 1:n_total_iter){
         
-        # pseudocode
+        # Update graph
+        if(options$update_graph){
+            cat("Updating the graph...")
+            # TODO
+            # Kappa = UpdatePrecision(options$nu,options$W,n,U,z)
         
-        if('voglio adattare i pesi'){
+        }
+        
+        if(options$update_partition){
+            
+            # TODO
+        }
+        
+        
+        if(options$update_weights){
+            # TODO
             logAdaptation
         }
         
-        # Update precision matrix
-        if(options$UpdateKappa){
-            cat("Updating the precision matrix...")
-            # TODO aggiorna precision matrix da bdgraph
-            Kappa = UpdatePrecision(options$nu,options$W,n,U,z)
-        
-        }
-            
-        # Update partition
-        if(options$UpdatePartition){
-            cat("Updating the partition...")
-            # cat('\n pre z = ', z, '\n')
-            # cat('\n pre counts = ', counts, '\n')
-            # cat('\n pre Nclust = ', Nclust, '\n')
-            list_update_part = UpdatePartition(z,counts,Nclust,alpha,
-                                               MARGINAL = marginal_Wishartdes,
-                                               Kappa,options$nu,options$W)
-            z = list_update_part$z
-            counts = list_update_part$counts
-            Nclust = list_update_part$Nclust
-            # cat('\n post z = ', z, '\n')
-            # cat('\n post counts = ', counts, '\n')
-            # cat('\n post Nclust = ', Nclust, '\n')
+        if(options$perform_shuffle){
+            # TODO
         }
         
-        # Update alpha 
-        if(options$UpdateAlpha){
-            cat("Updating the a and d weights...")
-            #alpha = Updatealpha_augmentation(alpha,Nclust,p,options$a_alpha,options$b_alpha)
-            #list_update_alpha = Updatealpha_MH(alpha,Nclust,p,options$a_alpha,options$b_alpha, var_alpha_adp, iter, options$adaptiveAlpha)
-            #alpha = list_update_alpha$alpha
-            #var_alpha_adp = list_update_alpha$var_alpha_adp
+        if(options$update_sigma){
+            # TODO mettere la full conditional di sigma qui
         }
         
-        # save results
+        if(options$update_theta){
+            # TODO mettere la full conditional di theta qui
+        }
+        
+        # save results only on thin iterations
         if(iter>nburn && (iter-nburn)%%thin == 0){
+            # TODO
             it_saved = it_saved + 1 
-            #save_res$Kappa[[it_saved]] = Kappa
-            #save_res$Partition[it_saved,] = z
-            #save_res$alpha[it_saved] = alpha
-            #save_res$var_alpha_adp[it_saved] = var_alpha_adp
         }
         
         if(print){
             setTxtProgressBar(pb, iter)
         }
+        
+        
+        
+            
+        # Update partition
+        # if(options$UpdatePartition){
+        #     cat("Updating the partition...")
+        #     # cat('\n pre z = ', z, '\n')
+        #     # cat('\n pre counts = ', counts, '\n')
+        #     # cat('\n pre Nclust = ', Nclust, '\n')
+        #     list_update_part = UpdatePartition(z,counts,Nclust,alpha,
+        #                                        MARGINAL = marginal_Wishartdes,
+        #                                        Kappa,options$nu,options$W)
+        #     z = list_update_part$z
+        #     counts = list_update_part$counts
+        #     Nclust = list_update_part$Nclust
+        #     # cat('\n post z = ', z, '\n')
+        #     # cat('\n post counts = ', counts, '\n')
+        #     # cat('\n post Nclust = ', Nclust, '\n')
+        # }
+        
+        # Update alpha 
+        #if(options$UpdateAlpha){
+        #    cat("Updating the a and d weights...")
+            #alpha = Updatealpha_augmentation(alpha,Nclust,p,options$a_alpha,options$b_alpha)
+            #list_update_alpha = Updatealpha_MH(alpha,Nclust,p,options$a_alpha,options$b_alpha, var_alpha_adp, iter, options$adaptiveAlpha)
+            #alpha = list_update_alpha$alpha
+            #var_alpha_adp = list_update_alpha$var_alpha_adp
+        #}
+        
+        # save results
+        # if(iter>nburn && (iter-nburn)%%thin == 0){
+        #     it_saved = it_saved + 1 
+        #     #save_res$Kappa[[it_saved]] = Kappa
+        #     #save_res$Partition[it_saved,] = z
+        #     #save_res$alpha[it_saved] = alpha
+        #     #save_res$var_alpha_adp[it_saved] = var_alpha_adp
+        # }
+        
+        # if(print){
+        #     setTxtProgressBar(pb, iter)
+        # }
         
     }
     
