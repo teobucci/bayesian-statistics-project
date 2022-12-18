@@ -484,71 +484,108 @@ priorRatio = function(theta, sigma, current_rho, proposed_rho){
 
 
 
-set_options = function( nu, W, a_alpha = 1, b_alpha = 1,
-                        Kappa0, z0, alpha0,
-                        var_alpha_adp0 = 1, adaptiveAlpha = T,
-                        UpdatePartition = T, UpdateKappa = T, UpdateAlpha = T){
-    
-    option = list("nu"=nu, "W"=W, "a_alpha" = a_alpha, "b_alpha" = b_alpha,
-                  "Kappa0"=Kappa0, "z0"=z0, "alpha0"=alpha0,
-                  "var_alpha_adp0"=var_alpha_adp0, "adaptiveAlpha" = adaptiveAlpha,
-                  "UpdatePartition"=UpdatePartition, "UpdateKappa" = UpdateKappa, "UpdateAlpha" = UpdateAlpha)
-    return (option)
-}
+# set_options = function( nu, W, a_alpha = 1, b_alpha = 1,
+#                         Kappa0, z0, alpha0,
+#                         var_alpha_adp0 = 1, adaptiveAlpha = T,
+#                         UpdatePartition = T, UpdateKappa = T, UpdateAlpha = T){
+#     
+#     option = list("nu"=nu,
+#                   "W"=W,
+#                   "a_alpha"=a_alpha,
+#                   "b_alpha"=b_alpha,
+#                   "Kappa0"=Kappa0,
+#                   "z0"=z0,
+#                   "alpha0"=alpha0,
+#                   "var_alpha_adp0"=var_alpha_adp0,
+#                   "adaptiveAlpha"=adaptiveAlpha,
+#                   "UpdatePartition"=UpdatePartition,
+#                   "UpdateKappa"=UpdateKappa,
+#                   "UpdateAlpha"=UpdateAlpha)
+#     return (option)
+# }
 
+
+set_options = function(){
+    
+    options = list(
+        "sigma0"           = sigma0,
+        "theta0"           = theta0,
+        "rho0"             = rho0,
+        "alphaAdd"         = alphaAdd,
+        "weights_a0"       = weights_a0,
+        "weights_d0"       = weights_d0,
+        "alpha_target"     = alpha_target,
+        "a"                = a,
+        "b"                = b,
+        "update_sigma"     = update_sigma,
+        "update_theta"     = update_theta,
+        "update_weights"   = update_weights,
+        "update_partition" = update_partition
+        )
+    return(options)
+}
 
 Gibbs_sampler = function(data,niter,nburn,thin,
                          options,
                          seed=1234,print=T)
 {
-    n = nrow(data)
-    p = ncol(data)
-    n_total_iter = nburn + niter*thin
+    n = nrow(data) # number of observations
+    p = ncol(data) # number of nodes
+    n_total_iter = nburn + niter*thin # total iterations to be made
     
-    if(length(options$z0)!=p)
-        stop("length p0 not coherent with ncol(data)")
-    if(nrow(options$W)!=p)
-        stop("nrow W not coherent with ncol(data)")  
-    if(nrow(options$Kappa0)!=p)
-        stop("nrow Kappa0 not coherent with ncol(data)")
+    # TODO check qui
+    # if(length(options$z0)!=p)
+    #     stop("length p0 not coherent with ncol(data)")
+    # if(nrow(options$W)!=p)
+    #     stop("nrow W not coherent with ncol(data)")  
+    # if(nrow(options$Kappa0)!=p)
+    #     stop("nrow Kappa0 not coherent with ncol(data)")
     
-    # get initial values
-    Kappa = options$Kappa0
-    z     = options$z0
-    alpha = options$alpha0
-    var_alpha_adp = options$var_alpha_adp0
-    # other quantities
-    U = t(data)%*%data # compute U (data must have zero mean)
-    counts = as.vector(table(z))  # initial data counts at each cluster
-    Nclust = length(counts)	  # initial number of clusters
+    # dynamic parameters
+    sigma     = options$sigma0 # initial parameter of the nonparametric prior
+    theta     = options$theta0 # initial parameter of the nonparametric prior
+    rho       = options$rho0 # initial partition (eg. c(150,151))
+    weights_a = options$weights_a0 # add weights
+    weights_d = options$weights_d0 # del weights
     
-    # Define structure to save sampled values
-    save_res = vector("list",length = 4)
-    names(save_res) = c("Kappa","Partition","alpha","var_alpha_adp")
-    save_res$Kappa = vector("list",length = niter) 
-    save_res$Partition = matrix(NA,nrow = niter, ncol = p)
-    save_res$alpha = rep(NA,niter)
-    save_res$var_alpha_adp = rep(NA,niter)
+    # constant parameters
+    alphaAdd = options$alphaAdd # probability of choosing add over delete
+    alpha_target = options$alpha_target # target alpha for adapting weights
     
-    it_saved = 0 #initialize iteration counter
-    pb = txtProgressBar(min = 1, max = n_total_iter, initial = 1, style = 3) # initialize progress bar
+    a = options$a # parameter for the likelihood of the graph (Beta(a,b))
+    b = options$b # parameter for the likelihood of the graph (Beta(a,b))
+    
+    # TODO add graph parameters
+    # REGAZ DIAMOCI UNA MOSSAAAA
+    
+    
+    #   var_alpha_adp = options$var_alpha_adp0
+    #   # other quantities
+    #   U = t(data)%*%data # compute U (data must have zero mean)
+    #   counts = as.vector(table(z))  # initial data counts at each cluster
+    #   Nclust = length(counts)	  # initial number of clusters
+    #   
+    #   # Define structure to save sampled values
+    #   save_res = vector("list",length = 4)
+    #   names(save_res) = c("Kappa","Partition","alpha","var_alpha_adp")
+    #   save_res$Kappa = vector("list",length = niter) 
+    #   save_res$Partition = matrix(NA,nrow = niter, ncol = p)
+    #   save_res$alpha = rep(NA,niter)
+    #   save_res$var_alpha_adp = rep(NA,niter)
+    
+    # initialize iteration counter
+    it_saved = 0
+    
+    # initialize progress bar
+    pb = txtProgressBar(min=1, max=n_total_iter, initial=1, style=3)
+    
     for(iter in 1:n_total_iter){
         
-        
-        
-        
-        
-        
         # pseudocode
-        
-        
-        
         
         if('voglio adattare i pesi'){
             logAdaptation
         }
-        
-        
         
         # Update precision matrix
         if(options$UpdateKappa){
