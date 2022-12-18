@@ -9,26 +9,39 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
     unifsample = runif(n=1)
     choose_add = unifsample<alfaAdd
     
+    # OK
+    proposal_list = proposalRatio(rho, alfaAdd, a_weights, d_weights, unifsample)
+    proposalRatioNow = log(proposal_list$ratio)
+    candidate = proposal_list$candidate
+    
+    # compute proposed partition based on candidate and index of the group
+    if(choose_add){
+        t = splitPartition(candidate, rho)
+    } else {
+        t = mergePartition(candidate, rho)
+    }
+    proposed_rho = t[[1]]
+    THE_GROUP = t[[2]] # TODO cambiare questo nome per renderlo coerente con ciò che c'è sotto
+    
+    # OK qua dentro guarda che forse c'è un ricalcolo inutile dell'indice del gruppo da splittare o mergiare
+    priorRatioNow = log_priorRatio(theta, sigma, current_rho, proposed_rho, choose_add)
+    
     # Status? manca theta mannaggia all'altro team GGM (Grandi Gandalf Mangiacacca)
     likelihoodRatioNow = log_likelihoodRatio(choose_add,...)
     
-    # OK
-    priorRatioNow = log_priorRatio(theta, sigma, current_rho, proposed_rho, choose_add)
-    
-    # OK
-    proposalRatioNow = log(proposalRatio(rho, alfaAdd, a_weights, d_weights, unifsample))
-    
     alpha_accept <- min(1, exp(likelihoodRatioNow + priorRatioNow + proposalRatioNow))
     
-    if (runif(n=1) < alpha_accept){
-        # accept the move
-        if(merge){ # accepted move is a merge
-            mergePartition
+    if (runif(n=1) < alpha_accept){ # accept the move
+
+        if(choose_add){ # accepted move is a split
+            # TODO splitPartition(candidate,rho_n)
         }
-        else{ # accepted move is a split
-            splitPartition
+        else{ # accepted move is a merge
+            # TODO mergePartition
         }
         partitionData
+    } else { # don't do anything
+        
     }
     
 }
@@ -129,8 +142,7 @@ proposalRatio=function(rho, alfaAdd, a_weights, d_weights, unifsample){
     if((!choose_add && num_groups==1) || (choose_add && num_groups==n_elems) ){
         # incompatible to delete when only one group is present
         # or to add when every point is a group
-        ratio=0
-        return(ratio)
+        return(list("ratio"=0,"candidate"=-1)) # fictitious candidate
     }
     
     # select the element range which we will use to extract the useful indexes
@@ -168,14 +180,14 @@ proposalRatio=function(rho, alfaAdd, a_weights, d_weights, unifsample){
         # case in which you choose to propose an add move
         # (with just 1 group) that may or may not be accepted
         ratio = alfaAdd/1 * a_weights_available_sum / a_weights[candidate]
-        return(ratio)
+        return(list("ratio"=ratio,"candidate"=candidate))
     }
     
     if (!choose_add && num_groups==n_elems){
         # case in which you choose to propose an delete move
         # (with every point being a group) that may or may not be accepted
         ratio = alfaAdd/1 * d_weights_available_sum / d_weights[candidate]
-        return(ratio)
+        return(list("ratio"=ratio,"candidate"=candidate))
     }
     
     
@@ -190,7 +202,7 @@ proposalRatio=function(rho, alfaAdd, a_weights, d_weights, unifsample){
             a_weights[candidate] / (a_weights[candidate] + a_weights_available_sum)
     }
     
-    return (log(ratio))
+    return(list("ratio"=ratio,"candidate"=candidate))
 }
 
 
@@ -208,7 +220,7 @@ proposalRatio=function(rho, alfaAdd, a_weights, d_weights, unifsample){
 #' @export
 #'
 #' @examples
-splitPartition <- function(k,rho_n){
+splitPartition <- function(k,rho_n){ # TODO rename k -> candidate index
   n_elems=sum(rho_n)
   n_groups=length(rho_n)
   output=list()
