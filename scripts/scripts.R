@@ -650,7 +650,7 @@ Gibbs_sampler = function(data, niter, nburn, thin,
         }
         
         if(options$perform_shuffle){
-            # TODO
+            rho = shuffle(rho)
         }
         
         if(options$update_sigma){
