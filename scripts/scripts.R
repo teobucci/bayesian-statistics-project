@@ -503,7 +503,7 @@ Gibbs_sampler = function(data,niter,nburn,thin,
 {
     n = nrow(data)
     p = ncol(data)
-    n_total_iter =  nburn + niter*thin
+    n_total_iter = nburn + niter*thin
     
     if(length(options$z0)!=p)
         stop("length p0 not coherent with ncol(data)")
