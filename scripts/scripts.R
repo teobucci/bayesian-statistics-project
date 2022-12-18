@@ -78,10 +78,10 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
 #'
 #' @examples
 #' 
-logAdaptation = function(logweights,t,h,alfaTarget,alfaADD){ 
+logAdaptation = function(logweights, t, h, alpha_target, alfaAdd){ 
     if(!h>0)
         stop("Adaptation step h must be positive")
-    return (logweights + h*length(logweights) / t * (alfaADD - alfaTarget))
+    return (logweights + h*length(logweights) / t * (alfaAdd - alpha_target))
 }
 
 
@@ -613,8 +613,12 @@ Gibbs_sampler = function(data, niter, nburn, thin,
         
         
         if(options$update_weights){
-            # TODO
-            logAdaptation
+            
+            weights_a = exp(logAdaptation(
+                log(weights_a), iter, 1/p, alpha_target, alfaAdd))
+            
+            weights_d = exp(logAdaptation(
+                log(weights_d), iter, 1/p, alpha_target, 1-alfaAdd))
         }
         
         if(options$perform_shuffle){
