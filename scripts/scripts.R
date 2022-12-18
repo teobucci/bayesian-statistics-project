@@ -34,7 +34,7 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
     if (runif(n=1) < alpha_accept){ # accept the move
 
         if(choose_add){ # accepted move is a split
-            # TODO splitPartition(candidate,rho_n)
+            # TODO splitPartition(candidate,rho)
         }
         else{ # accepted move is a merge
             # TODO mergePartition
@@ -81,11 +81,11 @@ logAdaptation = function(logweights, t, h, alpha_target, alpha_add){
 
 
 #' Partition current data
-#' Given y (vector of data) and rho_n (vector of the partition) the function splits the observations and
+#' Given y (vector of data) and rho (vector of the partition) the function splits the observations and
 #' partitions them into the current groups 
 #' partitions them into the partition rho
 #' @param y - vector of n ordered data
-#' @param rho_n - partition written in compact form 
+#' @param rho - partition written in compact form 
 #' e.g. rho=c(2,4,5) means the first group has 2 elements, the second has 4 and the third has 5
 #'
 #' @return a list, where each element contains the corresponding group of y elements.
@@ -93,23 +93,23 @@ logAdaptation = function(logweights, t, h, alpha_target, alpha_add){
 #' @export
 #'
 #' @examples
-partitionData <- function(y,rho_n){ 
-  if(sum(rho_n)==length(y)){ #checks that the dimensionality is okay
+partitionData <- function(y,rho){ 
+  if(sum(rho)==length(y)){ #checks that the dimensionality is okay
   
     dataPartition <- list()
     
-    for (i in 1:length(rho_n)){
+    for (i in 1:length(rho)){
       if(i == 1) 
         {
-          dataPartition[[i]] <- y[1:rho_n[i]]
-          cumsum_rho=rho_n[i]
+          dataPartition[[i]] <- y[1:rho[i]]
+          cumsum_rho=rho[i]
         }
       else
        {
          first_index=cumsum_rho + 1
-         last_index=rho_n[i] + cumsum_rho
+         last_index=rho[i] + cumsum_rho
          dataPartition[[i]] <- y[first_index : last_index]
-         cumsum_rho=cumsum_rho+rho_n[i]
+         cumsum_rho=cumsum_rho+rho[i]
        }
     }
     return(dataPartition) 
@@ -213,45 +213,56 @@ proposalRatio=function(rho, alpha_add, a_weights, d_weights, unifsample){
 #' let's think about it
 #'
 #' @param k index of the the point where to split the group (equivalent to adding a changepoint)
-#' @param rho_n partition in compact form e.g., rho=c(2,3,4) means the first group has 2 elements, the second has three and the third has four
+#' @param rho partition in compact form e.g., rho=c(2,3,4) means the first group has 2 elements, the second has three and the third has four
 #'
 #' @return a list whose first element is the updated partition 
 #' and the second is the index of the groups that has changed (do not know if it is necessary, though)
 #' @export
 #'
 #' @examples
-splitPartition <- function(k,rho_n){ # TODO rename k -> candidate index
-  n_elems=sum(rho_n)
-  n_groups=length(rho_n)
-  new_rho={}
-
-  
-  if(n_elems==(length(rho_n)) || k>n_elems-1){ #First check: all groups with 1 element or index out of bound (number of changepoints=n_elems-1)
-      return(list('rho'=rho_n,'group_index'=-1)) 
-  }
-  cumsum_rho=cumsum(rho_n)
-  found=FALSE
-  #For every index i, I store the new i-th group
-  for(i in 1:n_groups){
-    if(found==FALSE && cumsum_rho[i]==k) #k is already a changepoint, nothing to split - returns the original rho
-    {
-      return(list('rho'=rho_n,'group_index'=-1)) 
+splitPartition <- function(candidate_index, rho) {
+    n_elems = sum(rho)
+    n_groups = length(rho)
+    new_rho = rep(NA,n_groups+1)
+    
+    # number of changepoints = n_elems - 1
+    # case: all groups with 1 element or index out of bound
+    if (n_elems == (length(rho)) || candidate_index > n_elems - 1) {
+        return(list('rho' = rho, 'group_index' = -1))
     }
-    #I update the partition in the general case (either I have already split the group or not, just the indexing changes)
-    if(found==FALSE) {
-        new_rho[i]=rho_n[i]
+    
+    cumsum_rho = cumsum(rho)
+    found = F
+    
+    for (i in 1:n_groups) {
+        if (!found && cumsum_rho[i] == candidate_index) {
+            # candidate_index is already a changepoint, return the original rho
+            return(list('rho' = rho, 'group_index' = -1))
+        }
+        # update the partition in the general case
+        # (either I have already split the group or not, just the indexing changes)
+        if (!found) {
+            new_rho[i] = rho[i]
+        } else {
+            new_rho[i + 1] = rho[i]
+        }
+        if (!found && cumsum_rho[i] > candidate_index) {
+            # just passed the element index - I am in the group to be split
+            
+            # index of the element minus the cumulative
+            # umber of elements in the previous groups only if i!=1
+            new_rho[i] = candidate_index - (i != 1) * cumsum_rho[i - 1 * (i != 1)]
+            
+            # dimension of the original group minus the elements moved to new_rho[i]
+            new_rho[i + 1] = rho[i] - new_rho[i]
+            
+            # save the index of the group that has changed
+            j = i
+            
+            found = T
+        }
     }
-    else {
-        new_rho[i+1]=rho_n[i]
-    }
-    if (found==FALSE && cumsum_rho[i]>k){ #in the case I have just passed the element index - e.g. i am in the group to be split
-      new_rho[i]=k-(i!=1)*cumsum_rho[i-1*(i!=1)]  # is the index of the element minus the cumulative number of elements in the previous groups only if i!=1
-      new_rho[i+1]=rho_n[i]-new_rho[i] # is the dimension of the original group minus the elements moved to new_rho[i]
-      j=i # I save the index of the group that has changed (the i-th group)- not sure it is necessary, though
-      found=TRUE
-    }
-  }
-  return(list('rho'=new_rho,'group_index'=j)) 
+    return(list('rho' = new_rho, 'group_index' = j))
 }
 
 
@@ -264,47 +275,58 @@ splitPartition <- function(k,rho_n){ # TODO rename k -> candidate index
 #' let's think about it
 #' 
 #' @param k index of the the point where to split the group (equivalent to adding a changepoint)
-#' @param rho_n partition in compact form e.g., rho=c(2,3,4) means the first group has 2 elements, the second has three and the third has four
+#' @param rho partition in compact form e.g., rho=c(2,3,4) means the first group has 2 elements, the second has three and the third has four
 #'
 #' @return a list whose first element is the updated partition 
 #' and the second is the index of the groups that has changed (do not know if it is necessary, though)
 #' @export
 #'
 #' @examples
-mergePartition <- function(k,rho_n){
-  n_elems=sum(rho_n)
-  n_groups=length(rho_n)
-  new_rho={}
-  
-  if(( length(rho_n)==1) || k>n_elems-1){ #First check: only 1 group or index out of bound (number of changepoints=n_elems-1)
-    return(list('rho'=rho_n,'group_index'=-1)) 
-  }
-  cumsum_rho=cumsum(rho_n)
-  found=FALSE
-  #For every index i, I store the new i-th group
-  for(i in 1:(n_groups-1)){ #ACHTUNG! Must stop at n_groups - 1 
-    if(found==FALSE && cumsum_rho[i]!=k){ #k is already a non-changepoint, nothing to merge - returns the original rho
-      return(list('rho'=rho_n,'group_index'=-1)) 
-      }
-    if(found==FALSE){
-      new_rho[i]=rho_n[i]
-      }
-    else {
-      new_rho[i]=rho_n[i+1]
-      }
-    if (found==FALSE && cumsum[i]==k){ #in the case I am at the changepoint between the two groups to be merged
-      new_rho[i]=rho_n[i]+rho_n[i+1]  # is the index of the element minus the cumulative number of elements in the previous groups
-      j=i # I save the index of the group that has changed (the i-th group)- not sure it is necessary, though
-      found=TRUE
-      }
+mergePartition <- function(candidate_index, rho) {
+    n_elems = sum(rho)
+    n_groups = length(rho)
+    new_rho = rep(NA, n_groups - 1)
+    
+    # number of changepoints = n_elems - 1
+    # case: only 1 group or index out of bound
+    if ((length(rho) == 1) || candidate_index > n_elems - 1) {
+        return(list('rho' = rho, 'group_index' = -1))
     }
-    return(list('rho'=new_rho,'group_index'=j)) 
+    
+    cumsum_rho = cumsum(rho)
+    found = F
+    
+    for (i in 1:(n_groups - 1)) {
+        if (!found && cumsum_rho[i] != candidate_index) {
+            # candidate_index is already a changepoint, return the original rho
+            return(list('rho' = rho, 'group_index' = -1))
+        }
+        # update the partition in the general case
+        # (either I have already merged the group or not, just the indexing changes)
+        if (!found) {
+            new_rho[i] = rho[i]
+        } else {
+            new_rho[i] = rho[i + 1]
+        }
+        if (!found && cumsum[i] == candidate_index) {
+            # I am at the changepoint between the two groups to be merged
+            
+            # index of the element minus the cumulative
+            # number of elements in the previous groups
+            new_rho[i] = rho[i] + rho[i + 1]
+            
+            # save the index of the group that has changed
+            j = i
+            
+            found = T
+        }
+    }
+    return(list('rho' = new_rho, 'group_index' = j))
 }
 
 #' shufflePartition (QUESTA RESTA MOLTO SIMILE A CORRADIN, NO?)
 #' 
-#' @param k index of the the point where the shuffling between groups happens
-#' @param rho_n partition in compact form e.g., rho=c(2,3,4) means the first group has 2 elements, the second has three and the third has four
+#' @param rho partition in compact form e.g., rho=c(2,3,4) means the first group has 2 elements, the second has three and the third has four
 #'
 #' @return the updated partition
 #' @export
@@ -315,10 +337,10 @@ shuffle <- function(rho){ # vedi Corradin p.16
     k = length(rho)
     new_rho = rho
     
-    if(k>1){ # shuffling can be done only if the number of groups is at least 2
+    if(k > 1){ # shuffling can be done only if the number of groups is at least 2
         
-        j <- sample(1:(k-1),1)
-        l <- sample(1:(rho[j]+rho[j+1]-1),1)
+        j <- sample(1:(k - 1),1)
+        l <- sample(1:(rho[j]+rho[j+1] - 1),1)
         
         new_rho[j+1] <- rho[j+1] + rho[j] - l
         new_rho[j] <- l
@@ -326,10 +348,10 @@ shuffle <- function(rho){ # vedi Corradin p.16
     
     # compute alpha_shuffle
 
-    prior_ratio = lpochhammer(1-sigma, l)
-                + lpochhammer(1-sigma, rho[j] + rho[j+1] - l)
-                - lpochhammer(1-sigma, rho[j] - 1)
-                - lpochhammer(1-sigma, rho[j+1] - 1)
+    prior_ratio = lpochhammer(1 - sigma, l)
+                + lpochhammer(1 - sigma, rho[j] + rho[j+1] - l)
+                - lpochhammer(1 - sigma, rho[j] - 1)
+                - lpochhammer(1 - sigma, rho[j+1] - 1)
                 + lfactorial(rho[j])
                 + lfactorial(rho[j+1])
                 - lfactorial(l)
@@ -354,7 +376,7 @@ shuffle <- function(rho){ # vedi Corradin p.16
 
 #Useful Functions
 
-#' Computes the rising factorial (also called Pochammer symbol), eventually in logarithmic form.
+#' Computes the rising factorial (also called Pochhammer symbol), eventually in logarithmic form.
 #' 
 #' @param x the value for which the rising factorial is to be calculated
 #' @param n the power x is to be raised to
