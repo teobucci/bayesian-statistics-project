@@ -51,7 +51,7 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
 #' 
 #' @param logweights vector of the logarithm of the current weights
 #' @param alfaTarget scalar indicating the target acceptance probability (optimal range around 0.10-0.15)
-#' @param alfaADD probability of adding a move (usually 0.5)
+#' @param alfaAdd probability of adding a move (usually 0.5)
 #' @param t number of the current iteration
 #' @param h initial adaptation (must be >0)
 #'
@@ -106,11 +106,11 @@ partitionData <- function(y,rho_n){
 
 
 #' Computes the proposal ratio from the file "Samplingstrategy_nonparam" at page 4
-#' Follows strictly the paper, just adds the possibility of having alfaADD set by the author
+#' Follows strictly the paper, just adds the possibility of having alfaAdd set by the author
 #' NOTE: I have not added the checks for the range of the parameters ranging from 0 and 1. Anyway, they are easy to include in the first if
 #'
 #' @param rho the partition in compact form (e.. rho=c(1,4,5) means that the first group has 1 element, the second has 4 elements, the last has 5 elements)
-#' @param alfaADD fixed probability of choosing ADD or DELETE as a move
+#' @param alfaAdd fixed probability of choosing ADD or DELETE as a move
 #' @param a_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when ADDING a changepoint between point j and point j+1 (weights are non-normalized probabilities)
 #' @param d_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when DELETING a changepoint between point j and point j+1 (weights are non-normalized probabilities)
 #'
@@ -118,77 +118,79 @@ partitionData <- function(y,rho_n){
 #' @export
 #'
 #' @examples
-proposalRatio=function(rho, alfaADD, a_weights, d_weights){
+proposalRatio=function(rho, alfaAdd, a_weights, d_weights, unifsample){
     
-    #alfaADD=0.5
-  num_groups = length(rho)
-  n_elems = length(a_weights)
-  unifsample = runif(n=1)
-  choose_add = unifsample<alfaADD
-  
-  # preliminary check for extreme cases
-  if((!choose_add && num_groups==1) || (choose_add && num_groups==n_elems) ){
-      # incompatible to delete when only one group is present
-      # or to add when every point is a group
-      ratio=0
-      return(ratio)
-  }
-  
-  # select the element range which we will use to extract the useful indexes
-  elems_range <- 1:n_elems # same size of a_weights and d_weights
-  
-  # indexes of the changepoints
-  cp_indexes <- cumsum(rho)
-  
-  # PER ORA SUPPONGO CHE A_WEIGHTS SIA DELLA STESSA DIMENSIONE N, NON N-1
-  # QUELLO MANCANTE SI SETTA A MANO
-  
-  #rho
-  #cumsum(rho)
-  #a_weights
-  #n_elem=length(a_weights)
-  
-  
-  a_weights_available = a_weights
-  a_weights_available[cp_indexes] = 0
-  a_weights_available_sum = sum(a_weights_available)
-  
-  d_weights_available = d_weights
-  d_weights_available[-cp_indexes] = 0
-  d_weights_available_sum = sum(d_weights_available)
-  
-  
-  if (choose_add){
-      draw_weights = a_weights_available
-  } else {
-      draw_weights = d_weights_available
-  }
-  
-  candidate = sample(1:n_elem, 1, prob=draw_weights)
-  
-  if (choose_add && num_groups==1){
-      # case in which you choose to propose an add move
-      # (with just 1 group) that may or may not be accepted
-      ratio = alfaADD/1 * a_weights_available_sum / a_weights[candidate]
-      return(ratio)
-  }
-  
-  if (!choose_add && num_groups==n_elems){
-      # case in which you choose to propose an delete move
-      # (with every point being a group) that may or may not be accepted
-      ratio = alfaADD/1 * d_weights_available_sum / d_weights[candidate]
-      return(ratio)
-  }
-  
-  # only the general cases remain
-  if (choose_add){
-      ratio = (1-alfaADD)/alfaADD * a_weights_available_sum / a_weights[candidate] * d_weights[candidate] / (d_weights[candidate] + d_weights_available_sum)
-      return (ratio)
-  } else {
-      ratio = alfaADD/ (1-alfaADD) * d_weights_available_sum / d_weights[candidate] * a_weights[candidate] / (a_weights[candidate] + a_weights_available_sum)
-      return (ratio)
-  }
-  
+    #alfaAdd=0.5
+    num_groups = length(rho)
+    choose_add = unifsample < alfaAdd
+    n_elems = length(a_weights)
+    
+    # preliminary check for extreme cases
+    if((!choose_add && num_groups==1) || (choose_add && num_groups==n_elems) ){
+        # incompatible to delete when only one group is present
+        # or to add when every point is a group
+        ratio=0
+        return(ratio)
+    }
+    
+    # select the element range which we will use to extract the useful indexes
+    elems_range <- 1:n_elems # same size of a_weights and d_weights
+    
+    # indexes of the changepoints
+    cp_indexes <- cumsum(rho)
+    
+    # PER ORA SUPPONGO CHE A_WEIGHTS SIA DELLA STESSA DIMENSIONE N, NON N-1
+    # QUELLO MANCANTE SI SETTA A MANO
+    
+    #rho
+    #cumsum(rho)
+    #a_weights
+    #n_elem=length(a_weights)
+    
+    
+    a_weights_available = a_weights
+    a_weights_available[cp_indexes] = 0
+    a_weights_available_sum = sum(a_weights_available)
+    
+    d_weights_available = d_weights
+    d_weights_available[-cp_indexes] = 0
+    d_weights_available_sum = sum(d_weights_available)
+    
+    if (choose_add){
+        draw_weights = a_weights_available
+    } else {
+        draw_weights = d_weights_available
+    }
+    
+    candidate = sample(1:n_elem, 1, prob=draw_weights)
+    
+    if (choose_add && num_groups==1){
+        # case in which you choose to propose an add move
+        # (with just 1 group) that may or may not be accepted
+        ratio = alfaAdd/1 * a_weights_available_sum / a_weights[candidate]
+        return(ratio)
+    }
+    
+    if (!choose_add && num_groups==n_elems){
+        # case in which you choose to propose an delete move
+        # (with every point being a group) that may or may not be accepted
+        ratio = alfaAdd/1 * d_weights_available_sum / d_weights[candidate]
+        return(ratio)
+    }
+    
+    
+    # only the general cases remain
+    if (choose_add){
+        ratio = (1-alfaAdd)/alfaAdd * 
+            a_weights_available_sum / a_weights[candidate] * 
+            d_weights[candidate] / (d_weights[candidate] + d_weights_available_sum)
+    } else {
+        ratio = alfaAdd/ (1-alfaAdd) * 
+            d_weights_available_sum / d_weights[candidate] *
+            a_weights[candidate] / (a_weights[candidate] + a_weights_available_sum)
+    }
+    
+    return (log(ratio))
 }
 
 
@@ -396,7 +398,7 @@ lpochhammer <- function(x,n,log=T){
 }
 
 
-likelihoodRatio=function(rho, alfaADD, a_weights, d_weights){
+log_likelihoodRatio = function(rho, alfaAdd, a_weights, d_weights){
     
     alpha = 1
     beta = 1
@@ -412,7 +414,7 @@ likelihoodRatio=function(rho, alfaADD, a_weights, d_weights){
         
     }
     
-    if("il nodo non è agli estremi"){
+    if("il nodo non è agli estremi"){ # questo check non serve (semicit. Corradin)
         
         # ipotizzo la situa in cui aggiungo un cp NEL MEZZO
         C=c(20,20,5)
@@ -451,13 +453,16 @@ likelihoodRatio=function(rho, alfaADD, a_weights, d_weights){
 
 
 
-priorRatio = function(theta, sigma, current_rho, proposed_rho){
+log_priorRatio = function(theta, sigma, current_rho, proposed_rho, choose_add){
     
-    #current_rho = c(2,4,2,2)
-    #proposed_rho = c(2,4,1,1,2)
+    if(!choose_add){ # delete/merge case
+        # swap rhos 'cause we're lazy
+        temp = current_rho
+        current_rho = proposed_rho
+        proposed_rho = temp
+    }
+    
     M = length(current_rho)
-    
-    # ORA È IMPLEMENTATO SOLO IL CASO ADD (CIOÈ SPLIT)
     
     current_r = rep(0, sum(current_rho))
     current_r[cumsum(current_rho)] = 1
@@ -475,13 +480,17 @@ priorRatio = function(theta, sigma, current_rho, proposed_rho){
     n_star_s_plus_1 = proposed_rho[S+1]
     n_s = n_star_s + n_star_s_plus_1
     
-    
     ratio = - log(M) + (theta + M*sigma) + lpochhammer(1-sigma, n_star_s - 1)
                                          + lpochhammer(1-sigma, n_star_s_plus_1 - 1)
                                          - lpochhammer(1-sigma, n_s - 1)
                                          + lfactorial(n_s)
                                          - lfactorial(n_star_s)
                                          - lfactorial(n_star_s_plus_1)
+    
+    if(!choose_add){ # in the delete/merge case we have to invert everything
+        ratio = -ratio
+    }
+    
     return(ratio)
 
 }
