@@ -627,9 +627,9 @@ Gibbs_sampler = function(data, niter, nburn, thin,
     # REGAZ DIAMOCI UNA MOSSAAAA
     
     
-    # TODO check qui
     if(sum(rho) != p)
         stop("The partition rho must sum to p")
+    # TODO check qui dei parametri del grafo
     # if(nrow(options$W)!=p)
     #     stop("nrow W not coherent with ncol(data)")  
     # if(nrow(options$Kappa0)!=p)
@@ -660,8 +660,7 @@ Gibbs_sampler = function(data, niter, nburn, thin,
         
         # Update graph
         if(options$update_graph){
-            cat("Updating the graph...")
-            # TODO
+            # TODO inserire aggiornamento del grafo
             # Kappa = UpdatePrecision(options$nu,options$W,n,U,z)
         
         }
