@@ -5,11 +5,21 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
     # sampling dalla partizione
     # metropolis hastings per aggiornare la partizione
     
-    likelihoodRatioNow = likelihoodRatio
-    priorRatioNow = priorRatio
-    proposalRatioNow = proposalRatio
     
-    alpha_accept <- min(1,likelihoodRatioNow*priorRatioNow*proposalRatioNow)
+    unifsample = runif(n=1)
+    choose_add = unifsample<alfaAdd
+    
+    # Status? manca theta mannaggia all'altro team GGM (Grandi Gandalf Mangiacacca)
+    likelihoodRatioNow = log_likelihoodRatio(choose_add,...)
+    
+    # OK
+    priorRatioNow = log_priorRatio(theta, sigma, current_rho, proposed_rho, choose_add)
+    
+    # OK
+    proposalRatioNow = log(proposalRatio(rho, alfaAdd, a_weights, d_weights, unifsample))
+    
+    alpha_accept <- min(1, exp(likelihoodRatioNow + priorRatioNow + proposalRatioNow))
+    
     if (runif(n=1) < alpha_accept){
         # accept the move
         if(merge){ # accepted move is a merge
@@ -21,6 +31,7 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
         partitionData
     }
     
+}
     
     
     
@@ -28,35 +39,6 @@ UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
     
     
     
-    
-    
-    marginal_params = list(...) #get list with parameters to be used in MARGINAL function
-    n_params = length(marginal_params) #get number of parameters to be used in MARGINAL function
-    
-    if(is.null(MARGINAL)){
-        MARGINAL = function(x){1};
-    }
-    p = length(z)
-    
-    
-    # parameters to be set in the function header
-    alpha_add = 0.5
-    r = c(0,0,0,0,0) # con p colonne
-    
-    
-    # check if you want to perform an add or delete move
-    perform_add = F
-    if(all(r==0)){ # must perform add move
-        perform_add = T
-    }else if(all(r==1)){ # must perform delete move
-        perform_add = F
-    }else{
-        if(runif(n=1)<alpha_add) # uniform draw
-            perform_add = T # add
-        }else{
-            perform_add = F # delete (not necessary this step, kept for clarity)
-        }
-    }
     
     
     
