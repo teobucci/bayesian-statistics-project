@@ -1,4 +1,18 @@
-update_partition = function(rho,alpha_add,a_weights,d_weights,theta,sigma){
+#' Title
+#'
+#' @param rho 
+#' @param alpha_add 
+#' @param a_weights 
+#' @param d_weights 
+#' @param Theta_groups 
+#' @param theta_prior 
+#' @param sigma 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+update_partition = function(rho,alpha_add,a_weights,d_weights,Theta_groups,theta_prior,sigma){
     
     unifsample = runif(n=1)
     choose_add = unifsample < alpha_add
@@ -18,10 +32,10 @@ update_partition = function(rho,alpha_add,a_weights,d_weights,theta,sigma){
     THE_GROUP = t$group_index # TODO cambiare questo nome per renderlo coerente con ciò che c'è sotto
     
     # OK qua dentro guarda che forse c'è un ricalcolo inutile dell'indice del gruppo da splittare o mergiare
-    priorRatioNow = log_priorRatio(theta, sigma, current_rho, proposed_rho, choose_add)
+    priorRatioNow = log_priorRatio(theta_prior, sigma, current_rho, proposed_rho, choose_add)
     
-    # Status? manca theta mannaggia all'altro team GGM (Grandi Gandalf Mangiacacca)
-    likelihoodRatioNow = log_likelihoodRatio(choose_add,...)
+    # Status? 
+    likelihoodRatioNow = log_likelihoodRatio(choose_add,Theta_groups)
     
     alpha_accept <- min(1, exp(likelihoodRatioNow + priorRatioNow + proposalRatioNow))
     
@@ -112,7 +126,7 @@ partitionData <- function(y,rho){
 
 
 
-#Create Theta
+#Create Theta_groups
 #TODO Add checks
 #' Title
 #'
@@ -521,7 +535,7 @@ lpochhammer <- function(x, n, log = T) {
     
 # ---------------------------------------------
 
-log_likelihoodRatio = function(rho, alpha_add, a_weights, d_weights){
+log_likelihoodRatio = function(rho, alpha_add, a_weights, d_weights,Theta_groups){
 
     alpha = 1
     beta = 1
@@ -534,7 +548,6 @@ log_likelihoodRatio = function(rho, alpha_add, a_weights, d_weights){
         }else{
             return(beta(alpha + arg1, beta + arg2))
         }
-        
     }
     
     if("il nodo non è agli estremi"){ # questo check non serve (semicit. Corradin)
@@ -582,7 +595,7 @@ log_likelihoodRatio = function(rho, alpha_add, a_weights, d_weights){
 
 
 
-log_priorRatio = function(theta, sigma, current_rho, proposed_rho, choose_add){
+log_priorRatio = function(theta_prior, sigma, current_rho, proposed_rho, choose_add){
     
     if(!choose_add){ # delete/merge case
         # swap rhos 'cause we're lazy
@@ -609,7 +622,7 @@ log_priorRatio = function(theta, sigma, current_rho, proposed_rho, choose_add){
     n_star_s_plus_1 = proposed_rho[S+1]
     n_s = n_star_s + n_star_s_plus_1
     
-    ratio = - log(M) + (theta + M*sigma) + lpochhammer(1-sigma, n_star_s - 1)
+    ratio = - log(M) + (theta_prior + M*sigma) + lpochhammer(1-sigma, n_star_s - 1)
                                          + lpochhammer(1-sigma, n_star_s_plus_1 - 1)
                                          - lpochhammer(1-sigma, n_s - 1)
                                          + lfactorial(n_s)
@@ -654,7 +667,7 @@ log_priorRatio = function(theta, sigma, current_rho, proposed_rho, choose_add){
 
 
 set_options = function(sigma0,
-                       theta0,
+                       theta_prior0,
                        rho0,
                        weights_a0,
                        weights_d0,
@@ -663,28 +676,28 @@ set_options = function(sigma0,
                        b,
                        alpha_add=0.5,
                        update_sigma=T,
-                       update_theta=T,
+                       update_theta_prior=T,
                        update_weights=T,
                        update_partition=T,
                        update_graph=T,
                        perform_shuffle=T){
     
     options = list(
-        "sigma0"           = sigma0,
-        "theta0"           = theta0,
-        "rho0"             = rho0,
-        "weights_a0"       = weights_a0,
-        "weights_d0"       = weights_d0,
-        "alpha_target"     = alpha_target,
-        "a"                = a,
-        "b"                = b,
-        "alpha_add"        = alpha_add,
-        "update_sigma"     = update_sigma,
-        "update_theta"     = update_theta,
-        "update_weights"   = update_weights,
-        "update_partition" = update_partition,
-        "update_graph"     = update_graph,
-        "perform_shuffle"  = perform_shuffle,
+        "sigma0"             = sigma0,
+        "theta_prior0"       = theta_prior0,
+        "rho0"               = rho0,
+        "weights_a0"         = weights_a0,
+        "weights_d0"         = weights_d0,
+        "alpha_target"       = alpha_target,
+        "a"                  = a,
+        "b"                  = b,
+        "alpha_add"          = alpha_add,
+        "update_sigma"       = update_sigma,
+        "update_theta_prior" = update_theta_prior,
+        "update_weights"     = update_weights,
+        "update_partition"   = update_partition,
+        "update_graph"       = update_graph,
+        "perform_shuffle"    = perform_shuffle,
         )
     return(options)
 }
@@ -698,26 +711,19 @@ Gibbs_sampler = function(data, niter, nburn, thin,
     n_total_iter = nburn + niter*thin # total iterations to be made
     
     # dynamic parameters
-    sigma     = options$sigma0 # initial parameter of the nonparametric prior
-    theta     = options$theta0 # initial parameter of the nonparametric prior
-    rho       = options$rho0 # initial partition (eg. c(150,151))
-    weights_a = options$weights_a0 # add weights
-    weights_d = options$weights_d0 # del weights
-    
+    sigma            = options$sigma0 # initial parameter of the nonparametric prior
+    theta_prior      = options$theta_prior0 # initial parameter of the nonparametric prior
+    rho              = options$rho0 # initial partition (eg. c(150,151))
+    weights_a        = options$weights_a0 # add weights
+    weights_d        = options$weights_d0 # del weights
+           
     # constant parameters
     alpha_add = options$alpha_add # probability of choosing add over delete
     alpha_target = options$alpha_target # target alpha for adapting weights
     
     a = options$a # parameter for the likelihood of the graph (Beta(a,b))
     b = options$b # parameter for the likelihood of the graph (Beta(a,b))
-    
-    # TODO add graph parameters
-    # Theta
-    # z
-    # n_groups 
-    # groups_cardinality
-    # REGAZ DIAMOCI UNA MOSSAAAA
-    
+
     
     if(sum(rho) != p)
         stop("The partition rho must sum to p")
@@ -748,30 +754,32 @@ Gibbs_sampler = function(data, niter, nburn, thin,
     # initialize progress bar
     pb = txtProgressBar(min=1, max=n_total_iter, initial=1, style=3)
     
+    #Start the simulation
     for(iter in 1:n_total_iter){
         
         # Update graph
         if(options$update_graph){
-            # TODO inserire aggiornamento del grafo
-          
-            # output = bdgraph( data, rho, n, method = "ggm", algorithm = "bdmcmc", iter,
-            #                   burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3,
-            #                   CCG_D = NULL, g.start = "empty", jump = NULL, save = TRUE, print = 1000,
-            #                   cores = NULL, threshold = 1e-8 )
-            # Kappa = output$last_K 
-          
+            #we ran a single iteration of BDgraph with iter=1 and burning=0
+            #TODO think about extracting fixes parameters such as S, n, p which
+            # at the moment are computed for every bdgraph iteration
+             output = bdgraph( data, rho, n, method = "ggm", algorithm = "bdmcmc", iter=1,
+                               burnin = 0, not.cont = NULL, g.prior = 0.5, df.prior = 3,
+                               CCG_D = NULL, g.start = "empty", jump = NULL, save = TRUE, print = 1000,
+                               cores = NULL, threshold = 1e-8 )
+             
+             #Extracting the matrix with edges between groups
+             Theta_groups = output$last_theta 
             # Kappa = UpdatePrecision(options$nu,options$W,n,U,z)
         
         }
         
         if(options$update_partition){
             # TODO
-            update_partition(rho,alpha_add,a_weights,d_weights,theta,sigma)
+            update_partition(rho,alpha_add,a_weights,d_weights,Theta_groups,theta_prior,sigma)
         }
         
         
         if(options$update_weights){
-            
             weights_a = exp(logAdaptation(
                 log(weights_a), iter, 1/p, alpha_target, alpha_add))
             
@@ -787,8 +795,8 @@ Gibbs_sampler = function(data, niter, nburn, thin,
             # TODO mettere la full conditional di sigma qui
         }
         
-        if(options$update_theta){
-            # TODO mettere la full conditional di theta qui
+        if(options$update_theta_prior){
+            # TODO mettere la full conditional di theta prior qui
         }
         
         # save results only on thin iterations
