@@ -1,10 +1,4 @@
-UpdatePartition = function(z,counts,Nclust,alpha,MARGINAL=NULL, ...){
-    
-    
-    
-    # sampling dalla partizione
-    # metropolis hastings per aggiornare la partizione
-    
+update_partition = function(rho,alpha_add,a_weights,d_weights,theta,sigma){
     
     unifsample = runif(n=1)
     choose_add = unifsample < alpha_add
@@ -335,19 +329,22 @@ mergePartition <- function(candidate_index, rho) {
 shuffle <- function(rho){ # vedi Corradin p.16
 
     k = length(rho)
-    new_rho = rho
     
-    if(k > 1){ # shuffling can be done only if the number of groups is at least 2
-        
-        j <- sample(1:(k - 1),1)
-        l <- sample(1:(rho[j]+rho[j+1] - 1),1)
-        
-        new_rho[j+1] <- rho[j+1] + rho[j] - l
-        new_rho[j] <- l
+    if(k < 2){ # shuffling can be done only if the number of groups is at least 2
+        return(rho)
     }
     
+    new_rho = rho
+        
+    j <- sample(1:(k - 1),1)
+    l <- sample(1:(rho[j]+rho[j+1] - 1),1)
+    
+    new_rho[j+1] <- rho[j+1] + rho[j] - l
+    new_rho[j] <- l
+    
+    
     # compute alpha_shuffle
-
+    
     prior_ratio = lpochhammer(1 - sigma, l)
                 + lpochhammer(1 - sigma, rho[j] + rho[j+1] - l)
                 - lpochhammer(1 - sigma, rho[j] - 1)
@@ -369,6 +366,7 @@ shuffle <- function(rho){ # vedi Corradin p.16
         # accept the shuffle
         return(new_rho)
     } else {
+        # reject the shuffle
         return(rho)
     }
     
@@ -458,8 +456,8 @@ log_likelihoodRatio = function(rho, alpha_add, a_weights, d_weights){
     if("il nodo non è agli estremi"){ # questo check non serve (semicit. Corradin)
         
         # ipotizzo la situa in cui aggiungo un cp NEL MEZZO
-        C=c(20,20,5)
-        C_star=c(20,7,13,5)
+        C = c(20,20,5)
+        C_star = c(20,7,13,5)
         
         M = length(C)
         S = 2 # è quello che è stato splittato
@@ -471,20 +469,26 @@ log_likelihoodRatio = function(rho, alpha_add, a_weights, d_weights){
         ratio = -(M+1)*rhoB(0,0)
         
         for(l in 1:(S-1)){
-            ratio = ratio + rhoB(C_l_star,C_S_star) + rhoB(C_l_star,C_S+1_star) # primo termine numeratore
-            ratio = ratio - rhoB(C_l,C_S) # primo termine denominatore
+            # first numerator term
+            ratio = ratio + rhoB(C_l_star,C_S_star) + rhoB(C_l_star,C_S+1_star)
+            # first denominator term
+            ratio = ratio - rhoB(C_l,C_S)
         }
         
-        for(m in (S+2):(M+1))
-            ratio = ratio + rhoB(C_S_star,C_m_star) + rhoB(C_S+1_star,C_m_star) # secondo termine numeratore
+        for(m in (S+2):(M+1)){
+            # second numerator term
+            ratio = ratio + rhoB(C_S_star,C_m_star) + rhoB(C_S+1_star,C_m_star)
+        }
         
-        # terzo termine numeratore
+        # third numerator term
         ratio = ratio + rhoB(C_S_star,C_S+1_star) + rhoB(C_S_star,C_S_star) + rhoB(C_S+1_star,C_S+1_star)
         
-        for(m in (S+1):M)
-            ratio = ratio - rhoB(C_S,C_m) # secondo termine denominatore
+        for(m in (S+1):M){
+            # second denominator term
+            ratio = ratio - rhoB(C_S,C_m)
+        }
         
-        # terzo termine denominatore
+        # third denominator term
         ratio = ratio - rhoB(C_S,C_S)
         
         return(exp(ratio))
@@ -666,8 +670,8 @@ Gibbs_sampler = function(data, niter, nburn, thin,
         }
         
         if(options$update_partition){
-            
             # TODO
+            update_partition(rho,alpha_add,a_weights,d_weights,theta,sigma)
         }
         
         
@@ -693,9 +697,9 @@ Gibbs_sampler = function(data, niter, nburn, thin,
         }
         
         # save results only on thin iterations
-        if(iter>nburn && (iter-nburn)%%thin == 0){
+        if(iter>nburn && (iter - nburn)%%thin == 0) {
             # TODO
-            it_saved = it_saved + 1 
+            it_saved = it_saved + 1
         }
         
         if(print){
