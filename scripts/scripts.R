@@ -347,7 +347,7 @@ splitPartition <- function(candidate_index, rho) {
     return(list('rho' = new_rho, 'group_index' = j))
 }
 
-# version that preallocates z    
+# version that preallocates z    ???
 rho_to_z = function(rho){
     cumsum_rho = cumsum(rho)
     z = numeric(sum(rho))
