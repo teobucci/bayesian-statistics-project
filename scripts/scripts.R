@@ -628,6 +628,10 @@ Gibbs_sampler = function(data, niter, nburn, thin,
     b = options$b # parameter for the likelihood of the graph (Beta(a,b))
     
     # TODO add graph parameters
+    # Theta
+    # z
+    # n_groups 
+    # groups_cardinality
     # REGAZ DIAMOCI UNA MOSSAAAA
     
     
@@ -665,6 +669,13 @@ Gibbs_sampler = function(data, niter, nburn, thin,
         # Update graph
         if(options$update_graph){
             # TODO inserire aggiornamento del grafo
+          
+            # output = bdgraph( data, n, method = "ggm", algorithm = "bdmcmc", iter,
+            #                   burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3,
+            #                   CCG_D = NULL, g.start = "empty", jump = NULL, save = TRUE, print = 1000,
+            #                   cores = NULL, threshold = 1e-8 )
+            # Kappa = output$last_K 
+          
             # Kappa = UpdatePrecision(options$nu,options$W,n,U,z)
         
         }
