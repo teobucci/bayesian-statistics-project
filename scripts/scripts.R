@@ -112,6 +112,80 @@ partitionData <- function(y,rho){
 
 
 
+#Create Theta
+#TODO Add checks
+#' Title
+#'
+#' @param rho 
+#' @param G 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+create_Theta=function(rho, G){
+    n_groups=length(rho)
+    Theta= as.numeric(n_groups*n_groups)
+    z=rho_to_z(rho)
+    p = sum(rho)
+    for(i in 1:p){
+        for(j in 1:(i-1){
+            if (G[ i*p + j] == 1){
+                ++Theta[z[i] * n_groups + z[j]];
+                ++Theta[z[j] * n_groups + z[i]];
+            }
+        }
+    }
+    return(Theta)
+}
+
+
+
+
+
+
+
+#Rho to changepoint function
+#add check
+#' Title
+#'
+#' @param rho 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+rho_to_r=function(rho){
+    cumsum_rho=cumsum(rho)
+    total_n=sum(rho)
+    r<-numeric(total_n)
+    for(i in cumsum_rho){
+        r[i]=1
+    }
+    return(r)
+}
+
+#Rho to z  function
+#Add check
+#' Title
+#'
+#' @param rho 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+rho_to_z=function(rho){
+    total_n=sum(rho)
+    n_groups<-length(rho)
+    z<-{}
+    for(i in 1:n_groups){
+        z<-c(z, rep(i,rho[i]))
+    }
+    return(z)
+}
+
+
 #' Computes the proposal ratio from the file "Samplingstrategy_nonparam" at page 4
 #' Follows strictly the paper, just adds the possibility of having alpha_add set by the author
 #' NOTE: I have not added the checks for the range of the parameters ranging from 0 and 1. Anyway, they are easy to include in the first if
@@ -680,7 +754,7 @@ Gibbs_sampler = function(data, niter, nburn, thin,
         if(options$update_graph){
             # TODO inserire aggiornamento del grafo
           
-            # output = bdgraph( data, n, method = "ggm", algorithm = "bdmcmc", iter,
+            # output = bdgraph( data, rho, n, method = "ggm", algorithm = "bdmcmc", iter,
             #                   burnin = iter / 2, not.cont = NULL, g.prior = 0.5, df.prior = 3,
             #                   CCG_D = NULL, g.start = "empty", jump = NULL, save = TRUE, print = 1000,
             #                   cores = NULL, threshold = 1e-8 )
