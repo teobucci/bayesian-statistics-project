@@ -259,8 +259,18 @@ splitPartition <- function(candidate_index, rho) {
     return(list('rho' = new_rho, 'group_index' = j))
 }
 
-
-
+# version that preallocates z    
+rho_to_z = function(rho){
+    cumsum_rho = cumsum(rho)
+    z = numeric(sum(rho))
+    n_groups = length(rho)
+    for(i in 1:n_groups){
+        if(i == 1)
+            z[1:cumsum_rho[1]] = i
+        else
+            z[(cumsum_rho[i-1]+1):cumsum_rho[i]] = i
+    }
+}
 
 
 #' mergePartition in the compact form
