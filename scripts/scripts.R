@@ -179,7 +179,7 @@ rho_to_r=function(rho){
     return(r)
 }
 
-#Rho to z  function
+#Rho to z function
 #Add check
 #' Title
 #'
