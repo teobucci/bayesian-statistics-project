@@ -143,7 +143,7 @@ create_Theta=function(rho, G){
     z=rho_to_z(rho)
     p = sum(rho)
     for(i in 1:p){
-        for(j in 1:(i-1){
+        for(j in 1:(i-1)){
             if (G[ i*p + j] == 1){
                 ++Theta[z[i] * n_groups + z[j]];
                 ++Theta[z[j] * n_groups + z[i]];
