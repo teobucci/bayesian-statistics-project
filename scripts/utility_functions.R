@@ -86,26 +86,35 @@ rho_to_z=function(rho){
 #'
 #' @examples
 lpochhammer <- function(x, n, log = T) {
-  if (n < 0)
-    stop("The pochhammer operator doesn't allow n < 0")
-  
-  num_vec <- numeric(n)
-  
-  if (n != 0) {
-    num_vec[1] = x
-    for (i in 1:(n - 1)) {
-      num_vec[i + 1] = (x + i)
+    # TODO finishing touch: scriverla in C
+    if (n < 0)
+        stop("The pochhammer operator doesn't allow n < 0")
+    if (x < 0)
+        stop("The pochhammer operator doesn't allow x < 0")
+    if (x == 0){
+        if(log)
+            return(NA)
+        else
+            return(0)
     }
-  }
-  
-  if (n == 0) {
-    num_vec[1] = 1
-  }
-  
-  if (log)
-    return(sum(log(num_vec)))
-  else
-    return(prod(num_vec))
+
+    num_vec <- numeric(n)
+    
+    if (n != 0) {
+        num_vec[1] = x
+        for (i in 1:(n - 1)) {
+            num_vec[i + 1] = (x + i)
+        }
+    }
+    
+    if (n == 0) {
+        num_vec[1] = 1
+    }
+    
+    if (log)
+        return(sum(log(num_vec)))
+    else
+        return(prod(num_vec))
 }
 
 

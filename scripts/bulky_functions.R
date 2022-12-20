@@ -24,25 +24,25 @@ update_partition = function(rho,alpha_add,a_weights,d_weights,Theta_groups,theta
   
   # OK
   proposal_list = proposalRatio(rho, alpha_add, a_weights, d_weights, unifsample)
-  proposalRatioNow = log(proposal_list$ratio)
+  log_proposalRatioNow = log(proposal_list$ratio)
   candidate = proposal_list$candidate
   
   # compute proposed partition based on candidate and index of the group
   if(choose_add){
-    t = splitPartition(candidate, rho)
+    list_output_modify_partition = splitPartition(candidate, rho)
   } else {
-    t = mergePartition(candidate, rho)
+    list_output_modify_partition = mergePartition(candidate, rho)
   }
-  proposed_rho = t$rho
-  THE_GROUP = t$group_index # TODO cambiare questo nome per renderlo coerente con ciÃ² che c'Ã¨ sotto
+  proposed_rho = list_output_modify_partition$rho
+  THE_GROUP = list_output_modify_partition$group_index # TODO cambiare questo nome per renderlo coerente con ciÃ² che c'Ã¨ sotto
   
   # OK qua dentro guarda che forse c'Ã¨ un ricalcolo inutile dell'indice del gruppo da splittare o mergiare
-  priorRatioNow = log_priorRatio(theta_prior, sigma, current_rho, proposed_rho, choose_add)
+  log_priorRatioNow = log_priorRatio(theta_prior, sigma, current_rho, proposed_rho, choose_add)
   
   # Status? 
-  likelihoodRatioNow = log_likelihoodRatio(choose_add,Theta_groups)
+  log_likelihoodRatioNow = log_likelihoodRatio(choose_add,Theta_groups)
   
-  alpha_accept <- min(1, exp(likelihoodRatioNow + priorRatioNow + proposalRatioNow))
+  alpha_accept <- min(1, exp(log_likelihoodRatioNow + log_priorRatioNow + log_proposalRatioNow))
   
   if (runif(n=1) < alpha_accept){ # accept the move
     
@@ -164,11 +164,14 @@ proposalRatio=function(rho, alpha_add, a_weights, d_weights, unifsample){
   #a_weights
   #n_elem=length(a_weights)
   
-  
+  # not all points can be selected for an add move
+  # assign probability zero to those who cannot be
   a_weights_available = a_weights
   a_weights_available[cp_indexes] = 0
   a_weights_available_sum = sum(a_weights_available)
   
+  # not all points can be selected for a delete move
+  # assign probability zero to those who cannot be
   d_weights_available = d_weights
   d_weights_available[-cp_indexes] = 0
   d_weights_available_sum = sum(d_weights_available)
@@ -184,14 +187,14 @@ proposalRatio=function(rho, alpha_add, a_weights, d_weights, unifsample){
   if (choose_add && num_groups==1){
     # case in which you choose to propose an add move
     # (with just 1 group) that may or may not be accepted
-    ratio = alpha_add/1 * a_weights_available_sum / a_weights[candidate]
+    ratio = (alpha_add/1) * (a_weights_available_sum / a_weights[candidate])
     return(list("ratio"=ratio,"candidate"=candidate))
   }
   
   if (!choose_add && num_groups==n_elems){
     # case in which you choose to propose an delete move
     # (with every point being a group) that may or may not be accepted
-    ratio = alpha_add/1 * d_weights_available_sum / d_weights[candidate]
+    ratio = (alpha_add/1) * (d_weights_available_sum / d_weights[candidate])
     return(list("ratio"=ratio,"candidate"=candidate))
   }
   
@@ -339,15 +342,15 @@ mergePartition <- function(candidate_index, rho) {
 #' @examples
 shuffle <- function(rho){ # vedi Corradin p.16
   
-  k = length(rho)
+  M = length(rho)
   
-  if(k < 2){ # shuffling can be done only if the number of groups is at least 2
+  if(M < 2){ # shuffling can be done only if the number of groups is at least 2
     return(rho)
   }
   
   new_rho = rho
   
-  j <- sample(1:(k - 1),1)
+  j <- sample(1:(M - 1),1)
   l <- sample(1:(rho[j]+rho[j+1] - 1),1)
   
   new_rho[j+1] <- rho[j+1] + rho[j] - l
@@ -356,7 +359,7 @@ shuffle <- function(rho){ # vedi Corradin p.16
   
   # compute alpha_shuffle
   
-  prior_ratio = lpochhammer(1 - sigma, l)
+  log_prior_ratio = lpochhammer(1 - sigma, l)
   + lpochhammer(1 - sigma, rho[j] + rho[j+1] - l)
   - lpochhammer(1 - sigma, rho[j] - 1)
   - lpochhammer(1 - sigma, rho[j+1] - 1)
@@ -365,13 +368,13 @@ shuffle <- function(rho){ # vedi Corradin p.16
   - lfactorial(l)
   - lfactorial(rho[j] + rho[j+1] - l)
   
-  likelihood_ratio = 
+  log_likelihood_ratio = 
     # TODO bisogna scrivere S e avere i due casi tenendo conto
     # di quanti elementi vanno da una parte a un'altra
     
     
     
-    alpha_shuffle = min(1, likelihood_ratio * prior_ratio)
+    alpha_shuffle = min(1, exp(log_likelihood_ratio + log_prior_ratio))
   
   if(runif(n=1) < alpha_shuffle){
     # accept the shuffle
@@ -387,8 +390,8 @@ shuffle <- function(rho){ # vedi Corradin p.16
 
 log_likelihoodRatio = function(rho, alpha_add, a_weights, d_weights,Theta_groups){
   
-  alpha = 1
-  beta = 1
+  alpha = 1 # testing
+  beta = 1 # testing
   M = length(rho)
   
   # auxiliary function to evaluate the beta
@@ -438,53 +441,80 @@ log_likelihoodRatio = function(rho, alpha_add, a_weights, d_weights,Theta_groups
     # third denominator term
     ratio = ratio - rhoB(C_S,C_S)
     
-    return(exp(ratio))
+    return(ratio)
   }
   
 }
 
 
 
-log_priorRatio = function(theta_prior, sigma, current_rho, proposed_rho, choose_add){
-  
-  if(!choose_add){ # delete/merge case
-    # swap rhos 'cause we're lazy
-    temp = current_rho
-    current_rho = proposed_rho
-    proposed_rho = temp
-  }
-  
-  M = length(current_rho)
-  
-  current_r = rep(0, sum(current_rho))
-  current_r[cumsum(current_rho)] = 1
-  
-  proposed_r = rep(0, sum(proposed_rho))
-  proposed_r[cumsum(proposed_rho)] = 1
-  
-  tau = which.max(proposed_r-current_r)
-  
-  indexes = cumsum(current_rho)
-  temp = which(indexes < tau)
-  S = temp[length(temp)] + 1
-  
-  n_star_s = proposed_rho[S]
-  n_star_s_plus_1 = proposed_rho[S+1]
-  n_s = n_star_s + n_star_s_plus_1
-  
-  ratio = - log(M) + (theta_prior + M*sigma) + lpochhammer(1-sigma, n_star_s - 1)
-  + lpochhammer(1-sigma, n_star_s_plus_1 - 1)
-  - lpochhammer(1-sigma, n_s - 1)
-  + lfactorial(n_s)
-  - lfactorial(n_star_s)
-  - lfactorial(n_star_s_plus_1)
-  
-  if(!choose_add){ # in the delete/merge case we have to invert everything
-    ratio = -ratio
-  }
-  
-  return(ratio)
-  
+
+log_priorRatio = function(theta_prior,
+                          sigma,
+                          current_rho,
+                          proposed_rho,
+                          choose_add)
+{
+    # differentiate delete/merge case
+    if (!choose_add) {
+        # swap rhos 'cause we're lazy
+        temp = current_rho
+        current_rho = proposed_rho
+        proposed_rho = temp
+    }
+    
+    # number of groups in the current partition
+    M = length(current_rho)
+    
+    # indexes of the changepoints in the current partition
+    cp_idxs_current = cumsum(current_rho)
+    
+    # move from the rho representation to r representation
+    # i.e. from c(2,3) to c(0,1,0,0,1)
+    # both for the current and the proposed partition
+    
+    current_r = rep(0, sum(current_rho))
+    current_r[cp_idxs_current] = 1
+    
+    proposed_r = rep(0, sum(proposed_rho))
+    proposed_r[cumsum(proposed_rho)] = 1
+    
+    # now by making the difference I can extract the index
+    # of the new changepoint (or the one deleted)
+    # there's no need for an absolute value because in the delete move
+    # they have been fictitiously swapped to avoid repeating code
+    tau = which.max(proposed_r - current_r)
+    
+    # take all the indexes of the cp smaller than tau
+    temp = which(cp_idxs_current < tau)
+    # take the last element of this list to have the
+    # index of the group affected
+    S = temp[length(temp)] + 1
+    
+    # move from the current quantities to the math formulas ones
+    
+    # cardinality of the group in the proposed partition
+    n_star_s = proposed_rho[S]
+    # same but the next one
+    n_star_s_plus_1 = proposed_rho[S + 1]
+    # in the add move, the cardinality in the current partition is the sum
+    n_s = n_star_s + n_star_s_plus_1
+    
+    # compute the prior ratio
+    log_ratio = - log(M) + log(theta_prior + M * sigma)
+                + lpochhammer(1 - sigma, n_star_s - 1)
+                + lpochhammer(1 - sigma, n_star_s_plus_1 - 1)
+                - lpochhammer(1 - sigma, n_s - 1)
+                + lfactorial(n_s)
+                - lfactorial(n_star_s)
+                - lfactorial(n_star_s_plus_1)
+    
+    if (!choose_add) {
+        # in the delete/merge case we have to invert everything
+        log_ratio = -log_ratio
+    }
+    
+    return(log_ratio)
 }
 
 
@@ -497,6 +527,9 @@ set_options = function(sigma0,
                        alpha_target,
                        a,
                        b,
+                       mu_beta=0.5,
+                       sig_beta=0.2,
+                       d=3,
                        alpha_add=0.5,
                        update_sigma=T,
                        update_theta_prior=T,
@@ -514,6 +547,9 @@ set_options = function(sigma0,
     "alpha_target"       = alpha_target,
     "a"                  = a,
     "b"                  = b,
+    "mu_beta"            = mu_beta,
+    "sig_beta"           = sig_beta,
+    "d"                  = d, # Wishart d>=3
     "alpha_add"          = alpha_add,
     "update_sigma"       = update_sigma,
     "update_theta_prior" = update_theta_prior,
@@ -548,10 +584,15 @@ Gibbs_sampler = function(data, niter, nburn, thin,
   
   a = options$a # parameter for the likelihood of the graph (Beta(a,b))
   b = options$b # parameter for the likelihood of the graph (Beta(a,b))
+  d = options$d # parameter for the Wishart
   
   
   if(sum(rho) != p)
     stop("The partition rho must sum to p")
+  if(d<3)
+    stop("The Wishart's d must be greater or equal than three")
+  if(mu_beta non tra 0 e 1),
+  if(sig_beta non tra 0 e 0.25),
   # TODO check qui dei parametri del grafo
   # if(nrow(options$W)!=p)
   #     stop("nrow W not coherent with ncol(data)")  
@@ -588,7 +629,7 @@ Gibbs_sampler = function(data, niter, nburn, thin,
       #TODO think about extracting fixes parameters such as S, n, p which
       # at the moment are computed for every bdgraph iteration
       output = bdgraph( data, rho, n, method = "ggm", algorithm = "bdmcmc", iter=1,
-                        burnin = 0, not.cont = NULL, g.prior = 0.5, df.prior = 3,
+                        burnin = 0, not.cont = NULL, g.prior = 0.5, df.prior = d,
                         CCG_D = NULL, g.start = "empty", jump = NULL, save = TRUE, print = 1000,
                         cores = NULL, threshold = 1e-8 )
       
