@@ -417,6 +417,8 @@ log_likelihoodRatio = function(rho, alpha_add, a_weights, d_weights,Theta_groups
     # bisogna gestire S_lm e S^star_lm
     
     ratio = -(M+1)*rhoB(0,0)
+    # TODO mettere questo in tutti quelli sotto per
+    # consentire l'aggiornamento di alpha e beta
     
     for(l in 1:(S-1)){
       # first numerator term
