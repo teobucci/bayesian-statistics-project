@@ -525,10 +525,8 @@ set_options = function(sigma0,
                        weights_a0,
                        weights_d0,
                        alpha_target,
-                       a,
-                       b,
-                       mu_beta=0.5,
-                       sig_beta=0.2,
+                       mu_beta=0.5, # mu of the Beta
+                       sig2_beta=0.2, # variance of the Beta
                        d=3,
                        alpha_add=0.5,
                        update_sigma=T,
@@ -545,10 +543,8 @@ set_options = function(sigma0,
     "weights_a0"         = weights_a0,
     "weights_d0"         = weights_d0,
     "alpha_target"       = alpha_target,
-    "a"                  = a,
-    "b"                  = b,
     "mu_beta"            = mu_beta,
-    "sig_beta"           = sig_beta,
+    "sig2_beta"          = sig2_beta,
     "d"                  = d, # Wishart d>=3
     "alpha_add"          = alpha_add,
     "update_sigma"       = update_sigma,
@@ -561,6 +557,12 @@ set_options = function(sigma0,
   return(options)
 }
 
+# https://stats.stackexchange.com/a/12239
+estBetaParams <- function(mu, var) {
+    alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
+    beta <- alpha * (1 / mu - 1)
+    return(list(alpha = alpha, beta = beta))
+}
 
 
 Gibbs_sampler = function(data, niter, nburn, thin,
@@ -582,8 +584,8 @@ Gibbs_sampler = function(data, niter, nburn, thin,
   alpha_add = options$alpha_add # probability of choosing add over delete
   alpha_target = options$alpha_target # target alpha for adapting weights
   
-  a = options$a # parameter for the likelihood of the graph (Beta(a,b))
-  b = options$b # parameter for the likelihood of the graph (Beta(a,b))
+  
+ 
   d = options$d # parameter for the Wishart
   
   
@@ -591,8 +593,15 @@ Gibbs_sampler = function(data, niter, nburn, thin,
     stop("The partition rho must sum to p")
   if(d<3)
     stop("The Wishart's d must be greater or equal than three")
-  if(mu_beta non tra 0 e 1),
-  if(sig_beta non tra 0 e 0.25),
+  if(!(mu_beta > 0 && mu_beta < 1))
+      stop("The mean of the Beta must be between 0 and 1")
+  if(!(sig2_beta > 0 && sig2_beta < 0.25))
+      stop("The mean of the Beta must be between 0 and 1")
+  
+  beta_params = estBetaParams(mu_beta,sig2_beta)
+  a = beta_params$alpha
+  b = beta_params$beta 
+  
   # TODO check qui dei parametri del grafo
   # if(nrow(options$W)!=p)
   #     stop("nrow W not coherent with ncol(data)")  

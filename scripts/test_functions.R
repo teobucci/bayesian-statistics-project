@@ -124,6 +124,7 @@ get_S_from_G_rho = function(G, rho) {
     # quindi va presa quella vecchia e messa al suo posto lasciando spazio
     # vuoto per la roba nuova
     # che schifo
+    # TODO fare questo per evitare di bruciare risorse, già che non ce ne sono troppe
 }
 
 
