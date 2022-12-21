@@ -585,6 +585,7 @@ log_likelihoodRatio = function(rho,
     
 }
 
+
 get_index_changed_group = function(current_rho,proposed_rho){
     # indexes of the changepoints in the current partition
     cp_idxs_current = cumsum(current_rho)
@@ -613,6 +614,10 @@ get_index_changed_group = function(current_rho,proposed_rho){
     
     return(K)
 }
+
+
+
+
 
 log_priorRatio = function(theta_prior,
                           sigma,
@@ -658,6 +663,55 @@ log_priorRatio = function(theta_prior,
     
     return(log_ratio)
 }
+
+
+# Update theta--------------------------------------------------
+# Related util functions are in the file utility_functions.R
+
+#' Update theta as in Martinez and Mena
+#'
+#' @param c first parameter of the shifted gamma prior 
+#' @param d second parameter of the shifted gamma prior
+#' @param candidate 
+#' @param k 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' #TODO  check that all the parameters make sense
+full_conditional_theta <- function(c, d, candidate, k, n){
+    vecc <- as.numeric(k+1)
+    z <- rbeta(1,candidate + 2, n)
+    f <- rexp (1,candidate + 1)
+    for(j in 1:k){ 
+        # compute theta
+        weights=compute_weights_theta(c, d, n, sigma, k, j-1, f, z)
+        vecc[j] <- weights
+    }
+    vecc = vecc/sum(vecc)
+    
+    #  I choose a random sample
+    u = runif(1)
+    
+    #TODO understand the meaning of this step
+    component <- min(which(cumsum(vecc) > u))
+    
+    #BEWARE! There might be an error here on sigma, but it may depend on how it is passed
+    theta <- shifted_gamma(prior_c+ (component-1), prior_d + f -log(z), sigma) #!!!shouldn't it be -sigma??
+    
+    return(theta)
+}
+
+
+# Update sigma--------------------------------------------------
+# Related util functions are in the file utility_functions.R
+
+
+
+
+
+
 
 
 

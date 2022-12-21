@@ -119,4 +119,84 @@ lpochhammer <- function(x, n, log = T) {
 
 
 
+# Utils for the theta parameter---------
+
+#' Absolute value of Stirling number of the first kind (adapted)
+#' Computes an adapted version of the Stirling number of the first kind
+#'
+#' The Stirling number represents the number of ways that we can arrange 
+#' k objects around indistinguishable circles of length j
+#' 
+#' NOTE: Requires gmp package!
+#' 
+#' @param k First parameter - indicates the overall number of objects
+#' @param j Second parameter - indicates the length of the circles (see above)
+#'
+#' @return a positive scalar indicating the adapted version of the stirling number of the first kind
+#' ( i.e. the "unacceptable" values are turned to zeroes)
+#' @export
+#'
+#' @examples
+abs_stirling_number_1st <- function(k,j){
+    if(k<0){
+        stop("Only positive integers allowed for k!")
+    }
+    if(j <= 0 || j > k){
+        abs_stir_num_first_kind=0
+    }
+    else {
+        abs_stir_num_first_kind=(as.numeric(abs(Stirling1(k,j))))
+    }
+    return(abs_stir_num_first_kind)
+}
+
+
+
+
+#' Compute weights of the full conditional of theta 
+#'
+#' as described on Martinez and Mena (page 14)
+#'
+#' @param n 
+#' @param sigma other parameter used to compute the prior ration
+#' @param k 
+#' @param j     index of the iteration for which we are computing the weight
+#' @param f     value drawn from Exp(θ+1)
+#' @param z     value drawn from Be(θ+2,n)
+#' @param c     prior first parameter of the shifted gamma
+#' @param d     prior second parameter of the shifted gamma
+#'
+#' @return
+#' @export
+#'
+#' @examples
+compute_weights_theta=function(c, d, n, sigma, k, j, f, z){
+    abs_stir= abs_stir_num_first_kind(k,j)
+    num = (
+        (n-sigma)*(n+1-sigma)*abs_stirling_number_1st(k-1,j) + 
+            (2*n + 1 - 2*sigma)*sigma*abs_stirling_number_1st(k-1,j-1) +
+            (sigma^2)*abs_stirling_number_1st(k-1,j-2)
+    ) * gamma(c+j)
+    
+    denom = (sigma * (d + f - log(z) ) )^j
+    return (num/denom)
+}
+
+
+#' Shifted gamma function
+#'
+#'Computes a shifted gamma, given the parameters and the shift 
+#'
+#' @param u 
+#' @param o 
+#' @param sigma_shift 
+#'
+#' @return
+#' @export
+#'
+#' @examples
+shifted_gamma <- function(u,o,sigma_shift){
+    rgamma(1,u,o) + sigma_shift
+}
+
 
