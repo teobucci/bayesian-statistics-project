@@ -681,21 +681,22 @@ log_priorRatio = function(theta_prior,
 #' @examples
 #' #TODO  check that all the parameters make sense
 full_conditional_theta <- function(c, d, candidate, k, n){
-    vecc <- as.numeric(k+1)
+    weights <- rep(0,(k+1))
     z <- rbeta(1,candidate + 2, n)
     f <- rexp (1,candidate + 1)
     for(j in 1:k){ 
         # compute theta
-        weights=compute_weights_theta(c, d, n, sigma, k, j-1, f, z)
-        vecc[j] <- weights
+        weight_j=compute_weights_theta(c, d, n, sigma, k, j-1, f, z)
+        gamma_weights[j] <- weight_j
     }
-    vecc = vecc/sum(vecc)
+    #Normalizing the weights
+    gamma_weights = gamma_weights/sum(gamma_weights)
     
     #  I choose a random sample
     u = runif(1)
     
     #TODO understand the meaning of this step
-    component <- min(which(cumsum(vecc) > u))
+    component <- min(which(cumsum(gamma_weights) > u))
     
     #BEWARE! There might be an error here on sigma, but it may depend on how it is passed
     theta <- shifted_gamma(prior_c+ (component-1), prior_d + f -log(z), sigma) #!!!shouldn't it be -sigma??
@@ -706,8 +707,6 @@ full_conditional_theta <- function(c, d, candidate, k, n){
 
 # Update sigma--------------------------------------------------
 # Related util functions are in the file utility_functions.R
-
-
 
 
 
