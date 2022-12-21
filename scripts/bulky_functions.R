@@ -366,49 +366,100 @@ mergePartition <- function(candidate_index, rho) {
 #' @export
 #'
 #' @examples
-shuffle <- function(rho) { # vedi Corradin p.16
+shuffle <- function(current_rho, G) {
+    # vedi Corradin p.16
     
     # number of groups
-    M = length(rho)
+    M = length(current_rho)
     
     if (M < 2) {
         # shuffling can be done only if the number of groups is at least 2
-        return(rho)
+        return(current_rho)
     }
     
-    new_rho = rho
+    # build new proposed rho
+    proposed_rho = current_rho
+
+    # K is the index of the shuffle group with K+1
+    K <- sample(1:(M - 1), 1)
+    # sample how many elements to keep in the K-th group
+    l <- sample(1:(current_rho[K] + current_rho[K + 1] - 1), 1)
+    # move the elements
+    proposed_rho[K + 1] <- current_rho[K + 1] + current_rho[K] - l
+    proposed_rho[K] <- l
     
-    j <- sample(1:(M - 1), 1)
-    l <- sample(1:(rho[j] + rho[j + 1] - 1), 1)
-    
-    new_rho[j + 1] <- rho[j + 1] + rho[j] - l
-    new_rho[j] <- l
-    
-    # compute alpha_shuffle
-    
+    # compute log_prior_ratio
     log_prior_ratio = lpochhammer(1 - sigma, l)
-    + lpochhammer(1 - sigma, rho[j] + rho[j + 1] - l)
-    - lpochhammer(1 - sigma, rho[j] - 1)
-    - lpochhammer(1 - sigma, rho[j + 1] - 1)
-    + lfactorial(rho[j])
-    + lfactorial(rho[j + 1])
-    - lfactorial(l)
-    - lfactorial(rho[j] + rho[j + 1] - l)
+                    + lpochhammer(1 - sigma, current_rho[j] + current_rho[j + 1] - l)
+                    - lpochhammer(1 - sigma, current_rho[j] - 1)
+                    - lpochhammer(1 - sigma, current_rho[j + 1] - 1)
+                    + lfactorial(current_rho[j])
+                    + lfactorial(current_rho[j + 1])
+                    - lfactorial(l)
+                    - lfactorial(current_rho[j] + current_rho[j + 1] - l)
     
-    log_likelihood_ratio = 1
-    # TODO bisogna scrivere S e avere i due casi tenendo conto
-    # di quanti elementi vanno da una parte a un'altra
+    # to compute log_likelihood_ratio I need S
+
+    S_current = get_S_from_G_rho(G, current_rho)
+    S_star_current = get_S_star_from_S_and_rho(S, current_rho)
     
+    S_proposed = get_S_from_G_rho(G, proposed_rho)
+    S_star_proposed = get_S_star_from_S_and_rho(S, proposed_rho)
     
+    # wrap the general rhoB into this version where I don't have to specify
+    # alpha and beta (doing this for adaptiveness)
+    rhoB = function(group1, group2, S, S_star) {
+        return(rhoB_general(
+            group1,
+            group2,
+            S,
+            S_star,
+            log = T,
+            alpha = alpha,
+            beta = beta
+        ))
+    }
     
+    # here there's not the ratio with the Beta coefficients
+    # compute log_likelihood_ratio
+    log_likelihood_ratio = 0
+    
+    for (l in 1:(K - 1)) {
+        # first numerator term
+        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K, S_proposed, S_star_proposed)
+        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K + 1, S_proposed, S_star_proposed)
+        # first denominator term
+        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K, S, S_star)
+        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K + 1, S, S_star)
+    }
+    
+    for (l in (K + 2):M) {
+        # second numerator term
+        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K, S_proposed, S_star_proposed)
+        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K + 1, S_proposed, S_star_proposed)
+        # second denominator term
+        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K, S, S_star)
+        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K + 1, S, S_star)
+    }
+    
+    # third numerator term
+    log_likelihood_ratio = log_likelihood_ratio + rhoB(K, K + 1, S_proposed, S_star_proposed)
+    log_likelihood_ratio = log_likelihood_ratio + rhoB(K, K, S_proposed, S_star_proposed)
+    log_likelihood_ratio = log_likelihood_ratio + rhoB(K + 1, K + 1, S_proposed, S_star_proposed)
+    # third denominator term
+    log_likelihood_ratio = log_likelihood_ratio + rhoB(K, K + 1, S, S_star)
+    log_likelihood_ratio = log_likelihood_ratio + rhoB(K, K, S, S_star)
+    log_likelihood_ratio = log_likelihood_ratio + rhoB(K + 1, K + 1, S, S_star)
+
+    # compute alpha_shuffle
     alpha_shuffle = min(1, exp(log_likelihood_ratio + log_prior_ratio))
     
     if (runif(n = 1) < alpha_shuffle) {
         # accept the shuffle
-        return(new_rho)
+        return(proposed_rho)
     } else {
         # reject the shuffle
-        return(rho)
+        return(current_rho)
     }
     
 }
@@ -436,7 +487,20 @@ get_S_star_from_S_and_rho = function(S, rho){
     return(S_star)
 }
 
-
+# auxiliary function to evaluate the beta
+rhoB_general = function(group1,
+                group2,
+                S,
+                S_star,
+                log = T,
+                alpha,
+                beta) {
+    if (log) {
+        return(lbeta(alpha + S[group1, group2], beta + S_star[group1, group2]))
+    } else{
+        return(beta(alpha + S[group1, group2], beta + S_star[group1, group2]))
+    }
+}
 
 log_likelihoodRatio = function(rho,
                                alpha_add,
@@ -459,20 +523,20 @@ log_likelihoodRatio = function(rho,
     # number of groups
     M = length(current_rho)
     
-    # auxiliary function to evaluate the beta
-    rhoB = function(group1,
-                    group2,
-                    S,
-                    S_star,
-                    log = T,
-                    alpha = alpha,
-                    beta = beta) {
-        if (log) {
-            return(lbeta(alpha + S[group1, group2], beta + S_star[group1, group2]))
-        } else{
-            return(beta(alpha + S[group1, group2], beta + S_star[group1, group2]))
-        }
+    # wrap the general rhoB into this version where I don't have to specify
+    # alpha and beta (doing this for adaptiveness)
+    rhoB = function(group1, group2, S, S_star) {
+        return(rhoB_general(
+            group1,
+            group2,
+            S,
+            S_star,
+            log = T,
+            alpha = alpha,
+            beta = beta
+        ))
     }
+        
     
     S_current = get_S_from_G_rho(G, current_rho)
     S_star_current = get_S_star_from_S_and_rho(S, current_rho)
