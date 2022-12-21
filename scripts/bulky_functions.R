@@ -668,7 +668,7 @@ log_priorRatio = function(theta_prior,
 # Update theta--------------------------------------------------
 # Related util functions are in the file utility_functions.R
 
-#' Update theta as in Martinez and Mena
+#' Full-conditional for theta as in Martinez and Mena
 #'
 #' @param c first parameter of the shifted gamma prior 
 #' @param d second parameter of the shifted gamma prior
@@ -705,9 +705,47 @@ full_conditional_theta <- function(c, d, candidate, k, n){
 }
 
 
-# Update sigma--------------------------------------------------
-# Related util functions are in the file utility_functions.R
 
+#' Full-conditional for sigma as in Martinez and Mena
+#'
+#' The formula is on page 13 - ACHTUNG! They did everything in log and 
+#' returned the logged result, but I am returning the unlogged version 
+#' at the moment
+#'
+#' @param sigma ? not sure whether it is the previous
+#' @param theta other parameter for the prior
+#' @param k I think the changepoint index??? To be checked
+#' @param rho current partition
+#' @param a first parameter of the distribution
+#' @param b second parameter of the distribution
+#' @param c third parameter of the distribution
+#' @param d fourth parameter of the distribution
+#'
+#' @return
+#' @export
+#'
+#' @examples
+full_conditional_sigma <- function(sigma,theta,k,rho,a,b,c,d){
+    
+    #First product term
+    log_prod_1 = numeric(0)
+    for(i in 1:(k-1)){
+        log_prod_1 = log_prod_1 + log(theta + i*sigma)
+    }
+    
+    #Second product term
+    log_prod_2 <- numeric(0)
+    for(i in 1:k){
+        log_prod_2 = log_prod_2 + log_pochhammer((1-sigma),(rho[i]-1))
+    }
+    
+    #Final output
+    output <- (a-1) * log(sigma) + (b-1) * log(1-sigma) + 
+        (c-1)*log(theta + sigma) + log(exp(-d*sigma)) + 
+        log_prod_1 + log_prod_2
+    
+    return(exp(output))
+}
 
 
 
