@@ -35,45 +35,6 @@ if(i!=j){
 
 
 
-# mi serve una funzione che prenda la G del grafo attuale
-# e una partizione, e mi restituisca S (ovvero Theta, che con rho attuale già ho)
-# gli devo dare la nuova partizione
-
-# per esempio se G è fatta cosi' (5 nodi)
-G = matrix(c(
-    0,0,1,0,1,
-    0,0,0,1,0,
-    1,0,0,1,0,
-    0,1,1,0,1,
-    1,0,0,1,0
-),nrow=5,byrow = T)
-# metti che la vecchia rho è fatta cosi'
-rho = c(
-    2,3
-)
-# devo trovare S
-# devo partire in realtà dalla conoscenza di Theta (cioè S)
-# perché altrimenti è un mezzo casino ricostruirla tutta
-# devo prendere Theta e cambiare 2 colonne e 2 righe (1 concettualmente
-# indipendente, l'altra segue) relative ai due nuovi grupi S e S+1
-
-# ora penso al caso ADD, se sono nel caso DELETE prima piango e poi ci penso
-
-# in questo caso Theta potrebbe essere fatta cosi'
-c(
-    0,3,
-    3,2
-)
-
-# cavoli però nel caso delete
-
-# [piange]
-
-# per chiarezza di idee prima ne faccio una generica che prende un generico
-# G e rho, e mi da Theta/S
-# scomodo ricostruire tutto ma intanto entro nell'idea
-
-
 
 # make a matrix symmetric
 makeSymm <- function(m, from_lower = T) {
@@ -84,170 +45,188 @@ makeSymm <- function(m, from_lower = T) {
     return(m)
 }
 
+
+# Build the entire S (sum of edges between clusters) from scratch
+# idea: extracting all submatrices needed from G and sum all the elements
+# (which are all ones). Do this only for the triangular part, then make it
+# symmetric. You need to know just G and the partition rho
 get_S_from_G_rho = function(G, rho) {
     
     # check on G
     if (!all(t(G) == G))
         stop("G is not symmetric")
     
-    M = length(rho) # number of groups
-    S = matrix(numeric(M * M), nrow = M, byrow = T) # initialize S matrix
-    bounds = cumsum(rho) # index of the right bounds of the partition
+    # number of groups
+    M = length(rho)
+    
+    # initialize S matrix
+    S = matrix(numeric(M * M), nrow = M, byrow = T)
+    
+    # indexes of the right bounds of the partition
+    bounds = cumsum(rho)
     
     # loop through the groups
     for (l in 1:M) {
-        # cat("analysing group", i, "\n")
         # extract the submatrix and sum all the elements
-        # the inside connections are now counted twice
         for (m in 1:l) {
             start_row = ifelse(m != 1, bounds[m - 1] + 1, 0)
             end_row = bounds[m]
             start_col = ifelse(l != 1, bounds[l - 1] + 1, 0)
             end_col = bounds[l]
             S[l, m] = sum(G[start_row:end_row, start_col:end_col])
-            # cat("connection between", l, "and", m, "=", S[l, m], "\n")
+            
+            if(l == m){
+                # the inside connections are now counted twice, correct for it
+                S[l, m] = S[l, m] / 2
+            } else {
+                # otherwise, write to symmetric part of the matrix as well
+                S[m, l] = S[l, m]
+            }
         }
     }
     
-    # correct the diagonal
-    diagonal = col(S) == row(S)
-    S[diagonal] = S[diagonal] / 2
+    # alternative correction for the diagonal
+    # diagonal = col(S) == row(S)
+    # S[diagonal] = S[diagonal] / 2
     
-    # make symmetric
-    S = makeSymm(S)
+    # alternative for making the matrix symmetric
+    # S = makeSymm(S)
     
     return(S)
-    
-    # idealmente una volta che conosco gli indici che sono cambiati
-    # devo solo cambiare l'outer loop con gli indici che mi interessano
-    # cioè il cavolo perché la matrice S ha un numero diverso di elementi
-    # quindi va presa quella vecchia e messa al suo posto lasciando spazio
-    # vuoto per la roba nuova
-    # che schifo
-    # TODO fare questo per evitare di bruciare risorse, già che non ce ne sono troppe
 }
 
-# faccio un tentativo di scrivere sta roba senza ricalcolare tutto
-# ma partendo da G, vecchia rho e sua S, nuova rho
-
+# Build S (sum of edges between clusters) from knowledge of the previous S,
+# the G matrix, the previous rho and the new proposed rho.
+# Handles all the cases: add, delete, shuffle, i.e. "a new group is added",
+# "a group is deleted", "same number of groups, but two groups exchange some
+# elements".
 get_S_from_G_rho_oldrho_oldS = function(G,rho,oldrho,oldS,debug=F){
+    
     # check on G
     if (!all(t(G) == G))
         stop("G is not symmetric")
     
-    M = length(rho) # number of groups in new rho
-    oldM = length(oldrho) # number of groups in old rho
-    S = matrix(numeric(M * M), nrow = M, byrow = T) # initialize S matrix
-    bounds = cumsum(rho) # index of the right bounds of the partition
+    # number of groups in new and old rho
+    M    = length(   rho)
+    oldM = length(oldrho)
     
+    # indexes of the right bounds of the partition
+    bounds = cumsum(rho)
+    
+    # groups that needs to be updated with the new rho information
     groups_to_be_refilled = {}
     
-    if(M > oldM){
-        if(debug)
-            cat("Entering case ADD\n")
-        # caso di add
+    if(M > oldM){ # case Add
+        
+        # initialize S matrix
+        S = matrix(numeric(M * M), nrow = M, byrow = T)
         
         # find the group that has changed
-        # notazione infelice perche' lo chiamiamo anche lui S, va uniformato
         K = min(which(rho != c(oldrho,NA)))
         
-        if(debug)
-            cat("Group affected K =",K,"\n")
-        
         if(K > 1 && K < oldM){ # in the standard case perform all four
-            S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)] # upper left block
-            S[(K+1+1):M,1:(K-1)] = oldS[(K+1):oldM,1:(K-1)] # lower left block
-            S[1:(K-1),(K+1+1):M] = oldS[1:(K-1),(K+1):oldM] # upper right block
-            S[(K+1+1):M,(K+1+1):M] = oldS[(K+1):oldM,(K+1):oldM] # lower right block
+            
+            # upper left block
+            S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)]
+            
+            # lower left block
+            S[(K+1+1):M,1:(K-1)] = oldS[(K+1):oldM,1:(K-1)]
+            
+            # upper right block
+            S[1:(K-1),(K+1+1):M] = oldS[1:(K-1),(K+1):oldM]
+            
+            # lower right block
+            S[(K+1+1):M,(K+1+1):M] = oldS[(K+1):oldM,(K+1):oldM]
+            
         } else if(K == 1){ # bring to the new S only the lower right block
-            S[(K+1+1):M,(K+1+1):M] = oldS[(K+1):oldM,(K+1):oldM] # lower right block
+            
+            # lower right block
+            S[(K+1+1):M,(K+1+1):M] = oldS[(K+1):oldM,(K+1):oldM]
+            
         } else if(K == oldM){ # bring to the new S only the upper left block
-            S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)] # upper left block
+            
+            # upper left block
+            S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)]
+            
         }
-        
         
         groups_to_be_refilled = c(K,K+1)
         
-    } else if(M < oldM) {
-        if(debug)
-            cat("Entering case DELETE\n")
-        # caso di delete
+    } else if(M < oldM) { # case Delete
+        
+        # initialize S matrix
+        S = matrix(numeric(M * M), nrow = M, byrow = T)
         
         # find the group that has changed
-        # notazione infelice perche' lo chiamiamo anche lui S, va uniformato
         K = min(which(oldrho != c(rho,NA)))
         
-        if(debug)
-            cat("Group affected K =",K,"\n")
-        
         if(K > 1 && K+1 < oldM){ # in the standard case perform all four
-            S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)] # upper left block
-            S[(K+1):M,1:(K-1)] = oldS[(K+1+1):oldM,1:(K-1)] # lower left block
-            S[1:(K-1),(K+1):M] = oldS[1:(K-1),(K+1+1):oldM] # upper right block
-            S[(K+1):M,(K+1):M] = oldS[(K+1+1):oldM,(K+1+1):oldM] # lower right block
+            
+            # upper left block
+            S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)]
+            
+            # lower left block
+            S[(K+1):M,1:(K-1)] = oldS[(K+1+1):oldM,1:(K-1)]
+            
+            # upper right block
+            S[1:(K-1),(K+1):M] = oldS[1:(K-1),(K+1+1):oldM]
+            
+            # lower right block
+            S[(K+1):M,(K+1):M] = oldS[(K+1+1):oldM,(K+1+1):oldM]
+            
         } else if(K == 1){ # bring to the new S only the lower right block
-            S[(K+1):M,(K+1):M] = oldS[(K+1+1):oldM,(K+1+1):oldM] # lower right block
+            
+            # lower right block
+            S[(K+1):M,(K+1):M] = oldS[(K+1+1):oldM,(K+1+1):oldM]
+
         } else if(K+1 == oldM){ # bring to the new S only the upper left block
-            S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)] # upper left block
+
+            # upper left block
+            S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)]
+
         }
         
         groups_to_be_refilled = c(K)
         
-    } else {
-        if(debug)
-            cat("Entering case SHUFFLE\n")
-        # caso di shuffle quando sono uguali il numero di partizioni
+    } else { # case Shuffle
         
         S = oldS
         
         # find the group that has changed
-        # notazione infelice perche' lo chiamiamo anche lui S, va uniformato
         K = min(which(oldrho != rho))
         
-        if(debug)
-            cat("Group affected K =",K,"\n")
-        
+        # set to zero the columns and rows of the shuffled groups
         S[K:(K+1),1:M] = 0 # row K to K+1
         S[1:M,K:(K+1)] = 0 # column K to K+1
         
         groups_to_be_refilled = c(K,K+1)
         
     }
-
-    # sistemare i loop qui sotto solo dove serve
-    cat("Matrix S before filling\n")
-    print(S)
     
     # loop through the groups
     for (l in groups_to_be_refilled) {
-        # cat("analysing group", i, "\n")
         # extract the submatrix and sum all the elements
-        # the inside connections are now counted twice
         for (m in 1:M) {
             start_row = ifelse(m != 1, bounds[m - 1] + 1, 0)
             end_row = bounds[m]
             start_col = ifelse(l != 1, bounds[l - 1] + 1, 0)
             end_col = bounds[l]
+
             S[l, m] = sum(G[start_row:end_row, start_col:end_col])
-            S[m, l] = S[l, m]
-            if(l == m)
-                S[l, m] = S[l, m] / 2 # correct the diagonal
-            if(debug)
-                cat("connection between", l, "and", m, "=", S[l, m], "\n")
+            if(l == m){
+                # the inside connections are now counted twice, correct for it
+                S[l, m] = S[l, m] / 2
+            } else {
+                # otherwise, write to symmetric part of the matrix as well
+                S[m, l] = S[l, m]
+            }
         }
     }
     
-    
-    
-    # make symmetric
-    # S = makeSymm(S,from_lower=F)
-    # ho problemi a capire se devo fare dalla lower o dalla upper, risolvo inserendo sopra e amen
-    
     return(S)
-    
 }
 
-
+# test the upper functions
 G = matrix(c(
     0,0,1,0,1,
     0,0,0,1,0,
@@ -259,10 +238,10 @@ G = matrix(c(
 oldrho = c(1,3,1)
 rho = c(1,2,1,1)
 oldS = get_S_from_G_rho(G=G,rho=oldrho)
-S_method_correct = get_S_from_G_rho(G=G,rho=rho)
-S_new_method = get_S_from_G_rho_oldrho_oldS(G,rho,oldrho,oldS,debug=T)
+S_from_scratch = get_S_from_G_rho(G=G,rho=rho)
+S_from_previous_S = get_S_from_G_rho_oldrho_oldS(G,rho,oldrho,oldS,debug=T)
 
-if(all(S_new_method == S_method_correct)){
+if(all(S_from_scratch == S_from_previous_S)){
     cat("Ce l'hai fatta Jonny")
 }
 
