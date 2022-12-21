@@ -860,12 +860,18 @@ Gibbs_sampler = function(data, niter, nburn, thin,
   # initialize progress bar
   pb = txtProgressBar(min=1, max=n_total_iter, initial=1, style=3)
   
-  #Start the simulation
+  # initialize the sum of the weights of the graphs
+  total_weights = 0
+  
+  #initialize the sum of all graphs
+  total_graphs = matrix(0,p,p)
+  
+  # Start the simulation
   for(iter in 1:n_total_iter){
     
     # Update graph
     if(options$update_graph){
-      #we ran a single iteration of BDgraph with iter=1 and burning=0
+      # we ran a single iteration of BDgraph with iter=1 and burning=0
       #TODO think about extracting fixes parameters such as S, n, p which
       # at the moment are computed for every bdgraph iteration
       output = bdgraph( data, rho, n, method = "ggm", algorithm = "bdmcmc", iter=1,
@@ -873,9 +879,17 @@ Gibbs_sampler = function(data, niter, nburn, thin,
                         CCG_D = NULL, g.start = "empty", jump = NULL, save = TRUE, print = 1000,
                         cores = NULL, threshold = 1e-8 )
       
-      #Extracting the matrix with edges between groups
-      Theta_groups = output$last_theta 
+      # Extracting the matrix with edges between groups
+      Theta_groups = output$last_theta
+      # Extracting the  precision matrix ?? Quale delle due è effettivamente l'ultima precision matrix?
+      # K_hat = output$K_hat
+      # last_K = output$last_K
       # Kappa = UpdatePrecision(options$nu,options$W,n,U,z)
+      # Updating total_weights
+      total_weights = total_weights + output$all_weights
+      # Updating total_graphs taking into consideration the weights
+      total_graphs = total_graphs + output$last_graph * output$all_weights
+      
       
     }
     
