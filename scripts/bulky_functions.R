@@ -617,8 +617,6 @@ get_index_changed_group = function(current_rho,proposed_rho){
 
 
 
-
-
 log_priorRatio = function(theta_prior,
                           sigma,
                           current_rho,
