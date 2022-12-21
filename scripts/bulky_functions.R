@@ -17,46 +17,61 @@
 #' @export
 #'
 #' @examples
-update_partition = function(rho,alpha_add,a_weights,d_weights,Theta_groups,theta_prior,sigma){
-  
-  unifsample = runif(n=1)
-  choose_add = unifsample < alpha_add
-  
-  # OK
-  proposal_list = proposalRatio(rho, alpha_add, a_weights, d_weights, unifsample)
-  log_proposalRatioNow = log(proposal_list$ratio)
-  candidate = proposal_list$candidate
-  
-  # compute proposed partition based on candidate and index of the group
-  if(choose_add){
-    list_output_modify_partition = splitPartition(candidate, rho)
-  } else {
-    list_output_modify_partition = mergePartition(candidate, rho)
-  }
-  proposed_rho = list_output_modify_partition$rho
-  THE_GROUP = list_output_modify_partition$group_index # TODO cambiare questo nome per renderlo coerente con ciÃ² che c'Ã¨ sotto
-  
-  # OK qua dentro guarda che forse c'Ã¨ un ricalcolo inutile dell'indice del gruppo da splittare o mergiare
-  log_priorRatioNow = log_priorRatio(theta_prior, sigma, current_rho, proposed_rho, choose_add)
-  
-  # Status? 
-  log_likelihoodRatioNow = log_likelihoodRatio(choose_add,Theta_groups)
-  
-  alpha_accept <- min(1, exp(log_likelihoodRatioNow + log_priorRatioNow + log_proposalRatioNow))
-  
-  if (runif(n=1) < alpha_accept){ # accept the move
+update_partition = function(rho,
+                            alpha_add,
+                            a_weights,
+                            d_weights,
+                            Theta_groups,
+                            theta_prior,
+                            sigma) {
+    unifsample = runif(n = 1)
+    choose_add = unifsample < alpha_add
     
-    if(choose_add){ # accepted move is a split
-      # TODO splitPartition(candidate,rho)
-    }
-    else{ # accepted move is a merge
-      # TODO mergePartition
-    }
-    partitionData
-  } else { # don't do anything
+    # OK
+    proposal_list = proposalRatio(rho, alpha_add, a_weights, d_weights, unifsample)
+    log_proposalRatioNow = log(proposal_list$ratio)
+    candidate = proposal_list$candidate
     
-  }
-  
+    # compute proposed partition based on candidate and index of the group
+    if (choose_add) {
+        list_output_modify_partition = splitPartition(candidate, rho)
+    } else {
+        list_output_modify_partition = mergePartition(candidate, rho)
+    }
+    proposed_rho = list_output_modify_partition$rho
+    
+    # TODO cambiare questo nome per renderlo coerente con ciÃ² che c'Ã¨ sotto
+    THE_GROUP = list_output_modify_partition$group_index
+    
+    # OK
+    # c'e' un ricalcolo inutile dell'indice del gruppo da splittare o mergiare
+    log_priorRatioNow = log_priorRatio(theta_prior, sigma, current_rho, proposed_rho, choose_add)
+    
+    # OK
+    # visto che il calcolo inutile dell'indice c'era sopra, l'ho messo pure qui
+    log_likelihoodRatioNow = log_likelihoodRatio(choose_add, Theta_groups)
+    
+    alpha_accept <- min(1, exp(log_likelihoodRatioNow +
+                               log_priorRatioNow +
+                               log_proposalRatioNow))
+    
+    if (runif(n = 1) < alpha_accept) {
+        # accept the move
+        
+        if (choose_add) {
+            # accepted move is a split
+            # TODO splitPartition(candidate,rho)
+        }
+        else{
+            # accepted move is a merge
+            # TODO mergePartition
+        }
+        partitionData
+    } else {
+        # don't do anything
+        
+    }
+    
 }
 
 
