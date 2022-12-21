@@ -17,3 +17,9 @@ git commit -a -m 'Update submodule with fixes'
 git push origin master
 ```
 
+## How to format R code
+
+Using [this guide](https://bookdown.org/dli/rguide/r-style-guide.html).
+
+In R you can use the commands: `Code` > `Reformat Code` to format the selected chunk of code.
+

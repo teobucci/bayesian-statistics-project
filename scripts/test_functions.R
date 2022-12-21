@@ -124,7 +124,7 @@ get_S_from_G_rho_oldrho_oldS = function(G,rho,oldrho,oldS,debug=F){
         # find the group that has changed
         K = min(which(rho != c(oldrho,NA)))
         
-        if(K > 1 && K < oldM){ # in the standard case perform all four
+        if(K > 1 & K < oldM){ # in the standard case perform all four
             
             # upper left block
             S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)]
@@ -160,7 +160,7 @@ get_S_from_G_rho_oldrho_oldS = function(G,rho,oldrho,oldS,debug=F){
         # find the group that has changed
         K = min(which(oldrho != c(rho,NA)))
         
-        if(K > 1 && K+1 < oldM){ # in the standard case perform all four
+        if(K > 1 & K+1 < oldM){ # in the standard case perform all four
             
             # upper left block
             S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)]
@@ -237,8 +237,8 @@ G = matrix(c(
 
 oldrho = c(1,3,1)
 rho = c(1,2,1,1)
-oldS = get_S_from_G_rho(G=G,rho=oldrho)
-S_from_scratch = get_S_from_G_rho(G=G,rho=rho)
+oldS = get_S_from_G_rho(G,oldrho)
+S_from_scratch = get_S_from_G_rho(G,rho)
 S_from_previous_S = get_S_from_G_rho_oldrho_oldS(G,rho,oldrho,oldS,debug=T)
 
 if(all(S_from_scratch == S_from_previous_S)){
