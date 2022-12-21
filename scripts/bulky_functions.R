@@ -155,11 +155,10 @@ proposalRatio = function(rho,
                          alpha_add,
                          a_weights,
                          d_weights,
-                         unifsample) {
+                         choose_add) {
     # number of groups
     M = length(rho)
     
-    choose_add = unifsample < alpha_add
     n_elems = length(a_weights)
     
     # preliminary check for extreme cases
@@ -818,6 +817,7 @@ Gibbs_sampler = function(data, niter, nburn, thin,
     }
     
     # save results only on thin iterations
+    # (i.e. only save multiples of thin)
     if(iter > nburn & (iter - nburn)%%thin == 0) {
       # TODO
       it_saved = it_saved + 1
