@@ -17,6 +17,14 @@ git commit -a -m 'Update submodule with fixes'
 git push origin master
 ```
 
+## How to compile the PDF files
+
+To compile the first presentation, run the following in the root of the repo
+
+```
+make prese1
+```
+
 ## How to format R code
 
 Using [this guide](https://bookdown.org/dli/rguide/r-style-guide.html).
