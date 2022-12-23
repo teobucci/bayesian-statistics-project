@@ -7,6 +7,7 @@ FILE_CLEAN = *.aux *.log *.out *.xdv *.toc *.fls *.fls *.fdb_latexmk *.synctex.g
 
 PRESE_NAME = Bucci_Cipriani_Pagella_Petruso_Puricelli_Venturini.pdf # nome standard di tutte le presentazioni
 PRESE1_DIRECTORY = slides/presentation-2022-11-11
+PRESE2_DIRECTORY = slides/presentation-2023-01-09
 
 .PHONY: prese1 # distclean clean pdf
 
@@ -16,6 +17,11 @@ prese1: $(PRESE1_DIRECTORY)/$(PRESE_NAME) # prese1 è il comando per richiedere 
 
 $(PRESE1_DIRECTORY)/$(PRESE_NAME): $(PRESE1_DIRECTORY)/*.tex # l'output in pdf della presentazione dipende dai tex nella cartella
 	cd $(PRESE1_DIRECTORY) && latexmk -lualatex $(PRINCIPALE_TEX) && mv $(PRINCIPALE_PDF) $(PRESE_NAME) # se qualcosa è cambiato, ri-builda il documento pdf
+
+prese2: $(PRESE2_DIRECTORY)/$(PRESE_NAME) # prese2 è il comando per richiedere il pdf
+
+$(PRESE2_DIRECTORY)/$(PRESE_NAME): $(PRESE2_DIRECTORY)/*.tex # l'output in pdf della presentazione dipende dai tex nella cartella
+	cd $(PRESE2_DIRECTORY) && latexmk -lualatex $(PRINCIPALE_TEX) && mv $(PRINCIPALE_PDF) $(PRESE_NAME) # se qualcosa è cambiato, ri-builda il documento pdf
 
 # $(PRINCIPALE_PDF): $(PRINCIPALE_TEX) *.tex
 # 	#git show -s --format=%H > commit_hash.part
