@@ -881,9 +881,9 @@ Gibbs_sampler = function(data, niter, nburn, thin,
       
       # Extracting the matrix with edges between groups
       Theta_groups = output$last_theta
-      # Extracting the  precision matrix ?? Quale delle due è effettivamente l'ultima precision matrix?
+      # Extracting the  precision matrix ?? Quale delle due ? effettivamente l'ultima precision matrix?
       # K_hat = output$K_hat
-      # last_K = output$last_K
+      last_K = output$last_K
       # Kappa = UpdatePrecision(options$nu,options$W,n,U,z)
       # Updating total_weights
       total_weights = total_weights + output$all_weights
@@ -973,6 +973,8 @@ Gibbs_sampler = function(data, niter, nburn, thin,
     # }
     
   }
+  graph_final = total_graphs/total_weights
+  save_res$graph = graph_final
   
   close(pb)
   return(save_res)
