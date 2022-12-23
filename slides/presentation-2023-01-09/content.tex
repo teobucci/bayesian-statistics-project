@@ -1,0 +1,167 @@
+%!TEX root = ./main.tex
+
+%-------------------------------------
+%-------------------------------------
+% The model
+%-------------------------------------
+%-------------------------------------
+\section{The model}
+
+%\subsection{The model}
+
+\begin{frame}{Our model}
+
+\alert{Goal}: given a set of n data with p variables, infer the block structure of their variables
+without knowing the number of groups.
+
+\pause
+
+\alert{Additional constraints}: 
+\begin{itemize}
+    \item use a Stochastic Block Model    
+    \item the partition must respect the original order of the variables
+\end{itemize} 
+
+\pause
+
+\alert{The model}: 
+\begin{align*}
+    \bm{y}_1, \ldots, \bm{y}_n \mid \bm{K} & \iid \mathcal{N}_p(\mathbf{0}, \bm{K}^{-1} ) \\
+    \bm{K} \mid G & \sim \GWish(b, D)\\
+    P((i,j)&\in E\mid \bm{z},Q) = Q_{z_{i} z_{j}},\,\text{independent}\\
+        Q_{rs} \mid \bm{z} &\ind \Beta(a,b), 1\leq r\leq s\leq H\\
+    \rho_p & \sim \mathcal{L}\left(\rho_p\right)
+\end{align*}  
+
+\end{frame}
+
+
+%-------------------------------------
+%-------------------------------------
+% The sampling strategy
+%-------------------------------------
+%-------------------------------------
+\section{Sampling strategy}
+
+\subsection{Overview of the sampling strategy}
+\begin{frame}{Gibbs sampler}
+
+formula del Gibbs sampler
+
+
+
+\end{frame}
+
+
+
+
+%-------------------------------------
+% BDgraf
+%-------------------------------------
+\subsection{Updating the graph}
+\begin{frame}{Birth and death algorithm for updating the graph}
+
+   slide su bdgraph
+
+\end{frame}
+
+
+%-------------------------------------
+% Updating the current partition
+%-------------------------------------
+\subsection{Updating the partition}
+
+
+\begin{frame}{General steps for updating the partition}
+
+   slide su two-step move to update the partition: 
+   add/delete move (with general formula, no details) + shuffle
+
+\end{frame}
+
+
+
+
+\begin{frame}{Proposal ratio}
+
+   slide su proposal ratio
+
+\end{frame}
+
+
+
+
+\begin{frame}{Adaptive step}
+
+   non ho ben capito , vuole solo una slide sulla parte adattiva?
+   forse è un po' troppo breve per una slide sola
+
+\end{frame}
+
+
+
+%-------------------------------------
+%-------------------------------------
+% Next steps
+%-------------------------------------
+%-------------------------------------
+\section{Next steps}
+\begin{frame}{Next steps}
+
+    \begin{itemize}
+        \item Praying that the code works
+    \end{itemize}
+
+
+
+\end{frame}
+
+
+
+%----------------------------------------
+% References
+%-------------------------------------
+
+\begin{frame}{Main references}
+    % GGM
+    \nocite{colombiLearningBlockStructured2022a}
+    \nocite{mohammadiBayesianStructureLearning2015a}
+    % SBM
+    \nocite{legramantiExtendedStochasticBlock2022}
+    % Changepoint
+    \nocite{bensonAdaptiveMCMCMultiple2018}
+    \nocite{martinezNonparametricChangePoint2014}
+    
+    
+    %biblatex
+    \printbibliography
+    \renewcommand*{\bibfont}{\small}
+    %bibtex
+    %\bibliographystyle{plain} % We choose the "plain" reference style
+    %\bibliography{bibliography} % Entries are in the refs.bib file
+\end{frame}
+
+
+
+\begin{frame}[plain]
+    % Add background to content page
+    \AddToShipoutPictureFG*{\includegraphics[width=\paperwidth]{Images/background.pdf}}
+    \vspace*{1.2cm}
+    \hspace*{1cm}{\Large Thank you!}\\
+    \vspace*{0.6cm}
+    \hspace*{1cm}{\Huge \alert{Any questions?}}
+\end{frame}
+
+
+
+
+
+%tenere?
+\section*{Extra}
+
+\begin{frame}{Extra content}
+
+
+\end{frame}
+
+
