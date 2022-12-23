@@ -1,14 +1,9 @@
-#
-#Functions that constitute the bulk of the simulation.
-#
-
-
-#' Title
+#' Main function that updates the partition
 #'
-#' @param rho 
-#' @param alpha_add 
-#' @param a_weights 
-#' @param d_weights 
+#' @param rho The partition in compact form (e.. rho=c(1,4,5) means that the first group has 1 element, the second has 4 elements, the last has 5 elements).
+#' @param alpha_add Fixed probability of choosing an add move or delete move.
+#' @param a_weights Vector of size (number of nodes - 1) containing at element j the weights to consider when ADDING a changepoint between point j and point j+1 (weights are non-normalized probabilities).
+#' @param d_weights Vector of size (number of nodes - 1) containing at element j the weights to consider when DELETING a changepoint between point j and point j+1 (weights are non-normalized probabilities).
 #' @param Theta_groups 
 #' @param theta_prior 
 #' @param sigma 
@@ -28,15 +23,15 @@ update_partition = function(rho,
     choose_add = unifsample < alpha_add
     
     # OK
-    proposal_list = proposalRatio(rho, alpha_add, a_weights, d_weights, unifsample)
-    log_proposalRatioNow = log(proposal_list$ratio)
+    proposal_list = proposal_ratio(rho, alpha_add, a_weights, d_weights, unifsample)
+    log_proposal_ratioNow = log(proposal_list$ratio)
     candidate = proposal_list$candidate
     
     # compute proposed partition based on candidate and index of the group
     if (choose_add) {
-        list_output_modify_partition = splitPartition(candidate, rho)
+        list_output_modify_partition = split_partition(candidate, rho)
     } else {
-        list_output_modify_partition = mergePartition(candidate, rho)
+        list_output_modify_partition = merge_partition(candidate, rho)
     }
     proposed_rho = list_output_modify_partition$rho
     
@@ -49,24 +44,24 @@ update_partition = function(rho,
     
     # OK
     # visto che il calcolo inutile dell'indice c'era sopra, l'ho messo pure qui
-    log_likelihoodRatioNow = log_likelihoodRatio(choose_add, Theta_groups)
+    log_likelihood_ratioNow = log_likelihood_ratio(choose_add, Theta_groups)
     
-    alpha_accept <- min(1, exp(log_likelihoodRatioNow +
+    alpha_accept <- min(1, exp(log_likelihood_ratioNow +
                                log_priorRatioNow +
-                               log_proposalRatioNow))
+                               log_proposal_ratioNow))
     
     if (runif(n = 1) < alpha_accept) {
         # accept the move
         
         if (choose_add) {
             # accepted move is a split
-            # TODO splitPartition(candidate,rho)
+            # TODO split_partition(candidate,rho)
         }
         else{
             # accepted move is a merge
-            # TODO mergePartition
+            # TODO merge_partition
         }
-        partitionData
+        partition_data
     } else {
         # don't do anything
         
@@ -83,11 +78,11 @@ update_partition = function(rho,
 #' 
 #' @param logweights vector of the logarithm of the current weights
 #' @param alpha_target scalar indicating the target acceptance probability (optimal range around 0.10-0.15)
-#' @param alpha_add probability of adding a move (usually 0.5)
 #' @param t number of the current iteration
 #' @param h initial adaptation (must be >0)
+#' @inheritParams update_partition
 #'
-#' @return the vector of updated logweights
+#' @return Vector of updated logweights.
 #' @export
 #'
 #' @examples
@@ -104,16 +99,14 @@ log_weights_adaptation = function(logweights, t, h, alpha_target, alpha_add) {
 #' Given y (vector of data) and rho (vector of the partition) the function splits the observations and
 #' partitions them into the current groups 
 #' partitions them into the partition rho
-#' @param y - vector of n ordered data
-#' @param rho - partition written in compact form 
-#' e.g. rho=c(2,4,5) means the first group has 2 elements, the second has 4 and the third has 5
+#' @param y - Vector of n ordered data
+#' @inheritParams update_partition
 #'
-#' @return a list, where each element contains the corresponding group of y elements.
-#' If the dimensions of rho and y are not comparable, return an empty vector
+#' @return List where each element contains the corresponding group of y elements. If the dimensions of rho and y are not comparable, return an empty vector
 #' @export
 #'
 #' @examples
-partitionData <- function(y, rho) {
+partition_data <- function(y, rho) {
     if (sum(rho) != length(y))
         stop("The partition is not coherent with the data")
     
@@ -138,20 +131,27 @@ partitionData <- function(y, rho) {
 
 
 
-#' Computes the proposal ratio from the file "Samplingstrategy_nonparam" at page 4
-#' Follows strictly the paper, just adds the possibility of having alpha_add set by the author
-#' NOTE: I have not added the checks for the range of the parameters ranging from 0 and 1. Anyway, they are easy to include in the first if
+
+
+
+
+
+
+
+
+
+
+
+#' Proposal Ratio
 #'
-#' @param rho the partition in compact form (e.. rho=c(1,4,5) means that the first group has 1 element, the second has 4 elements, the last has 5 elements)
-#' @param alpha_add fixed probability of choosing ADD or DELETE as a move
-#' @param a_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when ADDING a changepoint between point j and point j+1 (weights are non-normalized probabilities)
-#' @param d_weights vector of size n-1 (number of datapoints - 1) containing at element j the weights to consider when DELETING a changepoint between point j and point j+1 (weights are non-normalized probabilities)
+
+#' @param choose_add Boolean to tell if we are performing an add move or not.
 #'
-#' @return the proposal ratio, which is 
+#' @return The proposal ratio (not in log).
 #' @export
 #'
 #' @examples
-proposalRatio = function(rho,
+proposal_ratio = function(rho,
                          alpha_add,
                          a_weights,
                          d_weights,
@@ -200,7 +200,8 @@ proposalRatio = function(rho,
         draw_weights = d_weights_available
     }
     
-    candidate = sample(1:n_elem, 1, prob = draw_weights)
+    # my candidate cannot be the first node by definition
+    candidate = sample(2:(n_elem+1), 1, prob = draw_weights)
     
     if (choose_add & M == 1) {
         # case in which you choose to propose an add move
@@ -233,20 +234,15 @@ proposalRatio = function(rho,
 
 
 
-#' splitPartition in the compact form
-#' 
-#' NOTE: maybe it would be better to switch the representation, add a changepoint and switch back... 
-#' let's think about it
+#' Split Partition
 #'
-#' @param k index of the the point where to split the group (equivalent to adding a changepoint)
-#' @param rho partition in compact form e.g., rho=c(2,3,4) means the first group has 2 elements, the second has three and the third has four
-#'
-#' @return a list whose first element is the updated partition 
-#' and the second is the index of the groups that has changed (do not know if it is necessary, though)
+#' @param candidate_index Index of the the point where to split the group (equivalent to adding a changepoint).
+#' @inheritParams update_partition
+#' @return A list whose first element is the updated partition and the second is the index of the groups that has changed.
 #' @export
 #'
 #' @examples
-splitPartition <- function(candidate_index, rho) {
+split_partition <- function(candidate_index, rho) {
     n_elems = sum(rho)
     # number of groups
     M = length(rho)
@@ -297,20 +293,15 @@ splitPartition <- function(candidate_index, rho) {
 
 
 
-#' mergePartition in the compact form
+#' Merge Partition
 #' 
-#' NOTE: maybe it would be better to switch the representation, add a changepoint and switch back... 
-#' let's think about it
-#' 
-#' @param k index of the the point where to split the group (equivalent to adding a changepoint)
-#' @param rho partition in compact form e.g., rho=c(2,3,4) means the first group has 2 elements, the second has three and the third has four
-#'
-#' @return a list whose first element is the updated partition 
-#' and the second is the index of the groups that has changed (do not know if it is necessary, though)
+#' @param candidate_index Index of the the point where to split the group (equivalent to adding a changepoint).
+#' @inheritParams update_partition
+#' @return A list whose first element is the updated partition and the second is the index of the groups that has changed.
 #' @export
 #'
 #' @examples
-mergePartition <- function(candidate_index, rho) {
+merge_partition <- function(candidate_index, rho) {
     n_elems = sum(rho)
     # number of groups
     M = length(rho)
@@ -357,16 +348,18 @@ mergePartition <- function(candidate_index, rho) {
 
 
 
-#' shufflePartition (QUESTA RESTA MOLTO SIMILE A CORRADIN, NO?)
+#' Shuffle Partition
 #' 
-#' @param rho partition in compact form e.g., rho=c(2,3,4) means the first group has 2 elements, the second has three and the third has four
-#'
-#' @return the updated partition
+#' @param G Adjacency matrix of the Graph.
+#' @inheritParams update_partition
+#' @return The updated partition after a shuffle move, if accepted.
 #' @export
 #'
 #' @examples
-shuffle <- function(current_rho, G) {
+shuffle_partition <- function(rho, G) {
     # vedi Corradin p.16
+    
+    current_rho = rho
     
     # number of groups
     M = length(current_rho)
@@ -464,6 +457,15 @@ shuffle <- function(current_rho, G) {
 }
 
 
+#' Get Non-Edges from S and partition
+#'
+#' @param S MxM matrix, where M is number of groups, containing the sum of edges.
+#' @inheritParams update_partition
+#'
+#' @return
+#' @export
+#'
+#' @examples
 get_S_star_from_S_and_rho = function(S, rho){
     # number of groups
     M = length(rho)
@@ -501,8 +503,20 @@ rhoB_general = function(group1,
     }
 }
 
-log_likelihoodRatio = function(rho,
-                               alpha_add,
+#' Log Likelihood Ratio
+#'
+#' @inheritParams update_partition
+#' @inheritParams shuffle_partition
+#' @param current_rho Current partition.
+#' @param proposed_rho Proposed partition.
+#' @param alpha Parameter of the Beta of the Graph.
+#' @param beta Parameter of the Beta of the Graph.
+#'
+#' @return The likelihood ratio in log.
+#' @export
+#'
+#' @examples
+log_likelihood_ratio = function(alpha_add,
                                a_weights,
                                d_weights,
                                G,
@@ -663,9 +677,6 @@ log_priorRatio = function(theta_prior,
 }
 
 
-# Update theta--------------------------------------------------
-# Related util functions are in the file utility_functions.R
-
 #' Full-conditional for theta as in Martinez and Mena
 #'
 #' @param c first parameter of the shifted gamma prior 
@@ -788,8 +799,17 @@ set_options = function(sigma0,
   return(options)
 }
 
-# https://stats.stackexchange.com/a/12239
-estBetaParams <- function(mu, var) {
+#' Estimate alpha and beta from a Beta function given mean and variance
+#' See https://stats.stackexchange.com/a/12239 for details.
+#' 
+#' @param mu Mean of the Beta.
+#' @param var Variance of the Beta.
+#'
+#' @return List with alpha and beta of the corresponding Beta distribution.
+#' @export
+#'
+#' @examples
+estimate_Beta_params <- function(mu, var) {
     alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
     beta <- alpha * (1 / mu - 1)
     return(list(alpha = alpha, beta = beta))
@@ -829,7 +849,7 @@ Gibbs_sampler = function(data, niter, nburn, thin,
   if(!(sig2_beta > 0 & sig2_beta < 0.25))
       stop("The mean of the Beta must be between 0 and 1")
   
-  beta_params = estBetaParams(mu_beta,sig2_beta)
+  beta_params = estimate_Beta_params(mu_beta,sig2_beta)
   a = beta_params$alpha
   b = beta_params$beta 
   
@@ -908,7 +928,7 @@ Gibbs_sampler = function(data, niter, nburn, thin,
     }
     
     if(options$perform_shuffle){
-      rho = shuffle(rho)
+      rho = shuffle_partition(rho)
     }
     
     if(options$update_sigma){
