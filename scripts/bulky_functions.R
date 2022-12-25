@@ -710,7 +710,7 @@ full_conditional_theta <- function(c, d, candidate, k, n){
     component <- min(which(cumsum(gamma_weights) > u))
     
     #BEWARE! There might be an error here on sigma, but it may depend on how it is passed
-    theta <- shifted_gamma(prior_c+ (component-1), prior_d + f -log(z), sigma) #!!!shouldn't it be -sigma??
+    theta <- shifted_gamma(prior_c + (component-1), prior_d + f - log(z), sigma) #!!!shouldn't it be -sigma??
     
     return(theta)
 }
@@ -725,7 +725,7 @@ full_conditional_theta <- function(c, d, candidate, k, n){
 #'
 #' @param sigma ? not sure whether it is the previous
 #' @param theta Other parameter for the prior
-#' @param k I think the changepoint index??? To be checked
+#' @param k Changepoint index
 #' @param rho Current partition
 #' @param a First parameter of the distribution
 #' @param b Second parameter of the distribution
