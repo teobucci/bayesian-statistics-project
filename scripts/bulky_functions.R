@@ -1,6 +1,6 @@
 #' Main function that updates the partition
 #'
-#' @param rho The partition in compact form (e.. rho=c(1,4,5) means that the first group has 1 element, the second has 4 elements, the last has 5 elements).
+#' @param rho The partition in compact form (e.g. rho=c(1,4,5) means that the first group has 1 element, the second has 4 elements and the last has 5 elements).
 #' @param alpha_add Fixed probability of choosing an add move or delete move.
 #' @param a_weights Vector of size (number of nodes - 1) containing at element j the weights to consider when ADDING a changepoint between point j and point j+1 (weights are non-normalized probabilities).
 #' @param d_weights Vector of size (number of nodes - 1) containing at element j the weights to consider when DELETING a changepoint between point j and point j+1 (weights are non-normalized probabilities).
@@ -71,15 +71,15 @@ update_partition = function(rho,
 
 
 
-#' Adaptation step to update the weights vector a and d
+#' Adaptation step to update the weights vectors a and d
 #' The function takes as an input the current weights and updates them as a function of
-#' the current iteration number t, the initial adaptation h, 
+#' the current iteration number t, the initial adaptation h 
 #' The function works in log scale
 #' 
-#' @param logweights vector of the logarithm of the current weights
-#' @param alpha_target scalar indicating the target acceptance probability (optimal range around 0.10-0.15)
-#' @param t number of the current iteration
-#' @param h initial adaptation (must be >0)
+#' @param logweights Vector of the logarithm of the current weights
+#' @param alpha_target Scalar indicating the target acceptance probability (optimal range empirically observed around 0.10-0.15)
+#' @param t Number of the current iteration
+#' @param h Initial adaptation (must be >0)
 #' @inheritParams update_partition
 #'
 #' @return Vector of updated logweights.
@@ -96,10 +96,10 @@ log_weights_adaptation = function(logweights, t, h, alpha_target, alpha_add) {
 
 
 #' Partition current data
-#' Given y (vector of data) and rho (vector of the partition) the function splits the observations and
+#' Given y (vector of data) and rho (vector of the partition), the function splits the observations and
 #' partitions them into the current groups 
 #' partitions them into the partition rho
-#' @param y - Vector of n ordered data
+#' @param y Vector of n ordered data
 #' @inheritParams update_partition
 #'
 #' @return List where each element contains the corresponding group of y elements. If the dimensions of rho and y are not comparable, return an empty vector
@@ -144,7 +144,6 @@ partition_data <- function(y, rho) {
 
 #' Proposal Ratio
 #'
-
 #' @param choose_add Boolean to tell if we are performing an add move or not.
 #'
 #' @return The proposal ratio (not in log).
@@ -238,7 +237,7 @@ proposal_ratio = function(rho,
 #'
 #' @param candidate_index Index of the the point where to split the group (equivalent to adding a changepoint).
 #' @inheritParams update_partition
-#' @return A list whose first element is the updated partition and the second is the index of the groups that has changed.
+#' @return A list whose first element is the updated partition and the second is the index of the group that has changed.
 #' @export
 #'
 #' @examples
@@ -297,7 +296,7 @@ split_partition <- function(candidate_index, rho) {
 #' 
 #' @param candidate_index Index of the the point where to split the group (equivalent to adding a changepoint).
 #' @inheritParams update_partition
-#' @return A list whose first element is the updated partition and the second is the index of the groups that has changed.
+#' @return A list whose first element is the updated partition and the second is the index of the group that has changed.
 #' @export
 #'
 #' @examples
@@ -503,6 +502,8 @@ rhoB_general = function(group1,
     }
 }
 
+
+
 #' Log Likelihood Ratio
 #'
 #' @inheritParams update_partition
@@ -600,6 +601,7 @@ log_likelihood_ratio = function(alpha_add,
 }
 
 
+#TODO add documentation here!!
 get_index_changed_group = function(current_rho,proposed_rho){
     # indexes of the changepoints in the current partition
     cp_idxs_current = cumsum(current_rho)
@@ -630,7 +632,7 @@ get_index_changed_group = function(current_rho,proposed_rho){
 }
 
 
-
+#TODO add documentation here!!
 log_priorRatio = function(theta_prior,
                           sigma,
                           current_rho,
@@ -677,10 +679,10 @@ log_priorRatio = function(theta_prior,
 }
 
 
-#' Full-conditional for theta as in Martinez and Mena
+#' Full-conditional for theta (as in Martinez and Mena)
 #'
-#' @param c first parameter of the shifted gamma prior 
-#' @param d second parameter of the shifted gamma prior
+#' @param c First parameter of the shifted gamma prior 
+#' @param d Second parameter of the shifted gamma prior
 #' @param candidate 
 #' @param k 
 #'
@@ -715,20 +717,20 @@ full_conditional_theta <- function(c, d, candidate, k, n){
 
 
 
-#' Full-conditional for sigma as in Martinez and Mena
+#' Full-conditional for sigma (as in Martinez and Mena)
 #'
 #' The formula is on page 13 - ACHTUNG! They did everything in log and 
 #' returned the logged result, but I am returning the unlogged version 
 #' at the moment
 #'
 #' @param sigma ? not sure whether it is the previous
-#' @param theta other parameter for the prior
+#' @param theta Other parameter for the prior
 #' @param k I think the changepoint index??? To be checked
-#' @param rho current partition
-#' @param a first parameter of the distribution
-#' @param b second parameter of the distribution
-#' @param c third parameter of the distribution
-#' @param d fourth parameter of the distribution
+#' @param rho Current partition
+#' @param a First parameter of the distribution
+#' @param b Second parameter of the distribution
+#' @param c Third parameter of the distribution
+#' @param d Fourth parameter of the distribution
 #'
 #' @return
 #' @export
@@ -816,6 +818,7 @@ estimate_Beta_params <- function(mu, var) {
 }
 
 
+
 Gibbs_sampler = function(data, niter, nburn, thin,
                          options,
                          seed=1234, print=T)
@@ -827,9 +830,9 @@ Gibbs_sampler = function(data, niter, nburn, thin,
   # dynamic parameters
   sigma            = options$sigma0 # initial parameter of the PY prior
   theta_prior      = options$theta_prior0 # initial parameter of the PY prior
-  rho              = options$rho0 # initial partition (eg. c(150,151))
+  rho              = options$rho0 # initial partition (e.g. c(150,151))
   weights_a        = options$weights_a0 # add weights
-  weights_d        = options$weights_d0 # del weights
+  weights_d        = options$weights_d0 # delete weights
   
   # constant parameters
   alpha_add = options$alpha_add # probability of choosing add over delete
