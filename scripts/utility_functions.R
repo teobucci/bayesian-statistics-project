@@ -1,10 +1,5 @@
-#
-#Functions that are useful to call from other files.
-#
-
-#Create Theta_groups
-#TODO Add checks
-#' Title
+#' Create Theta_groups
+#' #TODO Add checks
 #'
 #' @param rho 
 #' @param G 
@@ -31,9 +26,8 @@ create_Theta=function(rho, G){
 
 
 
-#Rho to changepoint function
-#add check
-#' Title
+#' Rho to changepoint function
+#' #TODO Add checks
 #'
 #' @param rho 
 #'
@@ -53,9 +47,8 @@ rho_to_r=function(rho){
 
 
 
-#Rho to z function
-#Add check
-#' Title
+#' Rho to z function
+#' #TODO Add checks
 #'
 #' @param rho 
 #'
@@ -86,7 +79,7 @@ rho_to_z=function(rho){
 #'
 #' @examples
 lpochhammer <- function(x, n, log = T) {
-    # TODO finishing touch: scriverla in C
+    #TODO finishing touch: scriverla in C
     if (n < 0)
         stop("The pochhammer operator doesn't allow n < 0")
     if (x < 0)
@@ -132,8 +125,8 @@ lpochhammer <- function(x, n, log = T) {
 #' @param k First parameter - indicates the overall number of objects
 #' @param j Second parameter - indicates the length of the circles (see above)
 #'
-#' @return a positive scalar indicating the adapted version of the stirling number of the first kind
-#' ( i.e. the "unacceptable" values are turned to zeroes)
+#' @return a positive scalar indicating the adapted version of the Stirling number of the first kind
+#' (i.e. the "unacceptable" values are turned to zeroes)
 #' @export
 #'
 #' @examples
@@ -185,7 +178,7 @@ compute_weights_theta=function(c, d, n, sigma, k, j, f, z){
 
 #' Shifted gamma function
 #'
-#'Computes a shifted gamma, given the parameters and the shift 
+#' Computes a shifted gamma, given the parameters and the shift 
 #'
 #' @param u 
 #' @param o 
