@@ -111,7 +111,7 @@ get_S_from_G_rho_oldrho_oldS = function(G,rho,oldrho,oldS,debug=F){
     oldM = length(oldrho)
     
     # indexes of the right bounds of the partition
-    bounds = cumsum(rho)
+    bounds = get_group_indexes(rho)
     
     # groups that needs to be updated with the new rho information
     groups_to_be_refilled = {}
