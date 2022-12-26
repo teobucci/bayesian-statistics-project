@@ -956,12 +956,13 @@ Gibbs_sampler = function(data, niter, nburn, thin,
             sigma_parameters$c,
             sigma_parameters$d)
     }
-    
+
+    #TODO understend wether the theta parameters are the same of sigma!
     # TODO understand better what is k and what is n
     if(options$update_theta_prior){
       theta = full_conditional_theta(
-          sigma_parameters$c, 
-          sigma_parameters$d, 
+          theta_parameters$c, 
+          theta_parameters$d, 
           candidate, k, n)
     }
     
