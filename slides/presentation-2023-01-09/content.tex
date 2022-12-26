@@ -11,7 +11,7 @@
 
 \begin{frame}{Our model}
 
-\alert{Goal}: given a set of n data with p variables, infer the block structure of their variables
+\alert{Goal}: given a set of $n$ data with $p$ variables, infer the block structure of their variables
 without knowing the number of groups.
 
 \pause
@@ -31,7 +31,9 @@ without knowing the number of groups.
     P((i,j)&\in E\mid \bm{z},Q) = Q_{z_{i} z_{j}},\,\text{independent}\\
         Q_{rs} \mid \bm{z} &\ind \Beta(a,b), 1\leq r\leq s\leq H\\
     \rho_p & \sim \mathcal{L}\left(\rho_p\right)
-\end{align*}  
+\end{align*}
+
+% TODO inserire la prior?
 
 \end{frame}
 
@@ -73,9 +75,31 @@ formula del Gibbs sampler
 
 
 \begin{frame}{General steps for updating the partition}
+    
+    We perform an (adaptive) \alert{split and merge}.
+    E.g. $\rho = (5,10,17)$.
+    \begin{enumerate}
+        \item With probability $\alpha_{\text{split}}$, usually $0.5$, choose an \alert{split move (add)}, otherwise a \alert{merge move (delete)}.
+        \begin{enumerate}
+            \item Propose a new partition by splitting one group into two or merging two adjacent ones.
+            \item Accept or reject using Metropolis Hastings. The target is:
+            $f(\rho \mid G) \approx f_G(G \mid \rho) f_{\rho}(\rho)$
+            \[
+                \alpha_{\text{accept,merge}} = \min % TODO non sono sicuro che qua ci vada del/merge, nelle note non aggiornate c'era add
+                \bigg\{1,
+                \underbrace{\frac{f_G\left(G \mid \rho'\right)}{f_G(G \mid \rho)}}_{\substack{\text{likelihood}\\\text{ratio}}}
+                \underbrace{\frac{f_\rho\left(\rho'\right)}{f_\rho(\rho)}}_{\substack{\text{prior}\\\text{ratio}}}
+                \underbrace{\frac{P(\text{choose merge})}{P(\text{choose split})} \frac{P(\text{merge})}{P(\text{split})}}_{\text{proposal ratio}}
+                \bigg\}
+            \]
+        \end{enumerate}
+        \item To improve the mixing of the chain we also perform a \alert{shuffle move}.
+        \begin{enumerate}
+            \item Propose a new partition by moving some nodes from a group to an adjacent one.
+            \item Accept it using Metropolis Hastings
+        \end{enumerate}
 
-   slide su two-step move to update the partition: 
-   add/delete move (with general formula, no details) + shuffle
+    \end{enumerate}
 
 \end{frame}
 
