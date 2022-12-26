@@ -171,13 +171,11 @@ proposal_ratio = function(rho,
     elems_range <- 1:n_elems # same size of a_weights and d_weights
     
     # indexes of the changepoints
-    cp_indexes <- cumsum(rho)
+    cp_indexes <- get_group_indexes(rho)
     
     # PER ORA SUPPONGO CHE A_WEIGHTS SIA DELLA STESSA DIMENSIONE N, NON N-1
     # QUELLO MANCANTE SI SETTA A MANO
     
-    #rho
-    #cumsum(rho)
     #a_weights
     #n_elem=length(a_weights)
     
@@ -253,12 +251,12 @@ split_partition <- function(candidate_index, rho) {
         return(list('rho' = rho, 'group_index' = -1))
     }
     
-    cumsum_rho = cumsum(rho)
+    group_indexes = get_group_indexes(rho)
     found = F
     
     for (i in 1:M) {
         
-        if (!found & cumsum_rho[i] == candidate_index) {
+        if (!found & group_indexes[i] == candidate_index) {
             # candidate_index is already a changepoint, return the original rho
             return(list('rho' = rho, 'group_index' = -1))
         }
@@ -271,12 +269,12 @@ split_partition <- function(candidate_index, rho) {
             new_rho[i + 1] = rho[i]
         }
         
-        if (!found & cumsum_rho[i] > candidate_index) {
+        if (!found & group_indexes[i] > candidate_index) {
             # just passed the element index - I am in the group to be split
             
             # index of the element minus the cumulative
             # umber of elements in the previous groups only if i!=1
-            new_rho[i] = candidate_index - (i != 1) * cumsum_rho[i - 1 * (i != 1)]
+            new_rho[i] = candidate_index - (i != 1) * group_indexes[i - 1 * (i != 1)]
             
             # dimension of the original group minus the elements moved to new_rho[i]
             new_rho[i + 1] = rho[i] - new_rho[i]
@@ -312,11 +310,11 @@ merge_partition <- function(candidate_index, rho) {
         return(list('rho' = rho, 'group_index' = -1))
     }
     
-    cumsum_rho = cumsum(rho)
+    group_indexes = get_group_indexes(rho)
     found = F
     
     for (i in 1:(M - 1)) {
-        if (!found & cumsum_rho[i] != candidate_index) {
+        if (!found & group_indexes[i] != candidate_index) {
             # candidate_index is already a changepoint, return the original rho
             return(list('rho' = rho, 'group_index' = -1))
         }
@@ -329,7 +327,7 @@ merge_partition <- function(candidate_index, rho) {
             new_rho[i] = rho[i + 1]
         }
         
-        if (!found & cumsum[i] == candidate_index) {
+        if (!found & group_indexes[i] == candidate_index) {
             # I am at the changepoint between the two groups to be merged
             
             # index of the element minus the cumulative
@@ -604,7 +602,7 @@ log_likelihood_ratio = function(alpha_add,
 #TODO add documentation here!!
 get_index_changed_group = function(current_rho,proposed_rho){
     # indexes of the changepoints in the current partition
-    cp_idxs_current = cumsum(current_rho)
+    cp_idxs_current = get_group_indexes(current_rho)
     
     # move from the rho representation to r representation
     # i.e. from c(2,3) to c(0,1,0,0,1)
@@ -614,7 +612,7 @@ get_index_changed_group = function(current_rho,proposed_rho){
     current_r[cp_idxs_current] = 1
     
     proposed_r = rep(0, sum(proposed_rho))
-    proposed_r[cumsum(proposed_rho)] = 1
+    proposed_r[get_group_indexes(proposed_rho)] = 1
     
     # now by making the difference I can extract the index
     # of the new changepoint (or the one deleted)
