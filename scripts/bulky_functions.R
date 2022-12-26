@@ -5,10 +5,10 @@
 #' @param a_weights Vector of size (number of nodes - 1) containing at element j the weights to consider when ADDING a changepoint between point j and point j+1 (weights are non-normalized probabilities).
 #' @param d_weights Vector of size (number of nodes - 1) containing at element j the weights to consider when DELETING a changepoint between point j and point j+1 (weights are non-normalized probabilities).
 #' @param Theta_groups 
-#' @param theta_prior 
-#' @param sigma 
+#' @param theta_prior Prior parameter as in martined and Mena, 2014
+#' @param sigma Prior parameter as in martined and Mena, 2014
 #'
-#' @return
+#' @return a new partition in the compact form
 #' @export
 #'
 #' @examples
@@ -72,6 +72,7 @@ update_partition = function(rho,
 
 
 #' Adaptation step to update the weights vectors a and d
+#'
 #' The function takes as an input the current weights and updates them as a function of
 #' the current iteration number t, the initial adaptation h 
 #' The function works in log scale
@@ -82,7 +83,7 @@ update_partition = function(rho,
 #' @param h Initial adaptation (must be >0)
 #' @inheritParams update_partition
 #'
-#' @return Vector of updated logweights.
+#' @return Vector of updated logweights
 #' @export
 #'
 #' @examples
@@ -134,14 +135,6 @@ partition_data <- function(y, rho) {
 
 
 
-
-
-
-
-
-
-
-
 #' Proposal Ratio
 #'
 #' @param choose_add Boolean to tell if we are performing an add move or not.
@@ -171,13 +164,11 @@ proposal_ratio = function(rho,
     elems_range <- 1:n_elems # same size of a_weights and d_weights
     
     # indexes of the changepoints
-    cp_indexes <- cumsum(rho)
+    cp_indexes <- get_group_indexes(rho)
     
     # PER ORA SUPPONGO CHE A_WEIGHTS SIA DELLA STESSA DIMENSIONE N, NON N-1
     # QUELLO MANCANTE SI SETTA A MANO
     
-    #rho
-    #cumsum(rho)
     #a_weights
     #n_elem=length(a_weights)
     
@@ -253,12 +244,12 @@ split_partition <- function(candidate_index, rho) {
         return(list('rho' = rho, 'group_index' = -1))
     }
     
-    cumsum_rho = cumsum(rho)
+    group_indexes = get_group_indexes(rho)
     found = F
     
     for (i in 1:M) {
         
-        if (!found & cumsum_rho[i] == candidate_index) {
+        if (!found & group_indexes[i] == candidate_index) {
             # candidate_index is already a changepoint, return the original rho
             return(list('rho' = rho, 'group_index' = -1))
         }
@@ -271,12 +262,12 @@ split_partition <- function(candidate_index, rho) {
             new_rho[i + 1] = rho[i]
         }
         
-        if (!found & cumsum_rho[i] > candidate_index) {
+        if (!found & group_indexes[i] > candidate_index) {
             # just passed the element index - I am in the group to be split
             
             # index of the element minus the cumulative
             # umber of elements in the previous groups only if i!=1
-            new_rho[i] = candidate_index - (i != 1) * cumsum_rho[i - 1 * (i != 1)]
+            new_rho[i] = candidate_index - (i != 1) * group_indexes[i - 1 * (i != 1)]
             
             # dimension of the original group minus the elements moved to new_rho[i]
             new_rho[i + 1] = rho[i] - new_rho[i]
@@ -312,11 +303,11 @@ merge_partition <- function(candidate_index, rho) {
         return(list('rho' = rho, 'group_index' = -1))
     }
     
-    cumsum_rho = cumsum(rho)
+    group_indexes = get_group_indexes(rho)
     found = F
     
     for (i in 1:(M - 1)) {
-        if (!found & cumsum_rho[i] != candidate_index) {
+        if (!found & group_indexes[i] != candidate_index) {
             # candidate_index is already a changepoint, return the original rho
             return(list('rho' = rho, 'group_index' = -1))
         }
@@ -329,7 +320,7 @@ merge_partition <- function(candidate_index, rho) {
             new_rho[i] = rho[i + 1]
         }
         
-        if (!found & cumsum[i] == candidate_index) {
+        if (!found & group_indexes[i] == candidate_index) {
             # I am at the changepoint between the two groups to be merged
             
             # index of the element minus the cumulative
@@ -461,7 +452,10 @@ shuffle_partition <- function(rho, G) {
 #' @param S MxM matrix, where M is number of groups, containing the sum of edges.
 #' @inheritParams update_partition
 #'
-#' @return
+#' @return a positive scalar indicating the number of non-edges between teo groups
+#' computed as the possible number of edges between two groups 
+#' (depending on group cardinality) minus the effective number of edges 
+#' (depending on the edges actually present in the current Graph)
 #' @export
 #'
 #' @examples
@@ -487,7 +481,7 @@ get_S_star_from_S_and_rho = function(S, rho){
     return(S_star)
 }
 
-# auxiliary function to evaluate the beta
+# auxiliary function to evaluate the beta function for the likelihood ratio
 rhoB_general = function(group1,
                 group2,
                 S,
@@ -603,18 +597,16 @@ log_likelihood_ratio = function(alpha_add,
 
 #TODO add documentation here!!
 get_index_changed_group = function(current_rho,proposed_rho){
+
     # indexes of the changepoints in the current partition
-    cp_idxs_current = cumsum(current_rho)
+    cp_idxs_current = get_group_indexes(current_rho)
     
     # move from the rho representation to r representation
     # i.e. from c(2,3) to c(0,1,0,0,1)
     # both for the current and the proposed partition
-    
-    current_r = rep(0, sum(current_rho))
-    current_r[cp_idxs_current] = 1
-    
-    proposed_r = rep(0, sum(proposed_rho))
-    proposed_r[cumsum(proposed_rho)] = 1
+     
+    current_r = rho_to_r(current_rho)
+    proposed_r = rho_to_r(proposed_rho)
     
     # now by making the difference I can extract the index
     # of the new changepoint (or the one deleted)
@@ -680,13 +672,14 @@ log_priorRatio = function(theta_prior,
 
 
 #' Full-conditional for theta (as in Martinez and Mena)
+#' TODO COMPLETE DOCUMENTATION
 #'
 #' @param c First parameter of the shifted gamma prior 
 #' @param d Second parameter of the shifted gamma prior
 #' @param candidate 
 #' @param k 
 #'
-#' @return
+#' @return scalar value for theta at the current iteration
 #' @export
 #'
 #' @examples
@@ -732,7 +725,7 @@ full_conditional_theta <- function(c, d, candidate, k, n){
 #' @param c Third parameter of the distribution
 #' @param d Fourth parameter of the distribution
 #'
-#' @return
+#' @return the value for sigma for the current iteration 
 #' @export
 #'
 #' @examples
@@ -760,11 +753,13 @@ full_conditional_sigma <- function(sigma,theta,k,rho,a,b,c,d){
 
 
 
-
-
+#TODO add the list of sigma and theta parameters 
+#- understand whether a,b,c,d are dependent on other parameters
 
 set_options = function(sigma0,
+                       sigma_parameters,
                        theta_prior0,
+                       theta_parameters,
                        rho0,
                        weights_a0,
                        weights_d0,
@@ -778,11 +773,13 @@ set_options = function(sigma0,
                        update_weights=T,
                        update_partition=T,
                        update_graph=T,
-                       perform_shuffle=T){
+                       perform_shuffle=T) {
   
   options = list(
     "sigma0"             = sigma0,
+    "sigma_parameters"   = sigma_parameters,
     "theta_prior0"       = theta_prior0,
+    "theta_parameters"   = theta_parameters,
     "rho0"               = rho0,
     "weights_a0"         = weights_a0,
     "weights_d0"         = weights_d0,
@@ -819,6 +816,22 @@ estimate_Beta_params <- function(mu, var) {
 
 
 
+
+
+#' Gibbs sampler
+#'
+#' @param data an n*p matrix of data. N=sample size, p=number of variables
+#' @param niter iteration
+#' @param nburn burn in
+#' @param thin thin
+#' @param options all the parameters necessary to run the Gibbs sampler
+#' @param seed to allow reproducibiluty of result
+#' @param print boolean parameter to allow to print the output
+#'
+#' @return
+#' @export
+#'
+#' @examples
 Gibbs_sampler = function(data, niter, nburn, thin,
                          options,
                          seed=1234, print=T)
@@ -837,12 +850,11 @@ Gibbs_sampler = function(data, niter, nburn, thin,
   # constant parameters
   alpha_add = options$alpha_add # probability of choosing add over delete
   alpha_target = options$alpha_target # target alpha for adapting weights
-  
-  
  
-  d = options$d # parameter for the Wishart
-  
-  
+  # parameter for the Wishart
+  d = options$d
+
+  #Checks that the parameter for the partition and the beta's mu and sigma are admissible
   if(sum(rho) != p)
     stop("The partition rho must sum to p")
   if(d<3)
@@ -851,6 +863,7 @@ Gibbs_sampler = function(data, niter, nburn, thin,
       stop("The mean of the Beta must be between 0 and 1")
   if(!(sig2_beta > 0 & sig2_beta < 0.25))
       stop("The mean of the Beta must be between 0 and 1")
+  
   
   beta_params = estimate_Beta_params(mu_beta,sig2_beta)
   a = beta_params$alpha
@@ -912,8 +925,6 @@ Gibbs_sampler = function(data, niter, nburn, thin,
       total_weights = total_weights + output$all_weights
       # Updating total_graphs taking into consideration the weights
       total_graphs = total_graphs + output$last_graph * output$all_weights
-      
-      
     }
     
     if(options$update_partition){
@@ -935,11 +946,23 @@ Gibbs_sampler = function(data, niter, nburn, thin,
     }
     
     if(options$update_sigma){
-      # TODO mettere la full conditional di sigma qui
+        #TODO check whether a,b,c,d are just for sigma or 
+        #whether they are shared with other functions!
+        #And then just call them in a different way maybe
+        sigma = full_conditional_sigma(
+            sigma,theta,k,rho,
+            sigma_parameters$a,
+            sigma_parameters$b,
+            sigma_parameters$c,
+            sigma_parameters$d)
     }
     
+    # TODO understand better what is k and what is n
     if(options$update_theta_prior){
-      # TODO mettere la full conditional di theta prior qui
+      theta = full_conditional_theta(
+          sigma_parameters$c, 
+          sigma_parameters$d, 
+          candidate, k, n)
     }
     
     # save results only on thin iterations

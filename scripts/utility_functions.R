@@ -25,6 +25,27 @@ create_Theta=function(rho, G){
 }
 
 
+#
+#' get group indexes
+#'
+#' @param rho partition in che compact version ef c(1,3,3)
+#'
+#' @return a vector whose components are
+#' the increasing indexes of the elements where each group starts
+#' e.g. if rho=c(1,3,3), the output will be c(1,4,6),
+#' meaning that 1 is the index of the first element of the first group,
+#' 4 is the index of the first element of the second group, 
+#' 6 is the index of the first element of the third group 
+#' 
+#' 
+#' @export
+#'
+#' @examples
+get_group_indexes=function(rho){
+    return(cumsum(rho))
+}
+
+
 
 #' Rho to changepoint function
 #' #TODO Add checks
@@ -36,10 +57,10 @@ create_Theta=function(rho, G){
 #'
 #' @examples
 rho_to_r=function(rho){
-  cumsum_rho=cumsum(rho)
+  group_indexes=get_group_indexes(rho)
   total_n=sum(rho)
   r<-numeric(total_n)
-  for(i in cumsum_rho){
+  for(i in group_indexes){
     r[i]=1
   }
   return(r)
