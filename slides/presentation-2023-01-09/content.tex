@@ -74,8 +74,21 @@ without knowing the number of groups.
 \subsection{Updating the graph}
 \begin{frame}{Birth and death algorithm for updating the graph}
 
-   slide su bdgraph
+    For every iteration of the Gibbs sampler, BDgraph is an algorithm that follows a birth-and-death approach to decide whether to add a new edge to the graph or delete an already existing one.
+    
+    How did we change BDgraph?
+    \begin{itemize}
+        \item $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}
+        (\bm{K} \mid {G})P(G) \Rightarrow P(G,\bm{K} \mid \bm{Y}, \hl{\bm{z}}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G})\hl{P(G \mid \b,{z})}$
+        \item $\frac{P(G')}{P(G)} \Rightarrow \frac{P(G' \mid \bm{z})}{P(G \mid \bm{z})}\:\forall\:G' = G^{\pm e}$
+    \end{itemize}
 
+    We then computed the birth and death rates as:
+    \begin{itemize}
+        \item $\frac{P(G^{+ e})}{P(G)} = \frac{S_{uv} + a}{T_{uv} - S_{uv} + b}$
+        \item $\frac{P(G^{- e})}{P(G)} = \frac{T_{uv} - S_{uv} + b}{S_{uv} + a}$
+    \end{itemize}
+    
 \end{frame}
 
 
