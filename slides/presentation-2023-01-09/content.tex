@@ -46,12 +46,23 @@ without knowing the number of groups.
 \section{Sampling strategy}
 
 \subsection{Overview of the sampling strategy}
-\begin{frame}{Gibbs sampler}
+\begin{frame}{Block Gibbs Sampler}
+    Full conditional distributions for our model:
+    \begin{itemize}
+        \item Precision Matrix: $P(\bm{K} \mid \bm{Y},G,\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})$ 
 
-formula del Gibbs sampler
+        \item Graph: $P(G \mid \bm{Y},\bm{K},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})$ 
 
+        \item Random partition: $P(\bm{z} \mid \bm{Y},\bm{K},G) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z}) \propto P(G \mid \bm{z})P(\bm{z}) $
+    \end{itemize}
 
-
+    Suggest using a Block Gibbs-Sampler:
+    \begin{enumerate}
+        \item \alert{Sampling Graph and Precision Matrix}\\
+        Given $z$, $G$ and $K$ are sampled using Birth and Death chain, a GGM sampler that modifies one link at a time.
+        \item \alert{Sampling the random partition}\\
+        Following the graph update we can work conditionally on $G$, implementing and adaptive MCMC changepoint sampler
+    \end{enumerate}
 \end{frame}
 
 
