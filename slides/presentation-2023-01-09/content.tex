@@ -59,9 +59,9 @@ without knowing the number of groups.
     Suggest using a Block Gibbs-Sampler:
     \begin{enumerate}
         \item \alert{Sampling Graph and Precision Matrix}\\
-        Given $z$, $G$ and $K$ are sampled using Birth and Death chain, a GGM sampler that modifies one link at a time.
+        Given $\bm{z}$, $G$ and $\bm{K}$ are sampled using Birth and Death chain, a GGM sampler that modifies one link at a time.
         \item \alert{Sampling the random partition}\\
-        Following the graph update we can work conditionally on $G$, implementing and adaptive MCMC changepoint sampler
+        Following the graph update we can work conditionally on $G$, implementing a partition update based on adaptive weights.
     \end{enumerate}
 \end{frame}
 
@@ -74,20 +74,35 @@ without knowing the number of groups.
 \subsection{Updating the graph}
 \begin{frame}{Birth and death algorithm for updating the graph}
 
-    For every iteration of the Gibbs sampler, BDgraph is an algorithm that follows a birth-and-death approach to decide whether to add a new edge to the graph or delete an already existing one.
+    For every iteration of the Gibbs sampler, \texttt{BDgraph} is an algorithm that follows a \alert{birth-and-death} approach to decide whether to add a new edge to the graph or delete an already existing one.
     
-    How did we change BDgraph?
-    \begin{itemize}
-        \item $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}
-        (\bm{K} \mid {G})P(G) \Rightarrow P(G,\bm{K} \mid \bm{Y}, \highlight{\bm{z}}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G})\highlight{P(G \mid \bm{z})}$
-        \item $\frac{P(G')}{P(G)} \Rightarrow \frac{P(G' \mid \bm{z})}{P(G \mid \bm{z})}\:\forall\:G' = G^{\pm e}$
-    \end{itemize}
-
-    We then computed the birth and death rates as:
-    \begin{itemize}
-        \item $\frac{P(G^{+ e})}{P(G)} = \frac{S_{uv} + a}{T_{uv} - S_{uv} + b}$
-        \item $\frac{P(G^{- e})}{P(G)} = \frac{T_{uv} - S_{uv} + b}{S_{uv} + a}$
-    \end{itemize}
+    How did we change it?
+    \begin{table}[tb]
+        \centering
+        \begin{tabular}{l|c|c}
+        & Full conditional & B/D rates \\ % TODO Full conditional non è il termine giusto, join conditional?
+        \hline
+        \textbf{Before} & $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L} (\bm{K} \mid {G})P(G)$ & $\frac{P(G')}{P(G)}$ \\
+        \hline
+        \textbf{After}  & $P(G,\bm{K} \mid \bm{Y}, \highlight{\bm{z}}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G})\highlight{P(G \mid \bm{z})}$ & $\frac{P(G' \mid \highlight{\bm{z}})}{P(G \mid \highlight{\bm{z}})}$ \\
+        \hline
+        \end{tabular}
+    \end{table}
+    where $G' = G^{\pm e}$ and $e$ is an edge.
+    % \begin{itemize}
+    %     \item $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}
+    %     (\bm{K} \mid {G})P(G) \Rightarrow P(G,\bm{K} \mid \bm{Y}, \highlight{\bm{z}}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G})\highlight{P(G \mid \bm{z})}$
+    %     \item $\frac{P(G')}{P(G)} \Rightarrow \frac{P(G' \mid \bm{z})}{P(G \mid \bm{z})}\:\forall\:G' = G^{\pm e}$
+    % \end{itemize}
+    We computed the birth and death rates as:
+    \[
+        \text{Birth rate} = \frac{P(G^{+ e})}{P(G)} = \frac{S_{uv} + a}{T_{uv} - S_{uv} + b} \qquad \text{Death rate} =\frac{P(G^{- e})}{P(G)} = \frac{T_{uv} - S_{uv} + b}{S_{uv} + a}
+    \]
+    % \begin{itemize}
+    %     \item $\frac{P(G^{+ e})}{P(G)} = \frac{S_{uv} + a}{T_{uv} - S_{uv} + b}$
+    %     \item $\frac{P(G^{- e})}{P(G)} = \frac{T_{uv} - S_{uv} + b}{S_{uv} + a}$
+    % \end{itemize}
+    % TODO l'utente non sa cosa siano T,S,a,b forse si potrebbe balzare
     
 \end{frame}
 
