@@ -43,7 +43,7 @@ without knowing the number of groups.
 % The sampling strategy
 %-------------------------------------
 %-------------------------------------
-\section{Sampling strategy}
+\section{The sampling strategy}
 
 \subsection{Overview of the sampling strategy}
 \begin{frame}{Block Gibbs Sampler}
@@ -145,9 +145,40 @@ without knowing the number of groups.
     \fg{1}{update_partition.pdf}
 \end{frame}
 
-\begin{frame}{Proposal ratio}
 
-   slide su proposal ratio
+
+
+
+
+
+
+\begin{frame}{Proposal ratio (case merge)}
+
+\begin{enumerate}
+\item We introduce $a^{(t)}=(a_{1}, ... , a_{n_{nodes}})$ and $d^{(t)}=(d_{1}, ... , d_{n_{nodes})}$ the vectors of weights to choose the node where to perform or the split or the merge 
+
+\item Compute $a^{*} = \sum_{n_{j}\neq 0}{a_{j}^{(t)}}$  and $d^{*} = \sum_{n_{j}\neq 0}{d_{j}^{(t)}}$
+
+\item Extract the element $i$ from the admissible nodes with P(choosing i) $\varpropto \frac{d_{i}^{(t)}}{d^{*}}$
+
+\item 
+Proposal ratio = $\frac{P(\text{choose merge})}{P(\text{choose split})} \frac{P(\text{merge at node $i$})}{P(\text{split at node $i$})}$
+
+  %TODO MAKE THEM BIGGER! 
+
+
+\end{enumerate}
+
+\pause 
+
+\[ 
+\text{Proposal ratio} =
+    \begin{cases} 
+         0 & \text{there is only one group (no merge possible)}  \\
+         \frac{1}{2}\frac{d_{i}^{(t)}}{d^{*}} & \text{there are as many groups as nodes (only merge possible)} \\
+         \frac{d_{i}^{(t)}}{d^{*}} \frac{a_{i}^{(t)}}{a^{*}+a_{i}} & \text{general case} \\
+    \end{cases}
+\]
 
 \end{frame}
 
