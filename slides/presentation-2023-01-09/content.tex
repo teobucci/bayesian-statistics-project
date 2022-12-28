@@ -140,23 +140,24 @@ without knowing the number of groups.
 
 
 \begin{frame}{Adaptive step}
+    To select the position where to perform the chosen move (add or delete), we use two vectors of weights, respectively $\bm{a}^{(t)}$
+    and $\bm{d}^{(t)}$. \\
+    These weights are not constant over time iterations, but follow, as in \cite{bensonAdaptiveMCMCMultiple2018}, the following 
+    \textbf{adaptation scheme}.\\
 
-Adaptation Scheme
-At iteration $t$ :
-1. If an $a d d$ move at point $i$ has been accepted then update only the $a_i^{(t)}$ parameter as follows
-\[
-\log (a_i^{(t+1)})=\log (a_i^{(t)})+\frac{h}{t / n}(\alpha_{\text{add}}-\alpha_{\text{target}}) .
-\]
-2. If a delete move at point $i$ has been accepted then update only the $d_i^{(t)}$ parameter as follows
-\[
-\log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t / n}(\alpha_{\text{del}}-\alpha_{\text{target}}) .
-\]
-Parameters
-$h$ - Initial Adaptation $(h>0)$
-$t / n$ - Monte Carlo time, iterations $(t)$ per number of datapoints $(n)$
-
-   non ho ben capito , vuole solo una slide sulla parte adattiva?
-   forse è un po' troppo breve per una slide sola
+    At iteration $t$ :
+    \begin{enumerate}
+        \item If an $add$ move at point $i$ has been accepted then update only the $a_i^{(t)}$ parameter as follows
+		\[
+		\log (a_i^{(t+1)})=\log (a_i^{(t)})+\frac{h}{t / n}(\alpha_{\text{add}}-\alpha_{\text{target}}) .
+		\]
+        \item If a $delete$ move at point $i$ has been accepted then update only the $d_i^{(t)}$ parameter as follows
+		\[
+		\log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t / n}(\alpha_{\text{del}}-\alpha_{\text{target}}) .
+		\]
+        \end{enumerate}
+$h$ - Initial Adaptation $(h>0)$,
+$t / n$ - iterations $(t)$ per number of datapoints $(n)$
 
 \end{frame}
 
