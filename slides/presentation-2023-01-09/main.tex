@@ -36,6 +36,11 @@ minbibnames=1,maxbibnames=5
 
 \usepackage{bm}
 
+% per evidenziare
+\usepackage{xcolor}
+\newcommand{\highlight}[1]{%
+  \colorbox{orange!50}{$\displaystyle#1$}}
+
 \newcommand{\iid}{\overset{\text{\tiny{iid}}}{\sim}}
 \newcommand{\ind}{\overset{\text{\tiny{ind}}}{\sim}}
 \newcommand{\horiz}{\par\noindent\rule{\textwidth}{0.4pt}\\}
