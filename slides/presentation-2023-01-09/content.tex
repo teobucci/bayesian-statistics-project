@@ -141,6 +141,20 @@ without knowing the number of groups.
 
 \begin{frame}{Adaptive step}
 
+Adaptation Scheme
+At iteration $t$ :
+1. If an $a d d$ move at point $i$ has been accepted then update only the $a_i^{(t)}$ parameter as follows
+\[
+\log (a_i^{(t+1)})=\log (a_i^{(t)})+\frac{h}{t / n}(\alpha_{\text{add}}-\alpha_{\text{target}}) .
+\]
+2. If a delete move at point $i$ has been accepted then update only the $d_i^{(t)}$ parameter as follows
+\[
+\log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t / n}(\alpha_{\text{del}}-\alpha_{\text{target}}) .
+\]
+Parameters
+$h$ - Initial Adaptation $(h>0)$
+$t / n$ - Monte Carlo time, iterations $(t)$ per number of datapoints $(n)$
+
    non ho ben capito , vuole solo una slide sulla parte adattiva?
    forse è un po' troppo breve per una slide sola
 
