@@ -82,15 +82,16 @@ without knowing the number of groups.
 
     \pause
     
+    % https://people.inf.ethz.ch/markusp/teaching/guides/guide-tables.pdf
     \begin{table}[tb]
         \centering
-        \begin{tabular}{l|c|c}
-        & Full conditional & B/D rates \\ % TODO Full conditional non è il termine giusto, join conditional?
+        \begin{tabular}{lcc}
+        \toprule
+        & Conditional & B/D rates \\ % TODO Full conditional non è il termine giusto, join conditional?
         \hline
         \textbf{Before} & $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L} (\bm{K} \mid {G})P(G)$ & $\frac{P(G')}{P(G)}$ \\
-        \hline
         \textbf{After}  & $P(G,\bm{K} \mid \bm{Y}, \textcolor{sleekRed}{\bm{z}}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G})\textcolor{sleekRed}{P(G \mid \bm{z})}$ & $\frac{P(G' \mid \textcolor{sleekRed}{\bm{z}})}{P(G \mid \textcolor{sleekRed}{\bm{z}})}$ \\
-        \hline
+        \bottomrule
         \end{tabular}
     \end{table}
     where $G' = G^{\pm e}$ and $e$ is an edge.
