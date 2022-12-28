@@ -76,9 +76,12 @@ without knowing the number of groups.
 \subsection{Updating the graph}
 \begin{frame}{Birth and death algorithm for updating the graph}
 
-    For every iteration of the Gibbs sampler, \texttt{BDgraph} is an algorithm that follows a \alert{birth-and-death} approach to decide whether to add a new edge to the graph or delete an already existing one.
-    
+    \texttt{BDGraph} is an algorithm that follows a Birth-and-Death approach to decide whether to \alert{add} a new edge to the graph or \alert{delete} an already existing one.
+
     How did we change it?
+
+    \pause
+    
     \begin{table}[tb]
         \centering
         \begin{tabular}{l|c|c}
@@ -91,41 +94,14 @@ without knowing the number of groups.
         \end{tabular}
     \end{table}
     where $G' = G^{\pm e}$ and $e$ is an edge.
-    % \begin{itemize}
-    %     \item $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}
-    %     (\bm{K} \mid {G})P(G) \Rightarrow P(G,\bm{K} \mid \bm{Y}, \highlight{\bm{z}}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G})\highlight{P(G \mid \bm{z})}$
-    %     \item $\frac{P(G')}{P(G)} \Rightarrow \frac{P(G' \mid \bm{z})}{P(G \mid \bm{z})}\:\forall\:G' = G^{\pm e}$
-    % \end{itemize}
+
+    \pause
+
     We computed the birth and death rates as:
     \[
         \text{Birth rate} = \frac{P(G^{+ e})}{P(G)} = \frac{S_{uv} + a}{T_{uv} - S_{uv} + b} \qquad \text{Death rate} =\frac{P(G^{- e})}{P(G)} = \frac{T_{uv} - S_{uv} + b}{S_{uv} + a}
     \]
-    % \begin{itemize}
-    %     \item $\frac{P(G^{+ e})}{P(G)} = \frac{S_{uv} + a}{T_{uv} - S_{uv} + b}$
-    %     \item $\frac{P(G^{- e})}{P(G)} = \frac{T_{uv} - S_{uv} + b}{S_{uv} + a}$
-    % \end{itemize}
     % TODO l'utente non sa cosa siano T,S,a,b forse si potrebbe balzare
-    \alert{BDGraph} is an algorithm that follows a Birth-and-Death approach to decide whether to \alert{add} a new edge to the graph or \alert{delete} an already existing one.
-
-    How did we change BDgraph? We modified $P(G)$ to $P(G\mid\textcolor{sleekRed}{\bm{z}})$:
-
-    \pause
-
-    \begin{enumerate}
-        \item $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}
-        (\bm{K} \mid {G})P(G)$ $ \Longrightarrow P(G,\bm{K} \mid \bm{Y}, \textcolor{sleekRed}{\bm{z}} ) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G}){P(G \mid \textcolor{sleekRed}{\bm{z}})}$
-
-        \pause 
-
-        \item We then computed the birth and death rates as:
-
-        $\cfrac{P(G')}{P(G)} \Longrightarrow \cfrac{P(G' \mid \textcolor{sleekRed}{\bm{z}})}{P(G \mid \textcolor{sleekRed}{\bm{z}})},\:\: \forall \+ G' = G^{\pm e}$
-        \begin{enumerate} 
-            \item $\cfrac{P(G^{+ e} \mid \bm{z})}{P(G \mid \bm{z})} = \cfrac{S_{uv} + a}{T_{uv} - S_{uv} + b}$
-            \item[~] 
-            \item $\cfrac{P(G^{- e} \mid \bm{z})}{P(G\mid \bm{z})} = \cfrac{T_{uv} - S_{uv} + b}{S_{uv} + a}$
-        \end{enumerate}
-    \end{enumerate}
     
 \end{frame}
 
