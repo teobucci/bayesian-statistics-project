@@ -53,15 +53,15 @@ without knowing the number of groups.
 
         \item Graph: $P(G \mid \bm{Y},\bm{K},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})$ 
 
-        \item Random partition: $P(\bm{z} \mid \bm{Y},\bm{K},G) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z}) \propto P(G \mid \bm{z})P(\bm{z}) $
+        \item Random Partition: $P(\bm{z} \mid \bm{Y},\bm{K},G) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z}) \propto P(G \mid \bm{z})P(\bm{z}) $
     \end{itemize}
 
-    Suggest using a Block Gibbs-Sampler:
+    We implement a Block Gibbs-Sampler strategy:
     \begin{enumerate}
         \item \alert{Sampling Graph and Precision Matrix}\\
-        Given $z$, $G$ and $K$ are sampled using Birth and Death chain, a GGM sampler that modifies one link at a time.
-        \item \alert{Sampling the random partition}\\
-        Following the graph update we can work conditionally on $G$, implementing and adaptive MCMC changepoint sampler
+        $G$ and $\bm{K}$ - given $\bm{z}$ - are sampled using a modified version of a Birth-and-Death chain, changing one link at a time
+        \item \alert{Sampling the Random Partition}\\
+        We can sample $\bm{z}$ through an adaptive MCMC\vphantom{changepoint} sampler, working conditionally on $G$ after the graph update
     \end{enumerate}
 \end{frame}
 
@@ -74,20 +74,21 @@ without knowing the number of groups.
 \subsection{Updating the graph}
 \begin{frame}{Birth and death algorithm for updating the graph}
 
-    For every iteration of the Gibbs sampler, BDgraph is an algorithm that follows a birth-and-death approach to decide whether to add a new edge to the graph or delete an already existing one.
+    \alert{BDGraph} is an algorithm that follows a Birth-and-Death approach to decide whether to \alert{add} a new edge to the graph or \alert{delete} an already existing one.
     
-    How did we change BDgraph?
-    \begin{itemize}
+    How did we change BDgraph? We modified $P(G)$ to $P(G\mid\textcolor{sleekRed}{\bm{z}})$:
+    \begin{enumerate}
         \item $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}
-        (\bm{K} \mid {G})P(G) \Rightarrow P(G,\bm{K} \mid \bm{Y}, \highlight{\bm{z}}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G})\highlight{P(G \mid \bm{z})}$
-        \item $\frac{P(G')}{P(G)} \Rightarrow \frac{P(G' \mid \bm{z})}{P(G \mid \bm{z})}\:\forall\:G' = G^{\pm e}$
-    \end{itemize}
+        (\bm{K} \mid {G})P(G)$ $ \Longrightarrow P(G,\bm{K} \mid \bm{Y}, \textcolor{sleekRed}{\bm{z}} ) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G}){P(G \mid \textcolor{sleekRed}{\bm{z}})}$
+        \item We then computed the birth and death rates as:
 
-    We then computed the birth and death rates as:
-    \begin{itemize}
-        \item $\frac{P(G^{+ e})}{P(G)} = \frac{S_{uv} + a}{T_{uv} - S_{uv} + b}$
-        \item $\frac{P(G^{- e})}{P(G)} = \frac{T_{uv} - S_{uv} + b}{S_{uv} + a}$
-    \end{itemize}
+        $\cfrac{P(G')}{P(G)} \Longrightarrow \cfrac{P(G' \mid \textcolor{sleekRed}{\bm{z}})}{P(G \mid \textcolor{sleekRed}{\bm{z}})},\:\: \forall \+ G' = G^{\pm e}$
+        \begin{enumerate} 
+            \item $\cfrac{P(G^{+ e} \mid \bm{z})}{P(G \mid \bm{z})} = \cfrac{S_{uv} + a}{T_{uv} - S_{uv} + b}$
+            \item[~] 
+            \item $\cfrac{P(G^{- e} \mid \bm{z})}{P(G\mid \bm{z})} = \cfrac{T_{uv} - S_{uv} + b}{S_{uv} + a}$
+        \end{enumerate}
+    \end{enumerate}
     
 \end{frame}
 
