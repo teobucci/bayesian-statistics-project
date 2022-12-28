@@ -53,15 +53,17 @@ without knowing the number of groups.
 
         \item Graph: $P(G \mid \bm{Y},\bm{K},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})$ 
 
-        \item Random partition: $P(\bm{z} \mid \bm{Y},\bm{K},G) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z}) \propto P(G \mid \bm{z})P(\bm{z}) $
+        \item Random Partition: $P(\bm{z} \mid \bm{Y},\bm{K},G) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z}) \propto P(G \mid \bm{z})P(\bm{z}) $
     \end{itemize}
 
-    Suggest using a Block Gibbs-Sampler:
+    \pause 
+
+    We implement a Block Gibbs-Sampler strategy:
     \begin{enumerate}
         \item \alert{Sampling Graph and Precision Matrix}\\
-        Given $\bm{z}$, $G$ and $\bm{K}$ are sampled using Birth and Death chain, a GGM sampler that modifies one link at a time.
-        \item \alert{Sampling the random partition}\\
-        Following the graph update we can work conditionally on $G$, implementing a partition update based on adaptive weights.
+        $G$ and $\bm{K}$ - given $\bm{z}$ - are sampled using a modified version of a Birth-and-Death chain, changing one link at a time
+        \item \alert{Sampling the Random Partition}\\
+        We can sample $\bm{z}$ through an adaptive MCMC\vphantom{changepoint} sampler, working conditionally on $G$ after the graph update
     \end{enumerate}
 \end{frame}
 
@@ -69,7 +71,7 @@ without knowing the number of groups.
 
 
 %-------------------------------------
-% BDgraf
+% BDgraph
 %-------------------------------------
 \subsection{Updating the graph}
 \begin{frame}{Birth and death algorithm for updating the graph}
@@ -103,6 +105,27 @@ without knowing the number of groups.
     %     \item $\frac{P(G^{- e})}{P(G)} = \frac{T_{uv} - S_{uv} + b}{S_{uv} + a}$
     % \end{itemize}
     % TODO l'utente non sa cosa siano T,S,a,b forse si potrebbe balzare
+    \alert{BDGraph} is an algorithm that follows a Birth-and-Death approach to decide whether to \alert{add} a new edge to the graph or \alert{delete} an already existing one.
+
+    How did we change BDgraph? We modified $P(G)$ to $P(G\mid\textcolor{sleekRed}{\bm{z}})$:
+
+    \pause
+
+    \begin{enumerate}
+        \item $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}
+        (\bm{K} \mid {G})P(G)$ $ \Longrightarrow P(G,\bm{K} \mid \bm{Y}, \textcolor{sleekRed}{\bm{z}} ) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G}){P(G \mid \textcolor{sleekRed}{\bm{z}})}$
+
+        \pause 
+
+        \item We then computed the birth and death rates as:
+
+        $\cfrac{P(G')}{P(G)} \Longrightarrow \cfrac{P(G' \mid \textcolor{sleekRed}{\bm{z}})}{P(G \mid \textcolor{sleekRed}{\bm{z}})},\:\: \forall \+ G' = G^{\pm e}$
+        \begin{enumerate} 
+            \item $\cfrac{P(G^{+ e} \mid \bm{z})}{P(G \mid \bm{z})} = \cfrac{S_{uv} + a}{T_{uv} - S_{uv} + b}$
+            \item[~] 
+            \item $\cfrac{P(G^{- e} \mid \bm{z})}{P(G\mid \bm{z})} = \cfrac{T_{uv} - S_{uv} + b}{S_{uv} + a}$
+        \end{enumerate}
+    \end{enumerate}
     
 \end{frame}
 
@@ -155,23 +178,24 @@ without knowing the number of groups.
 
 
 \begin{frame}{Adaptive step}
+    To select the position where to perform the chosen move (add or delete), we use two vectors of weights, respectively $\bm{a}^{(t)}$
+    and $\bm{d}^{(t)}$. \\
+    These weights are not constant over time iterations, but follow, as in \cite{bensonAdaptiveMCMCMultiple2018}, the following 
+    \textbf{adaptation scheme}.\\
 
-Adaptation Scheme
-At iteration $t$ :
-1. If an $a d d$ move at point $i$ has been accepted then update only the $a_i^{(t)}$ parameter as follows
-\[
-\log (a_i^{(t+1)})=\log (a_i^{(t)})+\frac{h}{t / n}(\alpha_{\text{add}}-\alpha_{\text{target}}) .
-\]
-2. If a delete move at point $i$ has been accepted then update only the $d_i^{(t)}$ parameter as follows
-\[
-\log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t / n}(\alpha_{\text{del}}-\alpha_{\text{target}}) .
-\]
-Parameters
-$h$ - Initial Adaptation $(h>0)$
-$t / n$ - Monte Carlo time, iterations $(t)$ per number of datapoints $(n)$
-
-   non ho ben capito , vuole solo una slide sulla parte adattiva?
-   forse è un po' troppo breve per una slide sola
+    At iteration $t$ :
+    \begin{enumerate}
+        \item If an $add$ move at point $i$ has been accepted then update only the $a_i^{(t)}$ parameter as follows
+		\[
+		\log (a_i^{(t+1)})=\log (a_i^{(t)})+\frac{h}{t / n}(\alpha_{\text{add}}-\alpha_{\text{target}}) .
+		\]
+        \item If a $delete$ move at point $i$ has been accepted then update only the $d_i^{(t)}$ parameter as follows
+		\[
+		\log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t / n}(\alpha_{\text{del}}-\alpha_{\text{target}}) .
+		\]
+        \end{enumerate}
+$h$ - Initial Adaptation $(h>0)$,
+$t / n$ - iterations $(t)$ per number of datapoints $(n)$
 
 \end{frame}
 
