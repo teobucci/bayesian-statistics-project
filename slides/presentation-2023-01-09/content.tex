@@ -56,6 +56,8 @@ without knowing the number of groups.
         \item Random Partition: $P(\bm{z} \mid \bm{Y},\bm{K},G) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z}) \propto P(G \mid \bm{z})P(\bm{z}) $
     \end{itemize}
 
+    \pause 
+
     We implement a Block Gibbs-Sampler strategy:
     \begin{enumerate}
         \item \alert{Sampling Graph and Precision Matrix}\\
@@ -75,11 +77,17 @@ without knowing the number of groups.
 \begin{frame}{Birth and death algorithm for updating the graph}
 
     \alert{BDGraph} is an algorithm that follows a Birth-and-Death approach to decide whether to \alert{add} a new edge to the graph or \alert{delete} an already existing one.
-    
+
     How did we change BDgraph? We modified $P(G)$ to $P(G\mid\textcolor{sleekRed}{\bm{z}})$:
+
+    \pause
+
     \begin{enumerate}
         \item $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}
         (\bm{K} \mid {G})P(G)$ $ \Longrightarrow P(G,\bm{K} \mid \bm{Y}, \textcolor{sleekRed}{\bm{z}} ) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G}){P(G \mid \textcolor{sleekRed}{\bm{z}})}$
+
+        \pause 
+
         \item We then computed the birth and death rates as:
 
         $\cfrac{P(G')}{P(G)} \Longrightarrow \cfrac{P(G' \mid \textcolor{sleekRed}{\bm{z}})}{P(G \mid \textcolor{sleekRed}{\bm{z}})},\:\: \forall \+ G' = G^{\pm e}$
