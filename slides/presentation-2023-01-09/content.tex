@@ -155,16 +155,16 @@ without knowing the number of groups.
 \begin{frame}{Proposal ratio (case merge)}
 
 \begin{enumerate}
-\item We introduce $a^{(t)}=(a_{1}, ... , a_{n_{nodes}})$ and $d^{(t)}=(d_{1}, ... , d_{n_{nodes})}$ the vectors of weights to choose the node where to perform or the split or the merge 
+\item We introduce $a^{(t)}=(a_{1}, ... , a_{n_{nodes}})$ and $d^{(t)}=(d_{1}, ... , d_{n_{nodes})}$ the vectors of \alert{weights} to choose the node where to perform or the split or the merge 
 
 \item Compute $a^{*} = \sum_{n_{j}\neq 0}{a_{j}^{(t)}}$  and $d^{*} = \sum_{n_{j}\neq 0}{d_{j}^{(t)}}$
 
-\item Extract the element $i$ from the admissible nodes with P(choosing i) $\varpropto \frac{d_{i}^{(t)}}{d^{*}}$
+\item \alert{Extract the element $i$} from the admissible nodes with P(choosing i) $\varpropto \frac{d_{i}^{(t)}}{d^{*}}$
 
 \item 
-Proposal ratio = $\frac{P(\text{choose merge})}{P(\text{choose split})} \frac{P(\text{merge at node $i$})}{P(\text{split at node $i$})}$
+\alert{Proposal ratio} = $\frac{P(\text{choose merge})}{P(\text{choose split})} \frac{P(\text{merge at node $i$})}{P(\text{split at node $i$})}$
 
-  %TODO MAKE THEM BIGGER! 
+  %TODO MAKE THEM BIGGER! and correct the spacing
 
 
 \end{enumerate}
@@ -172,7 +172,7 @@ Proposal ratio = $\frac{P(\text{choose merge})}{P(\text{choose split})} \frac{P(
 \pause 
 
 \[ 
-\text{Proposal ratio} =
+\text{\alert{Proposal ratio}} =
     \begin{cases} 
          0 & \text{there is only one group (no merge possible)}  \\
          \frac{1}{2}\frac{d_{i}^{(t)}}{d^{*}} & \text{there are as many groups as nodes (only merge possible)} \\
