@@ -277,23 +277,24 @@ Where $h>0$ is the initial adaptation and $t/n$ are the iterations $(t)$ per num
 \begin{frame}{Prior ratio}
 % TODO: ricontrollare che tutti i dettagli dell formula siano corretti, ricontrollare che sia legale dire Pitman-Yor process
 
-As a prior, we use an EPPF induced by the \alert{two-parameter Poisson-Dirichlet} process
-(Pitman-Yor process) from \cite{martinezNonparametricChangePoint2014} 
+As a prior, we use an EPPF induced by the \alert{two-parameter Poisson-Dirichlet} process (Pitman-Yor process) from \cite{martinezNonparametricChangePoint2014}.
+
+Let $M$ and $p$ be the number of groups and nodes, respectively, and $n_{j},j=1,\ldots,M$ the cardinalities of the groups, $\theta$ and $\sigma$ are parameters.
 
 \begin{equation*}
-    P\left(\rho_p=\left\{n_1, \ldots, n_k\right\}\right)
+    P(\rho = \{n_1, \ldots, n_M\})
     =
-    \frac{n!}{k!} \frac{ \prod_{i=1}^{k-1}{ \theta +i\sigma} }{(\theta+1)_{n-1\uparrow}} \prod_{j=1}^{k}{\frac{(1-\sigma_{n_{j}-1\uparrow})}{n_{j}} }
+    \frac{p!}{M!} \frac{ \prod_{i=1}^{M-1}{(\theta +i\sigma)} }{(\theta+1)_{(p-1)\uparrow}} \prod_{j=1}^{M}{\frac{(1-\sigma)_{(n_{j}-1)\uparrow}}{n_{j\uparrow}} }
 \end{equation*}
 
 
-Hence the formula for \alert{the prior ratio} after simplification of common factors is
+Hence, in the split case, after simplifying common factors, the \alert{prior ratio} is:
 
 
 \begin{equation*}
-    \frac{P(\rho_p)}{P(\rho_p^{*})}
+    \frac{f_{\rho}(\rho')}{f_{\rho}(\rho)}
     =
-    \frac{1}{M}(\theta+M\sigma)\frac{(1-\sigma)_{n_{s}^{*}-1}(1-\sigma)_{n_{s}^{*}+1}}{(1-\sigma)_{n_{s}-1}}\frac{n_{s}}{n^{*}_{s}!n^{*}_{s+1}!}
+    \frac{1}{M}(\theta+M\sigma)\frac{(1-\sigma)_{(n_{s}'-1)\uparrow}(1-\sigma)_{(n_{s}'+1)\uparrow}}{(1-\sigma)_{(n_{s}-1)\uparrow}}\frac{n_{s}!}{n'_{s}!n'_{s+1}!}
 \end{equation*}
 
 
