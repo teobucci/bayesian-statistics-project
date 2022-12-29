@@ -89,18 +89,18 @@ without knowing the number of groups.
         \toprule
         & Conditional & B/D rates \\ % TODO Full conditional non è il termine giusto, join conditional?
         \hline
-        \textbf{Before} & $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L} (\bm{K} \mid {G})P(G)$ & $\frac{P(G')}{P(G)}$ \\
-        \textbf{After}  & $P(G,\bm{K} \mid \bm{Y}, \textcolor{sleekRed}{\bm{z}}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G})\textcolor{sleekRed}{P(G \mid \bm{z})}$ & $\frac{P(G' \mid \textcolor{sleekRed}{\bm{z}})}{P(G \mid \textcolor{sleekRed}{\bm{z}})}$ \\
+        \textbf{Before} & $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L} (\bm{K} \mid {G})P(G)$ & $\cfrac{P(G')}{P(G)}$ \\
+        \textbf{After}  & $P(G,\bm{K} \mid \bm{Y}, \textcolor{sleekRed}{\bm{z}}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G})P(G \mid \textcolor{sleekRed}{\bm{z}})$ & $\cfrac{P(G' \mid \textcolor{sleekRed}{\bm{z}})}{P(G \mid \textcolor{sleekRed}{\bm{z}})}$ \\
         \bottomrule
         \end{tabular}
     \end{table}
     where $G' = G^{\pm e}$ and $e$ is an edge.
-
     \pause
-
-    We computed the birth and death rates as:
+    %We computed the birth and death rates as:
     \[
-        \text{Birth rate} = \frac{P(G^{+ e})}{P(G)} = \frac{S_{uv} + a}{T_{uv} - S_{uv} + b} \qquad \text{Death rate} =\frac{P(G^{- e})}{P(G)} = \frac{T_{uv} - S_{uv} + b}{S_{uv} + a}
+        \text{Birth rate} = \frac{P(G^{+ e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{S_{uv} + a}{T_{uv} - S_{uv} + b}
+        \quad
+        \text{Death rate} =\frac{P(G^{- e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{T_{uv} - S_{uv} + b}{S_{uv} + a}
     \]
     % TODO l'utente non sa cosa siano T,S,a,b forse si potrebbe balzare
     
@@ -222,6 +222,8 @@ $t / n$ - iterations $(t)$ per number of datapoints $(n)$
     \end{itemize}
 
 
+
+% TODO chiedere a colombi quanta roba extra mettere e se inserire il discorso sul grafo finale e partizione finale (a proposito, qual è la partizione finale?)
 
 \end{frame}
 
