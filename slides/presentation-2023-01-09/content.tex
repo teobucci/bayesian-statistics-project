@@ -219,6 +219,8 @@ $t / n$ - iterations $(t)$ per number of datapoints $(n)$
 
     \begin{itemize}
         \item Praying that the code works
+        % \item Debug of the Gibb's sampler
+        % \Model simulation using sinthetic data
     \end{itemize}
 
 
@@ -270,7 +272,36 @@ $t / n$ - iterations $(t)$ per number of datapoints $(n)$
 %tenere?
 \section*{Extra}
 
-\begin{frame}{Extra content}
+
+\begin{frame}{Prior ratio}
+% TODO: ricontrollare che tutti i dettagli dell formula siano corretti, ricontrollare che sia legale dire Pitman-Yor process
+
+As a prior, we use an EPPF induced by the \alert{two-parameter Poisson-Dirichlet} process
+(Pitman-Yor process) from \cite{martinezNonparametricChangePoint2014} 
+
+\begin{equation*}
+    P\left(\rho_p=\left\{n_1, \ldots, n_k\right\}\right)
+    =
+    \frac{n!}{k!} \frac{ \prod_{i=1}^{k-1}{ \theta +i\sigma} }{(\theta+1)_{n-1\uparrow}} \prod_{j=1}^{k}{\frac{(1-\sigma_{n_{j}-1\uparrow})}{n_{j}} }
+\end{equation*}
+
+
+Hence the formula for \alert{the prior ratio} after simplification of common factors is
+
+
+\begin{equation*}
+    \frac{P(\rho_p)}{P(\rho_p^{*})}
+    =
+    \frac{1}{M}(\theta+M\sigma)\frac{(1-\sigma)_{n_{s}^{*}-1}(1-\sigma)_{n_{s}^{*}+1}}{(1-\sigma)_{n_{s}-1}}\frac{n_{s}}{n^{*}_{s}!n^{*}_{s+1}!}
+\end{equation*}
+
+
+\end{frame}
+
+
+\begin{frame}{Likelihood ratio}
+
+
 
 
 \end{frame}
