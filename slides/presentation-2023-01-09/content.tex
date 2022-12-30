@@ -128,10 +128,12 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
 \begin{frame}{General steps for updating the partition}
     
     We perform an (adaptive) \alert{split and merge}.
+
+    \fg{0.5}{update_partition_splitmerge.pdf}
     \begin{enumerate}
         \item With probability $\alpha_{\text{split}}$, usually $0.5$, choose an \alert{split move}, otherwise a \alert{merge move}. Unless we are forced by extreme cases.
         \begin{enumerate}
-            \item Propose a new partition by splitting one group into two or merging two adjacent ones.
+            \item Propose a new partition by splitting one group into two or merging two adjacent.
             \item Accept or reject using\vphantom{un banale} Metropolis Hastings. The target is:
             $f(\rho \mid G) \approx f_G(G \mid \rho) f_{\rho}(\rho)$
             \[
@@ -145,18 +147,21 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
                 \bigg\}
             \]
         \end{enumerate}
-        \item To improve the mixing of the chain we also perform a \alert{shuffle move}.
-        \begin{enumerate}
-            \item Propose a new partition by moving some nodes from a group to an adjacent one.
-            \item Accept or reject using Metropolis Hastings.
-        \end{enumerate}
-
+        
     \end{enumerate}
 
 \end{frame}
 
-\begin{frame}{Visual explanation of the possible partition updates}
-    \fg{1}{update_partition.pdf}
+\begin{frame}{Shuffle move}
+    \begin{enumerate}
+        \item[2.] To improve the mixing of the chain we also perform a \alert{shuffle move}.
+            \begin{enumerate}
+                \item[2.1] Propose a new partition by moving some nodes from a group to an adjacent one.
+                \item[2.2] Accept or reject using Metropolis Hastings.
+            \end{enumerate}
+    \end{enumerate}
+
+    \fg{0.4}{update_partition_shuffle.pdf}
 \end{frame}
 
 
