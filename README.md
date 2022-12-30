@@ -19,10 +19,11 @@ git push origin master
 
 ## How to compile the PDF files
 
-To compile the first presentation, run the following in the root of the repo
+To compile the presentations, run the following in the root of the repo
 
 ```
 make prese1
+make prese2
 ```
 
 ## How to format R code
