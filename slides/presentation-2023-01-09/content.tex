@@ -33,8 +33,6 @@ without knowing the number of groups.
 
 Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of groups memberships.
 
-% TODO inserire la prior?
-
 \end{frame}
 
 
@@ -62,7 +60,7 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
         \toprule
         Precision Matrix & $\small P(\bm{K} \mid \bm{Y},G,\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})$ \\
         \hline
-        Graph & $\small P(G \mid \bm{Y},\bm{K},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})$ \\
+        Graph & $\small P(G \mid \bm{Y},\bm{K},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z})$ \\
         \hline
         Random Partition & $\small P(\bm{z} \mid \bm{Y},\bm{K},G) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z}) \propto P(G \mid \bm{z})P(\bm{z}) $ \\
         \bottomrule
@@ -99,7 +97,7 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
         \centering
         \begin{tabular}{lcc}
         \toprule
-        & Conditional & B/D rates \\ % TODO Full conditional non è il termine giusto, join conditional?
+        & Conditional\textcolor{red}{TODO nome giusto?} & B/D rates \\
         \hline
         \textbf{Before} & $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L} (\bm{K} \mid {G})P(G)$ & $\cfrac{P(G')}{P(G)}$ \\
         \textbf{After}  & $P(G,\bm{K} \mid \bm{Y}, \textcolor{sleekRed}{\bm{z}}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G})P(G \mid \textcolor{sleekRed}{\bm{z}})$ & $\cfrac{P(G' \mid \textcolor{sleekRed}{\bm{z}})}{P(G \mid \textcolor{sleekRed}{\bm{z}})}$ \\
@@ -221,7 +219,6 @@ The extreme cases ``every node belonging to the same group'' and ``every node ha
 		\]
         \end{itemize}
 Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number of nodes $(p)$ and $\alpha_{\text{target}}$ is the target MH acceptance rate.
-%TODO il numero di osservazioni, giusto?
 
 \end{frame}
 
@@ -291,7 +288,6 @@ Next things to do:
 
 
 \begin{frame}{Prior ratio}
-% TODO: ricontrollare che tutti i dettagli dell formula siano corretti, ricontrollare che sia legale dire Pitman-Yor process
 
 As a prior, we use an EPPF induced by the \alert{two-parameter Poisson-Dirichlet} process (Pitman-Yor process) from \cite{martinezNonparametricChangePoint2014}.
 
@@ -321,7 +317,7 @@ Hence, in the split case, after simplifying common factors, the \alert{prior rat
 
 Suppose a split move.
 
-The likelihood ratio, after simplifying common factors, is:
+The \alert{likelihood ratio}, after simplifying common factors, is:
 
 {
 \footnotesize
