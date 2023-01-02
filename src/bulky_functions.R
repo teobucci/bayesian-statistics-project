@@ -170,6 +170,8 @@ proposal_ratio = function(rho,
     # QUELLO MANCANTE SI SETTA A MANO
     
     #a_weights
+    #rho=c(1,5,1)
+    
     #n_elem=length(a_weights)
     
     # not all points can be selected for an add move
@@ -447,6 +449,191 @@ shuffle_partition <- function(rho, G) {
 }
 
 
+
+
+
+
+# Build the entire S (sum of edges between clusters) from scratch
+# idea: extracting all submatrices needed from G and sum all the elements
+# (which are all ones). Do this only for the triangular part, then make it
+# symmetric. You need to know just G and the partition rho
+get_S_from_G_rho = function(G, rho) {
+    
+    # check on G
+    if (!all(t(G) == G))
+        stop("G is not symmetric")
+    
+    # number of groups
+    M = length(rho)
+    
+    # initialize S matrix
+    S = matrix(numeric(M * M), nrow = M, byrow = T)
+    
+    # indexes of the right bounds of the partition
+    bounds = cumsum(rho)
+    
+    # loop through the groups
+    for (l in 1:M) {
+        # extract the submatrix and sum all the elements
+        for (m in 1:l) {
+            start_row = ifelse(m != 1, bounds[m - 1] + 1, 0)
+            end_row = bounds[m]
+            start_col = ifelse(l != 1, bounds[l - 1] + 1, 0)
+            end_col = bounds[l]
+            S[l, m] = sum(G[start_row:end_row, start_col:end_col])
+            
+            if(l == m){
+                # the inside connections are now counted twice, correct for it
+                S[l, m] = S[l, m] / 2
+            } else {
+                # otherwise, write to symmetric part of the matrix as well
+                S[m, l] = S[l, m]
+            }
+        }
+    }
+    
+    # alternative correction for the diagonal
+    # diagonal = col(S) == row(S)
+    # S[diagonal] = S[diagonal] / 2
+    
+    # alternative for making the matrix symmetric
+    # S = makeSymm(S)
+    
+    return(S)
+}
+
+# Build S (sum of edges between clusters) from knowledge of the previous S,
+# the G matrix, the previous rho and the new proposed rho.
+# Handles all the cases: add, delete, shuffle, i.e. "a new group is added",
+# "a group is deleted", "same number of groups, but two groups exchange some
+# elements".
+get_S_from_G_rho_oldrho_oldS = function(G,rho,oldrho,oldS,debug=F){
+    
+    # check on G
+    if (!all(t(G) == G))
+        stop("G is not symmetric")
+    
+    # number of groups in new and old rho
+    M    = length(   rho)
+    oldM = length(oldrho)
+    
+    # indexes of the right bounds of the partition
+    bounds = get_group_indexes(rho)
+    
+    # groups that needs to be updated with the new rho information
+    groups_to_be_refilled = {}
+    
+    if(M > oldM){ # case Add
+        
+        # initialize S matrix
+        S = matrix(numeric(M * M), nrow = M, byrow = T)
+        
+        # find the group that has changed
+        K = min(which(rho != c(oldrho,NA)))
+        
+        if(K > 1 & K < oldM){ # in the standard case perform all four
+            
+            # upper left block
+            S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)]
+            
+            # lower left block
+            S[(K+1+1):M,1:(K-1)] = oldS[(K+1):oldM,1:(K-1)]
+            
+            # upper right block
+            S[1:(K-1),(K+1+1):M] = oldS[1:(K-1),(K+1):oldM]
+            
+            # lower right block
+            S[(K+1+1):M,(K+1+1):M] = oldS[(K+1):oldM,(K+1):oldM]
+            
+        } else if(K == 1){ # bring to the new S only the lower right block
+            
+            # lower right block
+            S[(K+1+1):M,(K+1+1):M] = oldS[(K+1):oldM,(K+1):oldM]
+            
+        } else if(K == oldM){ # bring to the new S only the upper left block
+            
+            # upper left block
+            S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)]
+            
+        }
+        
+        groups_to_be_refilled = c(K,K+1)
+        
+    } else if(M < oldM) { # case Delete
+        
+        # initialize S matrix
+        S = matrix(numeric(M * M), nrow = M, byrow = T)
+        
+        # find the group that has changed
+        K = min(which(oldrho != c(rho,NA)))
+        
+        if(K > 1 & K+1 < oldM){ # in the standard case perform all four
+            
+            # upper left block
+            S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)]
+            
+            # lower left block
+            S[(K+1):M,1:(K-1)] = oldS[(K+1+1):oldM,1:(K-1)]
+            
+            # upper right block
+            S[1:(K-1),(K+1):M] = oldS[1:(K-1),(K+1+1):oldM]
+            
+            # lower right block
+            S[(K+1):M,(K+1):M] = oldS[(K+1+1):oldM,(K+1+1):oldM]
+            
+        } else if(K == 1){ # bring to the new S only the lower right block
+            
+            # lower right block
+            S[(K+1):M,(K+1):M] = oldS[(K+1+1):oldM,(K+1+1):oldM]
+            
+        } else if(K+1 == oldM){ # bring to the new S only the upper left block
+            
+            # upper left block
+            S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)]
+            
+        }
+        
+        groups_to_be_refilled = c(K)
+        
+    } else { # case Shuffle
+        
+        S = oldS
+        
+        # find the group that has changed
+        K = min(which(oldrho != rho))
+        
+        # set to zero the columns and rows of the shuffled groups
+        S[K:(K+1),1:M] = 0 # row K to K+1
+        S[1:M,K:(K+1)] = 0 # column K to K+1
+        
+        groups_to_be_refilled = c(K,K+1)
+        
+    }
+    
+    # loop through the groups
+    for (l in groups_to_be_refilled) {
+        # extract the submatrix and sum all the elements
+        for (m in 1:M) {
+            start_row = ifelse(m != 1, bounds[m - 1] + 1, 0)
+            end_row = bounds[m]
+            start_col = ifelse(l != 1, bounds[l - 1] + 1, 0)
+            end_col = bounds[l]
+            
+            S[l, m] = sum(G[start_row:end_row, start_col:end_col])
+            if(l == m){
+                # the inside connections are now counted twice, correct for it
+                S[l, m] = S[l, m] / 2
+            } else {
+                # otherwise, write to symmetric part of the matrix as well
+                S[m, l] = S[l, m]
+            }
+        }
+    }
+    
+    return(S)
+}
+
+
 #' Get Non-Edges from S and partition
 #'
 #' @param S MxM matrix, where M is number of groups, containing the sum of edges.
@@ -480,6 +667,9 @@ get_S_star_from_S_and_rho = function(S, rho){
     
     return(S_star)
 }
+
+
+
 
 # auxiliary function to evaluate the beta function for the likelihood ratio
 rhoB_general = function(group1,
@@ -793,7 +983,7 @@ set_options = function(sigma0,
     "update_weights"     = update_weights,
     "update_partition"   = update_partition,
     "update_graph"       = update_graph,
-    "perform_shuffle"    = perform_shuffle,
+    "perform_shuffle"    = perform_shuffle
   )
   return(options)
 }
@@ -853,6 +1043,10 @@ Gibbs_sampler = function(data, niter, nburn, thin,
  
   # parameter for the Wishart
   d = options$d
+  
+  # parameters for the Beta
+  mu_beta = options$mu_beta
+  sig2_beta = options$sig2_beta
 
   #Checks that the parameter for the partition and the beta's mu and sigma are admissible
   if(sum(rho) != p)
