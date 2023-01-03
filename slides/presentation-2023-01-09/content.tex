@@ -2,24 +2,21 @@
 
 \section{The model}
 
-\begin{frame}{Our model}
+\begin{frame}{The model}
 
 \alert{Goal}: given a set of $n$ data with $p$ variables, simultaneously infer the conditional dependence structure of such variables and their clustering.
 
 \pause
 
 \alert{Constraint}: the partition must respect the original order of the variables.
-
 \pause
-
 \begin{align*}
     \bm{y}_1, \ldots, \bm{y}_n \mid \bm{K} & \iid \mathcal{N}_p(\mathbf{0}, \bm{K}^{-1} ) \\
     \bm{K} \mid G & \sim \GWish(b, D)\\
     P((i,j)&\in E\mid \bm{z},Q) = Q_{z_{i} z_{j}},\,\text{independent}\\
-        Q_{rs} \mid \bm{z} &\ind \Beta(a,b), 1\leq r\leq s\leq M\\
+        Q_{rs} \mid \bm{z} &\ind \Beta(\alpha,\beta), 1\leq r\leq s\leq M\\
     \rho & \sim f_{\rho} \left(\rho\right)
 \end{align*}
-% Attenti ai parametri della Beta, ho visto che ogni tanto avete messo a,b e ogni tanto \alpha,\beta. TODO
 
 Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of groups memberships.
 
@@ -28,9 +25,17 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
 \begin{frame}
 
 $Q$ is marginalized out.
+\pause
 
-% chi è f_G e S_uv, T_uv % TODO
-% la prior sulla partizione è quella di Martinez e Mena % TODO
+We denote by
+\begin{itemize}
+    \item $S_{uv}$ the sum of the edges between group $u$ and $v$.
+    \item $S^{\star}_{uv}$ the sum of the non-edges.
+\end{itemize}
+\pause
+
+The prior for the partition $f_{\rho}(\rho)$ is (5) from \cite{martinezNonparametricChangePoint2014}.
+% chi è f_G % TODO
 
 \end{frame}
 
@@ -40,7 +45,6 @@ $Q$ is marginalized out.
 
 \begin{frame}{Block Gibbs Sampler}
     Conditional distributions for our model:
-    
     \begin{table}[tb]
         \centering
         \begin{tabular}{ll}
@@ -85,13 +89,11 @@ $Q$ is marginalized out.
     \end{table}
     where $G' = G^{\pm e}$ and $e$ is an edge.
     \pause
-    %We computed the birth and death rates as:
     \[
-        \text{Birth rate} \propto \frac{P(G^{+ e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{S_{uv} + a}{T_{uv} - S_{uv} + b}
+        \text{Birth rate} \propto \frac{P(G^{+ e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{S_{uv} + \alpha}{S^{\star}_{uv} + \beta}
         \quad
-        \text{Death rate} \propto \frac{P(G^{- e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{T_{uv} - S_{uv} + b}{S_{uv} + a}
+        \text{Death rate} \propto \frac{P(G^{- e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{S^{\star}_{uv} + \beta}{S_{uv} + \alpha}
     \]
-    \textcolor{red}{TODO: non sappiamo se tenere queste formule dato che S,T,u,v,a,b non sono stati spiegati}
     
 \end{frame}
 
@@ -136,7 +138,7 @@ $Q$ is marginalized out.
     \fg{0.4}{update_partition_shuffle.pdf}
 \end{frame}
 
-\begin{frame}{Proposal ratio}
+\begin{frame}{Partition ratio}
 
 We introduce $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$, two $(p-1)$-dimensional vectors of \alert{weights} to choose the node where to perform the split or the merge. They are unnormalized discrete densities.
 
@@ -183,7 +185,7 @@ The extreme cases ``every node belonging to the same group'' and ``every node ha
 		\log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{merge}}-\alpha_{\text{target}}) .
 		\]
         \end{itemize}
-Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number of nodes $(p)$ and $\alpha_{\text{target}}$ is the target MH acceptance rate.
+Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number of nodes $(p)$, $\alpha_{\text{target}}$ is the target MH acceptance rate and $\alpha_{\text{merge}} = 1 - \alpha_{\text{split}}$.
 
 \end{frame}
 
@@ -227,20 +229,22 @@ Next things to do:
 
 \section*{Extra}
 
-\begin{frame}{Prior ratio}
+\begin{frame}{Partition ratio}
 
 As a prior, we use an EPPF induced by the \alert{two-parameter Poisson-Dirichlet} process (Pitman-Yor process) from \cite{martinezNonparametricChangePoint2014}.
-% TODO La formula tenetela in appendice (mi riferisco a slide 16) ma scrivetela giusta con la funzione indicatrice. 
 
 Let $M$ and $p$ be the number of groups and nodes, respectively, and $n_{j},j=1,\ldots,M$ the cardinalities of the groups, $\theta$ and $\sigma$ are parameters.
 
 \begin{equation*}
     P(\rho = \{n_1, \ldots, n_M\})
     =
-    \frac{p!}{M!} \frac{ \prod_{i=1}^{M-1}{(\theta +i\sigma)} }{(\theta+1)_{(p-1)\uparrow}} \prod_{j=1}^{M}{\frac{(1-\sigma)_{(n_{j}-1)\uparrow}}{n_{j\uparrow}} }
+    \begin{cases}
+        \frac{p!}{M!} \frac{ \prod_{i=1}^{M-1}{(\theta +i\sigma)} }{(\theta+1)_{(p-1)\uparrow}} \prod_{j=1}^{M}{\frac{(1-\sigma)_{(n_{j}-1)\uparrow}}{n_{j\uparrow}} }, & \rho \text{ admissible} \\
+        0, & \rho \text{ not admissible.}
+    \end{cases}
 \end{equation*}
 
-Hence, in the split case, after simplifying common factors, the \alert{prior ratio} is:
+Hence, in the split case, after simplifying common factors, the \alert{partition ratio} is:
 
 \begin{equation*}
     \frac{f_{\rho}(\rho')}{f_{\rho}(\rho)}
@@ -250,17 +254,16 @@ Hence, in the split case, after simplifying common factors, the \alert{prior rat
 
 \end{frame}
 
-\begin{frame}{Likelihood ratio}
+\begin{frame}{Graph ratio}
 
 Suppose a split move.
 
-The \alert{likelihood ratio}, after simplifying common factors, is:
-% Anche S^star, decidete tra lui e il T.  TODO
+The \alert{graph ratio}, after simplifying common factors, is:
 {
     \footnotesize
     \begin{align*}
         & \frac{f_G(G \mid \rho^\prime)}{f_G(G \mid \rho)}=\left(\frac{1}{B(\alpha, \beta)}\right)^{M+1} \times \\
-        & \frac{ \prod_{l=1}^{S-1} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime) \cdot \prod_{m=S+2}^{M+1} f_B(C_S^\prime, C_m^\prime) f_B(C_{S+1}^\prime, C_m^\prime) \cdot f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{\prod_{l=1}^{S-1} f_B(C_l, C_S) \prod_{m=S+1}^M f_B(C_S, C_m) \cdot f_B(C_S, C_S)} 
+        & \frac{ \prod_{l=1}^{S-1} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime) \cdot \prod_{m=S+2}^{M+1} f_B(C_S^\prime, C_m^\prime) f_B(C_{S+1}^\prime, C_m^\prime) \cdot f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{\prod_{l=1}^{S-1} f_B(C_l, C_S) \prod_{m=S+1}^M f_B(C_S, C_m) \cdot f_B(C_S, C_S)}
     \end{align*}
 }
 
@@ -269,7 +272,5 @@ where
 \[
     f_B(C_u, C_v) = B(\alpha+S_{uv},\beta+S^{\star}_{uv})
 \]
-
-and $S_{uv}$ is the sum of the edges between group $u$ and group $v$, and $S^{\star}_{uv}$ is the sum of non-edges.
 
 \end{frame}
