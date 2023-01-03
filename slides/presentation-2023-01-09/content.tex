@@ -25,9 +25,7 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
 \begin{frame}
 
 $Q$ is marginalized out.
-
 \pause
-
 
 The prior for the \alert{partition} $f_{\rho}(\rho)$ is (5) from \cite{martinezNonparametricChangePoint2014}.
 
@@ -36,7 +34,7 @@ $$P(G|z)= \frac {\prod_{u=1}^{M}\prod_{v=1}^{M}(\alpha + S_{uv}, \beta+ S^{\star
 where 
 \begin{itemize}
     \item $S_{uv}$ is the sum of the edges between group $u$ and $v$.
-    \item $S^{\star}_{uv}$ is the sum of the non-edges.
+    \item $S^{\star}_{uv}$ is the sum of the non-edges, namely $S^{\star}_{uv} = T_{uv} - S_{uv}$ and $T_{uv}$ is the total number of possible edges.
 \end{itemize}
 \pause
 
