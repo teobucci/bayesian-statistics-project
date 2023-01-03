@@ -64,9 +64,7 @@ rsconnect/
 *.snm
 *.out
 *.nav
-slides/main-blx.bib
+*main-blx.bib
 *.pyg
-report/main.pdf
-slides/blank-simple-template/main.pdf
-slides/presentation-2023-01-09/main.pdf
-*/Bucci_Cipriani_Pagella_Petruso_Puricelli_Venturini.pdf
+*main.pdf
+*Bucci_Cipriani_Pagella_Petruso_Puricelli_Venturini.pdf
