@@ -25,7 +25,6 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
 
 \end{frame}
 
-
 \begin{frame}
 
 $Q$ is marginalized out.
@@ -34,6 +33,7 @@ $Q$ is marginalized out.
 % la prior sulla partizione è quella di Martinez e Mena % TODO
 
 \end{frame}
+
 \section{The sampling strategy}
 
 \subsection{Overview of the sampling strategy}
@@ -63,8 +63,8 @@ $Q$ is marginalized out.
     \end{enumerate}
 \end{frame}
 
-
 \subsection{Updating the graph}
+
 \begin{frame}{Birth and death algorithm for updating the graph}
 
     \texttt{BDGraph} is an algorithm that follows a Birth-and-Death approach to decide whether to \alert{add} a new edge to the graph or \alert{delete} an already existing one.
@@ -136,12 +136,6 @@ $Q$ is marginalized out.
     \fg{0.4}{update_partition_shuffle.pdf}
 \end{frame}
 
-
-
-
-
-
-
 \begin{frame}{Proposal ratio}
 
 We introduce $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$, two $(p-1)$-dimensional vectors of \alert{weights} to choose the node where to perform the split or the merge. They are unnormalized discrete densities.
@@ -175,9 +169,6 @@ The extreme cases ``every node belonging to the same group'' and ``every node ha
 
 \end{frame}
 
-
-
-
 \begin{frame}{Adaptive step}
     The two weights vectors $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$ are updated at each iteration $t$ as in \cite{bensonAdaptiveMCMCMultiple2018} using the following 
     \textbf{adaptation scheme}.
@@ -196,9 +187,8 @@ Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number
 
 \end{frame}
 
-
-
 \section{Next steps}
+
 \begin{frame}{Next steps}
 
 The first draft of the code is completed.
@@ -211,7 +201,6 @@ Next things to do:
     \end{itemize}
 
 \end{frame}
-
 
 \begin{frame}{Main references}
     % GGM
@@ -251,9 +240,7 @@ Let $M$ and $p$ be the number of groups and nodes, respectively, and $n_{j},j=1,
     \frac{p!}{M!} \frac{ \prod_{i=1}^{M-1}{(\theta +i\sigma)} }{(\theta+1)_{(p-1)\uparrow}} \prod_{j=1}^{M}{\frac{(1-\sigma)_{(n_{j}-1)\uparrow}}{n_{j\uparrow}} }
 \end{equation*}
 
-
 Hence, in the split case, after simplifying common factors, the \alert{prior ratio} is:
-
 
 \begin{equation*}
     \frac{f_{\rho}(\rho')}{f_{\rho}(\rho)}
@@ -261,9 +248,7 @@ Hence, in the split case, after simplifying common factors, the \alert{prior rat
     \frac{1}{M}(\theta+M\sigma)\frac{(1-\sigma)_{(n_{s}'-1)\uparrow}(1-\sigma)_{(n_{s}'+1)\uparrow}}{(1-\sigma)_{(n_{s}-1)\uparrow}}\frac{n_{s}!}{n'_{s}!n'_{s+1}!}
 \end{equation*}
 
-
 \end{frame}
-
 
 \begin{frame}{Likelihood ratio}
 
