@@ -16,14 +16,14 @@ update_partition = function(rho,
                             alpha_add,
                             a_weights,
                             d_weights,
-                            Theta_groups,
                             theta_prior,
-                            sigma) {
+                            sigma,
+                            G) {
     unifsample = runif(n = 1)
     choose_add = unifsample < alpha_add
     
     # OK
-    proposal_list = proposal_ratio(rho, alpha_add, a_weights, d_weights, unifsample)
+    proposal_list = proposal_ratio(rho, alpha_add, a_weights, d_weights, choose_add)
     log_proposal_ratioNow = log(proposal_list$ratio)
     candidate = proposal_list$candidate
     
@@ -39,12 +39,20 @@ update_partition = function(rho,
     THE_GROUP = list_output_modify_partition$group_index
     
     # OK
+    current_rho = rho
     # c'e' un ricalcolo inutile dell'indice del gruppo da splittare o mergiare
     log_priorRatioNow = log_priorRatio(theta_prior, sigma, current_rho, proposed_rho, choose_add)
     
     # OK
-    # visto che il calcolo inutile dell'indice c'era sopra, l'ho messo pure qui
-    log_likelihood_ratioNow = log_likelihood_ratio(choose_add, Theta_groups)
+    log_likelihood_ratioNow = log_likelihood_ratio(alpha_add,
+                                    a_weights,
+                                    d_weights,
+                                    G,
+                                    current_rho,
+                                    proposed_rho,
+                                    choose_add,
+                                    alpha = 1,
+                                    beta = 1) 
     
     alpha_accept <- min(1, exp(log_likelihood_ratioNow +
                                log_priorRatioNow +
@@ -174,6 +182,9 @@ proposal_ratio = function(rho,
     
     #n_elem=length(a_weights)
     
+    a_weights[n_elems] = 0
+    d_weights[n_elems] = 0
+    
     # not all points can be selected for an add move
     # assign probability zero to those who cannot be
     a_weights_available = a_weights
@@ -193,7 +204,7 @@ proposal_ratio = function(rho,
     }
     
     # my candidate cannot be the first node by definition
-    candidate = sample(2:(n_elem+1), 1, prob = draw_weights)
+    candidate = sample(1:n_elems, 1, prob = draw_weights)
     
     if (choose_add & M == 1) {
         # case in which you choose to propose an add move
@@ -673,12 +684,12 @@ get_S_star_from_S_and_rho = function(S, rho){
 
 # auxiliary function to evaluate the beta function for the likelihood ratio
 rhoB_general = function(group1,
-                group2,
-                S,
-                S_star,
-                log = T,
-                alpha,
-                beta) {
+                        group2,
+                        S,
+                        S_star,
+                        alpha,
+                        beta,
+                        log = T) {
     if (log) {
         return(lbeta(alpha + S[group1, group2], beta + S_star[group1, group2]))
     } else{
@@ -729,18 +740,18 @@ log_likelihood_ratio = function(alpha_add,
             group2,
             S,
             S_star,
-            log = T,
             alpha = alpha,
-            beta = beta
+            beta = beta,
+            log = T
         ))
     }
         
     
     S_current = get_S_from_G_rho(G, current_rho)
-    S_star_current = get_S_star_from_S_and_rho(S, current_rho)
+    S_star_current = get_S_star_from_S_and_rho(S_current, current_rho)
     
     S_proposed = get_S_from_G_rho(G, proposed_rho)
-    S_star_proposed = get_S_star_from_S_and_rho(S, proposed_rho)
+    S_star_proposed = get_S_star_from_S_and_rho(S_proposed, proposed_rho)
     
     K = get_index_changed_group(current_rho, proposed_rho)
     
@@ -802,10 +813,14 @@ get_index_changed_group = function(current_rho,proposed_rho){
     # of the new changepoint (or the one deleted)
     # there's no need for an absolute value because in the delete move
     # they have been fictitiously swapped to avoid repeating code
-    tau = which.max(proposed_r - current_r)
+    tau = which.max(abs(proposed_r - current_r))
     
     # take all the indexes of the cp smaller than tau
     temp = which(cp_idxs_current < tau)
+    if(length(temp) == 0){
+        temp = c(0)
+    }
+    
     # take the last element of this list to have the
     # index of the group affected
     K = temp[length(temp)] + 1
@@ -1034,8 +1049,8 @@ Gibbs_sampler = function(data, niter, nburn, thin,
   sigma            = options$sigma0 # initial parameter of the PY prior
   theta_prior      = options$theta_prior0 # initial parameter of the PY prior
   rho              = options$rho0 # initial partition (e.g. c(150,151))
-  weights_a        = options$weights_a0 # add weights
-  weights_d        = options$weights_d0 # delete weights
+  a_weights        = options$weights_a0 # add weights
+  d_weights        = options$weights_d0 # delete weights
   
   # constant parameters
   alpha_add = options$alpha_add # probability of choosing add over delete
@@ -1077,7 +1092,7 @@ Gibbs_sampler = function(data, niter, nburn, thin,
   #   Nclust = length(counts)	  # initial number of clusters
   #   
   #   # Define structure to save sampled values
-  #   save_res = vector("list",length = 4)
+  save_res = vector("list",length = 4)
   #   names(save_res) = c("Kappa","Partition","alpha","var_alpha_adp")
   #   save_res$Kappa = vector("list",length = niter) 
   #   save_res$Partition = matrix(NA,nrow = niter, ncol = p)
@@ -1110,7 +1125,8 @@ Gibbs_sampler = function(data, niter, nburn, thin,
                         cores = NULL, threshold = 1e-8 )
       
       # Extracting the matrix with edges between groups
-      Theta_groups = output$last_theta
+      #last_Theta = output$last_theta
+      last_G = output$last_graph
       # Extracting the  precision matrix ?? Quale delle due ? effettivamente l'ultima precision matrix?
       # K_hat = output$K_hat
       last_K = output$last_K
@@ -1123,7 +1139,14 @@ Gibbs_sampler = function(data, niter, nburn, thin,
     
     if(options$update_partition){
       # TODO
-      update_partition(rho,alpha_add,a_weights,d_weights,Theta_groups,theta_prior,sigma)
+      
+        update_partition(rho,
+                                    alpha_add,
+                                    a_weights,
+                                    d_weights,
+                                    theta_prior,
+                                    sigma,
+                                    G=last_G)
     }
     
     
