@@ -11,23 +11,19 @@
 
 \begin{frame}{Our model}
 
-\alert{Goal}: given a set of $n$ data with $p$ variables, infer the block structure of their variables
-without knowing the number of groups.
+\alert{Goal}: given a set of $n$ data with $p$ variables, simultaneously infer the conditional dependence structure of such variables and their clustering.
 
 \pause
 
-\alert{Additional constraints}: 
-\begin{itemize}
-    \item use a Stochastic Block Model;
-    \item the partition must respect the original order of the variables.
-\end{itemize} 
+\alert{Constraint}: the partition must respect the original order of the variables.
+
 \pause
 %\alert{The model}:
 \begin{align*}
     \bm{y}_1, \ldots, \bm{y}_n \mid \bm{K} & \iid \mathcal{N}_p(\mathbf{0}, \bm{K}^{-1} ) \\
     \bm{K} \mid G & \sim \GWish(b, D)\\
     P((i,j)&\in E\mid \bm{z},Q) = Q_{z_{i} z_{j}},\,\text{independent}\\
-        Q_{rs} \mid \bm{z} &\ind \Beta(a,b), 1\leq r\leq s\leq H\\
+        Q_{rs} \mid \bm{z} &\ind \Beta(a,b), 1\leq r\leq s\leq M\\
     \rho & \sim f_{\rho} \left(\rho\right)
 \end{align*}
 
@@ -72,9 +68,9 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
     We implement a Block Gibbs-Sampler strategy:
     \begin{enumerate}
         \item \alert{Sampling Graph and Precision Matrix}\\
-        $G$ and $\bm{K}$ - given $\bm{z}$ - are sampled using a modified version of a Birth-and-Death chain, changing one link at a time.
+        $G$ and $\bm{K}$ - given $\bm{z}$ - are sampled using a modified version of a Birth-and-Death chain (\cite{mohammadiBayesianStructureLearning2015a}), changing one link at a time.
         \item \alert{Sampling the Random Partition}\\
-        We can sample $\bm{z}$ through an adaptive MCMC\vphantom{changepoint} sampler, working conditionally on $G$ after the graph update.
+        Conditionally on $G$, we can sample $\bm{z}$ through an adaptive split and merge\vphantom{changepoint} sampler.
     \end{enumerate}
 \end{frame}
 
@@ -97,7 +93,7 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
         \centering
         \begin{tabular}{lcc}
         \toprule
-        & Conditional\textcolor{red}{TODO nome giusto?} & B/D rates \\
+        & Target distribution & B/D rates \\
         \hline
         \textbf{Before} & $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L} (\bm{K} \mid {G})P(G)$ & $\cfrac{P(G')}{P(G)}$ \\
         \textbf{After}  & $P(G,\bm{K} \mid \bm{Y}, \textcolor{sleekRed}{\bm{z}}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G})P(G \mid \textcolor{sleekRed}{\bm{z}})$ & $\cfrac{P(G' \mid \textcolor{sleekRed}{\bm{z}})}{P(G \mid \textcolor{sleekRed}{\bm{z}})}$ \\
@@ -108,9 +104,9 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
     \pause
     %We computed the birth and death rates as:
     \[
-        \text{Birth rate} = \frac{P(G^{+ e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{S_{uv} + a}{T_{uv} - S_{uv} + b}
+        \text{Birth rate} \propto \frac{P(G^{+ e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{S_{uv} + a}{T_{uv} - S_{uv} + b}
         \quad
-        \text{Death rate} =\frac{P(G^{- e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{T_{uv} - S_{uv} + b}{S_{uv} + a}
+        \text{Death rate} \propto \frac{P(G^{- e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{T_{uv} - S_{uv} + b}{S_{uv} + a}
     \]
     \textcolor{red}{TODO: non sappiamo se tenere queste formule dato che S,T,u,v,a,b non sono stati spiegati}
     
@@ -138,8 +134,8 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
                 \alpha_{\text{accept}} = \min
                 \bigg\{1,
                 \overbrace{
-                \underbrace{\frac{f_G\left(G \mid \rho'\right)}{f_G(G \mid \rho)}}_{\substack{\text{likelihood}\\\text{ratio}}}
-                \underbrace{\frac{f_\rho\left(\rho'\right)}{f_\rho(\rho)}}_{\substack{\text{prior}\\\text{ratio}}}
+                \underbrace{\frac{f_G\left(G \mid \rho'\right)}{f_G(G \mid \rho)}}_{\substack{\text{graph}\\\text{ratio}}}
+                \underbrace{\frac{f_\rho\left(\rho'\right)}{f_\rho(\rho)}}_{\substack{\text{partition}\\\text{ratio}}}
                 }^{\text{target ratio}}
                 \underbrace{\frac{Q(\rho',\rho)}{Q(\rho,\rho')}}_{\substack{\text{proposal}\\\text{ratio}}}
                 \bigg\}
@@ -170,7 +166,7 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
 
 \begin{frame}{Proposal ratio}
 
-We introduce $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$, two $p$-dimensional vectors of \alert{weights} to choose the node where to perform the split or the merge. They are unnormalized discrete densities.
+We introduce $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$, two $(p-1)$-dimensional vectors of \alert{weights} to choose the node where to perform the split or the merge. They are unnormalized discrete densities.
 
 \pause
 
@@ -236,9 +232,8 @@ The first draft of the code is completed.
 
 Next things to do:
     \begin{itemize}
-        \item debugging the code;
-        \item run simulations;
-        \item \textcolor{red}{TODO what else? G.C.}
+        \item debugging the code
+        \item run simulations
     \end{itemize}
 
 \end{frame}
