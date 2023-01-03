@@ -1,13 +1,6 @@
 %!TEX root = ./main.tex
 
-%-------------------------------------
-%-------------------------------------
-% The model
-%-------------------------------------
-%-------------------------------------
 \section{The model}
-
-%\subsection{The model}
 
 \begin{frame}{Our model}
 
@@ -18,7 +11,7 @@
 \alert{Constraint}: the partition must respect the original order of the variables.
 
 \pause
-%\alert{The model}:
+
 \begin{align*}
     \bm{y}_1, \ldots, \bm{y}_n \mid \bm{K} & \iid \mathcal{N}_p(\mathbf{0}, \bm{K}^{-1} ) \\
     \bm{K} \mid G & \sim \GWish(b, D)\\
@@ -26,37 +19,33 @@
         Q_{rs} \mid \bm{z} &\ind \Beta(a,b), 1\leq r\leq s\leq M\\
     \rho & \sim f_{\rho} \left(\rho\right)
 \end{align*}
+% Attenti ai parametri della Beta, ho visto che ogni tanto avete messo a,b e ogni tanto \alpha,\beta. TODO
 
 Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of groups memberships.
 
 \end{frame}
 
 
-%-------------------------------------
-%-------------------------------------
-% The sampling strategy
-%-------------------------------------
-%-------------------------------------
+\begin{frame}
+
+$Q$ is marginalized out.
+
+% chi è f_G e S_uv, T_uv % TODO
+% la prior sulla partizione è quella di Martinez e Mena % TODO
+
+\end{frame}
 \section{The sampling strategy}
 
 \subsection{Overview of the sampling strategy}
+
 \begin{frame}{Block Gibbs Sampler}
-    Full conditional distributions for our model:
-    % \begin{itemize}
-    %     \item Precision Matrix: $\small P(\bm{K} \mid \bm{Y},G,\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})$ 
-
-    %     \item Graph: $\small P(G \mid \bm{Y},\bm{K},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})$ 
-
-    %     \item Random Partition: $\small P(\bm{z} \mid \bm{Y},\bm{K},G) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z}) \propto P(G \mid \bm{z})P(\bm{z}) $
-    % \end{itemize}
-
+    Conditional distributions for our model:
+    
     \begin{table}[tb]
         \centering
         \begin{tabular}{ll}
         \toprule
-        Precision Matrix & $\small P(\bm{K} \mid \bm{Y},G,\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})$ \\
-        \hline
-        Graph & $\small P(G \mid \bm{Y},\bm{K},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z})$ \\
+        Graph and Precision & $\small P(\bm{K},G \mid \bm{Y},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G}) P(G \mid \bm{z})$ \\
         \hline
         Random Partition & $\small P(\bm{z} \mid \bm{Y},\bm{K},G) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z}) \propto P(G \mid \bm{z})P(\bm{z}) $ \\
         \bottomrule
@@ -75,17 +64,11 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
 \end{frame}
 
 
-
-
-%-------------------------------------
-% BDgraph
-%-------------------------------------
 \subsection{Updating the graph}
 \begin{frame}{Birth and death algorithm for updating the graph}
 
     \texttt{BDGraph} is an algorithm that follows a Birth-and-Death approach to decide whether to \alert{add} a new edge to the graph or \alert{delete} an already existing one.
 
-    %How did we change it?
     \pause
     
     % https://people.inf.ethz.ch/markusp/teaching/guides/guide-tables.pdf
@@ -112,12 +95,7 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
     
 \end{frame}
 
-
-%-------------------------------------
-% Updating the current partition
-%-------------------------------------
 \subsection{Updating the partition}
-
 
 \begin{frame}{General steps for updating the partition}
     
@@ -220,11 +198,6 @@ Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number
 
 
 
-%-------------------------------------
-%-------------------------------------
-% Next steps
-%-------------------------------------
-%-------------------------------------
 \section{Next steps}
 \begin{frame}{Next steps}
 
@@ -234,15 +207,11 @@ Next things to do:
     \begin{itemize}
         \item debugging the code
         \item run simulations
+        \item perform posterior analysis
     \end{itemize}
 
 \end{frame}
 
-
-
-%----------------------------------------
-% References
-%-------------------------------------
 
 \begin{frame}{Main references}
     % GGM
@@ -254,16 +223,9 @@ Next things to do:
     \nocite{bensonAdaptiveMCMCMultiple2018}
     \nocite{martinezNonparametricChangePoint2014}
     
-    
-    %biblatex
     \printbibliography
     \renewcommand*{\bibfont}{\small}
-    %bibtex
-    %\bibliographystyle{plain} % We choose the "plain" reference style
-    %\bibliography{bibliography} % Entries are in the refs.bib file
 \end{frame}
-
-
 
 \begin{frame}[plain]
     % Add background to content page
@@ -274,17 +236,12 @@ Next things to do:
     \hspace*{1cm}{\Huge \alert{Any questions?}}
 \end{frame}
 
-
-
-
-
-%tenere?
 \section*{Extra}
-
 
 \begin{frame}{Prior ratio}
 
 As a prior, we use an EPPF induced by the \alert{two-parameter Poisson-Dirichlet} process (Pitman-Yor process) from \cite{martinezNonparametricChangePoint2014}.
+% TODO La formula tenetela in appendice (mi riferisco a slide 16) ma scrivetela giusta con la funzione indicatrice. 
 
 Let $M$ and $p$ be the number of groups and nodes, respectively, and $n_{j},j=1,\ldots,M$ the cardinalities of the groups, $\theta$ and $\sigma$ are parameters.
 
@@ -313,13 +270,13 @@ Hence, in the split case, after simplifying common factors, the \alert{prior rat
 Suppose a split move.
 
 The \alert{likelihood ratio}, after simplifying common factors, is:
-
+% Anche S^star, decidete tra lui e il T.  TODO
 {
-\footnotesize
-\begin{align*}
-&\frac{f_G(G \mid \rho^\prime)}{f_G^{\prime}(G \mid \rho)}=\left(\frac{1}{B(\alpha, \beta)}\right)^{M+1} \times \\
-&\frac{ \prod_{l=1}^{S-1} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime) \cdot \prod_{m=S+2}^{M+1} f_B(C_S^\prime, C_m^\prime) f_B(C_{S+1}^\prime, C_m^\prime) \cdot f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{\prod_{l=1}^{S-1} f_B(C_l, C_S) \prod_{m=S+1}^M f_B(C_S, C_m) \cdot f_B(C_S, C_S)}
-\end{align*}
+    \footnotesize
+    \begin{align*}
+        & \frac{f_G(G \mid \rho^\prime)}{f_G(G \mid \rho)}=\left(\frac{1}{B(\alpha, \beta)}\right)^{M+1} \times \\
+        & \frac{ \prod_{l=1}^{S-1} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime) \cdot \prod_{m=S+2}^{M+1} f_B(C_S^\prime, C_m^\prime) f_B(C_{S+1}^\prime, C_m^\prime) \cdot f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{\prod_{l=1}^{S-1} f_B(C_l, C_S) \prod_{m=S+1}^M f_B(C_S, C_m) \cdot f_B(C_S, C_S)} 
+    \end{align*}
 }
 
 where
@@ -331,5 +288,3 @@ where
 and $S_{uv}$ is the sum of the edges between group $u$ and group $v$, and $S^{\star}_{uv}$ is the sum of non-edges.
 
 \end{frame}
-
-
