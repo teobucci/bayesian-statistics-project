@@ -25,17 +25,21 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
 \begin{frame}
 
 $Q$ is marginalized out.
+
 \pause
 
-When dealing with the graph structure, we denote by
+
+The prior for the \alert{partition} $f_{\rho}(\rho)$ is (5) from \cite{martinezNonparametricChangePoint2014}.
+
+The prior for the \alert{graph} given the vector of group memberships is
+$$P(G|z)= \frac {\prod_{u=1}^{M}\prod_{v=1}^{M}(\alpha + S_{uv}, \beta+ S^{\star}_{uv})}{B(\alpha,\beta)}$$
+where 
 \begin{itemize}
     \item $S_{uv}$ the sum of the edges between group $u$ and $v$.
     \item $S^{\star}_{uv}$ the sum of the non-edges.
 \end{itemize}
 \pause
 
-The prior for the partition $f_{\rho}(\rho)$ is (5) from \cite{martinezNonparametricChangePoint2014}.
-% chi è f_G % TODO
 
 \end{frame}
 
