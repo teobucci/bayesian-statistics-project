@@ -18,7 +18,8 @@ update_partition = function(rho,
                             d_weights,
                             theta_prior,
                             sigma,
-                            G) {
+                            G,
+                            beta_params) {
     unifsample = runif(n = 1)
     choose_add = unifsample < alpha_add
     print("Hai scelto una mossa")
@@ -62,8 +63,8 @@ update_partition = function(rho,
                                     current_rho,
                                     proposed_rho,
                                     choose_add,
-                                    alpha = 1,
-                                    beta = 1) 
+                                    beta_params$alpha,
+                                    beta_params$beta) 
     
     alpha_accept <- min(1, exp(log_likelihood_ratioNow +
                                log_priorRatioNow +
@@ -730,8 +731,8 @@ log_likelihood_ratio = function(alpha_add,
                                current_rho,
                                proposed_rho,
                                choose_add,
-                               alpha = 1,
-                               beta = 1) {
+                               alpha,
+                               beta) {
     # differentiate delete/merge case
     if (!choose_add) {
         # swap rhos 'cause we're lazy
@@ -1086,8 +1087,6 @@ Gibbs_sampler = function(data, niter, nburn, thin,
   
   
   beta_params = estimate_Beta_params(mu_beta,sig2_beta)
-  a = beta_params$alpha
-  b = beta_params$beta 
   
   # TODO check qui dei parametri del grafo
   # if(nrow(options$W)!=p)
@@ -1152,12 +1151,13 @@ Gibbs_sampler = function(data, niter, nburn, thin,
       # TODO
       
         update_partition(rho,
-                                    alpha_add,
-                                    a_weights,
-                                    d_weights,
-                                    theta_prior,
-                                    sigma,
-                                    G=last_G)
+                         alpha_add,
+                         a_weights,
+                         d_weights,
+                         theta_prior,
+                         sigma,
+                         G=last_G,
+                         beta_params)
     }
     
     
