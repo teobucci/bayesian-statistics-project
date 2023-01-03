@@ -21,11 +21,20 @@ update_partition = function(rho,
                             G) {
     unifsample = runif(n = 1)
     choose_add = unifsample < alpha_add
+    print("Hai scelto una mossa")
+    if (choose_add){
+        print("ADD/SPLIT")
+    }else{
+        print("DELETE/MERGE")
+    }
     
     # OK
     proposal_list = proposal_ratio(rho, alpha_add, a_weights, d_weights, choose_add)
     log_proposal_ratioNow = log(proposal_list$ratio)
     candidate = proposal_list$candidate
+    
+    print("candidate")
+    print(candidate)
     
     # compute proposed partition based on candidate and index of the group
     if (choose_add) {
@@ -34,6 +43,8 @@ update_partition = function(rho,
         list_output_modify_partition = merge_partition(candidate, rho)
     }
     proposed_rho = list_output_modify_partition$rho
+    print("proposed partition")
+    print(proposed_rho)
     
     # TODO cambiare questo nome per renderlo coerente con ciÃ² che c'Ã¨ sotto
     THE_GROUP = list_output_modify_partition$group_index
