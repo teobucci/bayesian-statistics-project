@@ -17,7 +17,7 @@ suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
 suppressWarnings(suppressPackageStartupMessages(library(ACutils)))
 suppressWarnings(suppressPackageStartupMessages(library(mvtnorm)))
 suppressWarnings(suppressPackageStartupMessages(library(salso)))
-suppressWarnings(suppressPackageStartupMessages(library(mcclust.ext)))
+#suppressWarnings(suppressPackageStartupMessages(library(mcclust.ext)))
 setwd("~/Documents/GitHub/bayesian-statistics-project/src")
 source("utility_functions.R")
 source("bulky_functions.R")
@@ -144,14 +144,17 @@ options = set_options(sigma0=1,
                       update_sigma=F,
                       update_theta_prior=F,
                       update_weights=F,
-                      update_partition=F,
+                      update_partition=T,
                       update_graph=T,
                       perform_shuffle=F)
 
 niter = 5
 nburn = 1
 thin = 1 # tieni tutti i multipli di thin
-source("../FGM/R/bdgraph.R")
+library("FGM")
+source("utility_functions.R")
+source("data_generation.R")
+source("bulky_functions.R")
 res = Gibbs_sampler(data,niter,nburn,thin,options,seed=1234,print=F)
 ```
 
