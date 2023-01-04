@@ -18,10 +18,7 @@ suppressWarnings(suppressPackageStartupMessages(library(ACutils)))
 suppressWarnings(suppressPackageStartupMessages(library(mvtnorm)))
 suppressWarnings(suppressPackageStartupMessages(library(salso)))
 #suppressWarnings(suppressPackageStartupMessages(library(mcclust.ext)))
-setwd("~/Documents/GitHub/bayesian-statistics-project/src")
-source("utility_functions.R")
-source("bulky_functions.R")
-source("data_generation.R")
+#setwd("~/Documents/GitHub/bayesian-statistics-project/src")
 ```
 
 ## Generate data from the model
@@ -114,27 +111,42 @@ V = data_from_prior$V # cos'è?
 U = t(data)%*%data
 
 # Plot V
-ACutils::ACheatmap(V,use_x11_device = F,horizontal = F)
+#ACutils::ACheatmap(V,use_x11_device = F,horizontal = F)
 
 # Plot Omega
-ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F)
+#ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F)
 
 #Plot empirical estimate
-ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F)
+#ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F)
 ```
 
 a)  Fit the model with fixed partition
 
 ```{r}
-W = solve(cov(data))
-nu = max(n,p)
+#W = solve(cov(data))
+#nu = max(n,p)
+library("FGM")
 
-options = set_options(sigma0=1,
+utility_path = file.path("src", "utility_functions.R")
+file.exists(utility_path)
+source(utility_path)
+
+bulky_path = file.path("src", "bulky_functions.R")
+file.exists(bulky_path)
+source(bulky_path)
+
+data_generation_path = file.path("src", "data_generation.R")
+file.exists(data_generation_path)
+source(data_generation_path)
+
+
+
+options = set_options(sigma0=0.5,
                       sigma_parameters=c(1,1,1,1),
                       theta_prior0=1,
                       theta_parameters=c(1,1),
                       rho0=c(5,5),
-                      weights_a0=rep(1,p),
+                      weights_a0=rep(1,p), # da fixare devono essere p-1 dim
                       weights_d0=rep(1,p),
                       alpha_target=0.40,
                       mu_beta=0.5, # mu of the Beta
@@ -151,10 +163,7 @@ options = set_options(sigma0=1,
 niter = 5
 nburn = 1
 thin = 1 # tieni tutti i multipli di thin
-library("FGM")
-source("utility_functions.R")
-source("data_generation.R")
-source("bulky_functions.R")
+
 res = Gibbs_sampler(data,niter,nburn,thin,options,seed=1234,print=F)
 ```
 
