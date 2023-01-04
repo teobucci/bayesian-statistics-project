@@ -710,6 +710,16 @@ rhoB_general = function(group1,
 }
 
 
+rhoB_zero = function(alpha,
+                        beta,
+                        log = T) {
+    if (log) {
+        return(lbeta(alpha, beta))
+    } else{
+        return(beta(alpha, beta))
+    }
+}
+
 
 #' Log Likelihood Ratio
 #'
@@ -767,7 +777,7 @@ log_likelihood_ratio = function(alpha_add,
     
     K = get_index_changed_group(current_rho, proposed_rho)
     
-    log_ratio = -(M + 1) * rhoB(0, 0)
+    log_ratio = -(M + 1) * rhoB_zero(alpha, beta)
     # TODO mettere questo in tutti quelli sotto per
     # consentire l'aggiornamento di alpha e beta
     
