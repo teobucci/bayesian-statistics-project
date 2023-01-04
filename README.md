@@ -1,4 +1,8 @@
+![GitHub last commit](https://img.shields.io/github/last-commit/teobucci/CNN-Plants-Classifier?logo=github)
+
 # Stochastic Block Model Prior with Ordering Constraints for Gaussian Graphical Models
+
+This project was developed for the course of **Bayesian Statistics** for the MSc. in Mathematical Engineering at Politecnico di Milano, A.Y. 2022/2023.
 
 ## How to clone the repository
 
@@ -32,3 +36,13 @@ Using [this guide](https://bookdown.org/dli/rguide/r-style-guide.html).
 
 In R you can use the commands: `Code` > `Reformat Code` to format the selected chunk of code.
 
+## Authors
+
+Supervisor: Alessandro Colombi ([@alessandrocolombi](https://github.com/alessandrocolombi))
+
+- Teo Bucci ([@teobucci](https://github.com/teobucci))
+- Filippo Cipriani ([@SmearyTundra](https://github.com/SmearyTundra))
+- Filippo Pagella ([@effefpi2](https://github.com/effefpi2))
+- Flavia Petruso ([@fl-hi1](https://github.com/fl-hi1))
+- Andrea Puricelli ([@apuri99](https://github.com/apuri99))
+- Giulio Venturini ([@Vinavil334](https://github.com/Vinavil334))
