@@ -432,6 +432,7 @@ shuffle_partition <- function(rho, G) {
     log_likelihood_ratio = 0
     
     for (l in 1:(K - 1)) {
+        if (l > (K - 1)) break; # needed because R for-loops suck
         # first numerator term
         log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K, S_proposed, S_star_proposed)
         log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K + 1, S_proposed, S_star_proposed)
@@ -441,6 +442,7 @@ shuffle_partition <- function(rho, G) {
     }
     
     for (l in (K + 2):M) {
+        if (l > M) break; # needed because R for-loops suck
         # second numerator term
         log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K, S_proposed, S_star_proposed)
         log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K + 1, S_proposed, S_star_proposed)
@@ -782,6 +784,7 @@ log_likelihood_ratio = function(alpha_add,
     # consentire l'aggiornamento di alpha e beta
     
     for (l in 1:(K - 1)) {
+        if (l > (K - 1)) break; # needed because R for-loops suck
         # first numerator term
         log_ratio = log_ratio + rhoB(l, K, S_proposed, S_star_proposed)
         log_ratio = log_ratio + rhoB(l, K + 1, S_proposed, S_star_proposed)
@@ -790,6 +793,7 @@ log_likelihood_ratio = function(alpha_add,
     }
     
     for (m in (K + 2):(M + 1)) {
+        if (m > (M + 1)) break; # needed because R for-loops suck
         # second numerator term
         log_ratio = log_ratio + rhoB(K, m, S_proposed, S_star_proposed) +
                                 rhoB(K + 1, m, S_proposed, S_star_proposed)
@@ -801,6 +805,7 @@ log_likelihood_ratio = function(alpha_add,
                             rhoB(K + 1, K + 1, S_proposed, S_star_proposed)
     
     for (m in (K + 1):M) {
+        if (m > M) break; # needed because R for-loops suck
         # second denominator term
         log_ratio = log_ratio - rhoB(K, m, S_current, S_star_current)
     }
