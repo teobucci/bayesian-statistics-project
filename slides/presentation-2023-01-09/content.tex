@@ -20,6 +20,8 @@
 
 Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of groups memberships.
 
+The prior for the \alert{partition} $f_{\rho}(\rho)$ is (5) from \cite{martinezNonparametricChangePoint2014}.
+
 \end{frame}
 
 \begin{frame}
@@ -27,14 +29,17 @@ Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of g
 $Q$ is marginalized out.
 \pause
 
-The prior for the \alert{partition} $f_{\rho}(\rho)$ is (5) from \cite{martinezNonparametricChangePoint2014}.
-
 The prior for the \alert{graph} given the vector of group memberships is
-$$P(G\mid \bm{z})= \frac {\prod_{u=1}^{M}\prod_{v=1}^{M}(\alpha + S_{uv}, \beta+ S^{\star}_{uv})}{B(\alpha,\beta)}$$
+\[
+    P(G\mid \bm{z})
+    =
+    \prod_{u=1}^{M}\prod_{v=u}^{M}
+    \frac{B(\alpha + S_{uv}, \beta+ S^{\star}_{uv})}{B(\alpha,\beta)}
+\]
 where 
 \begin{itemize}
     \item $S_{uv}$ is the sum of the edges between group $u$ and $v$.
-    \item $S^{\star}_{uv}$ is the sum of the non-edges, namely $S^{\star}_{uv} = T_{uv} - S_{uv}$ and $T_{uv}$ is the total number of possible edges.
+    \item $S^{\star}_{uv}$ is the sum of the ``non-edges'', namely $S^{\star}_{uv} = T_{uv} - S_{uv}$ and $T_{uv}$ is the total number of possible edges.
 \end{itemize}
 \pause
 
