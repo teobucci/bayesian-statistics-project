@@ -113,15 +113,15 @@ a)  Fit the model with fixed partition
 #nu = max(n,p)
 library("FGM")
 
-utility_path = file.path("src", "utility_functions.R")
+utility_path = file.path("utility_functions.R")
 file.exists(utility_path)
 source(utility_path)
 
-bulky_path = file.path("src", "bulky_functions.R")
+bulky_path = file.path("bulky_functions.R")
 file.exists(bulky_path)
 source(bulky_path)
 
-data_generation_path = file.path("src", "data_generation.R")
+data_generation_path = file.path("data_generation.R")
 file.exists(data_generation_path)
 source(data_generation_path)
 

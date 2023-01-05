@@ -392,7 +392,11 @@ shuffle_partition <- function(rho_current, G, sigma, alpha, beta) {
     # going to shuffle group K with group K+1
     K <- sample(1:(M - 1), 1)
     # sample how many elements to keep in the K-th group
-    l <- sample(1:(rho_current[K] + rho_current[K + 1] - 1), 1)
+    sample_vector <- 1:(rho_current[K] + rho_current[K + 1] - 1)
+    sample_vector <- sample_vector[-c(rho_current[K])]
+    l <- sample(sample_vector, 1)
+    print("sample vector")
+    print(sample_vector)
     # move the elements
     rho_proposed[K + 1] <- rho_current[K + 1] + rho_current[K] - l
     rho_proposed[K] <- l
@@ -464,6 +468,10 @@ shuffle_partition <- function(rho_current, G, sigma, alpha, beta) {
 
     # compute alpha_shuffle
     alpha_shuffle = min(1, exp(log_likelihood_ratio + log_prior_ratio))
+    print("Logs")
+    print(log_likelihood_ratio)
+    print(log_prior_ratio)
+    
     
     if (runif(n = 1) < alpha_shuffle) {
         # accept the shuffle
