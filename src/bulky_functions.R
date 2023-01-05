@@ -407,10 +407,10 @@ shuffle_partition <- function(rho, G) {
     S_proposed = get_S_from_G_rho(G, rho_proposed)
     S_star_proposed = get_S_star_from_S_and_rho(S, rho_proposed)
     
-    # wrap the general rhoB into this version where I don't have to specify
+    # wrap the general fB into this version where I don't have to specify
     # alpha and beta (doing this for adaptiveness)
-    rhoB = function(group1, group2, S, S_star) {
-        return(rhoB_general(
+    fB = function(group1, group2, S, S_star) {
+        return(fB_general(
             group1,
             group2,
             S,
@@ -428,31 +428,31 @@ shuffle_partition <- function(rho, G) {
     for (l in 1:(K - 1)) {
         if (l > (K - 1)) break; # needed because R for-loops suck
         # first numerator term
-        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K, S_proposed, S_star_proposed)
-        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K + 1, S_proposed, S_star_proposed)
+        log_likelihood_ratio = log_likelihood_ratio + fB(l, K, S_proposed, S_star_proposed)
+        log_likelihood_ratio = log_likelihood_ratio + fB(l, K + 1, S_proposed, S_star_proposed)
         # first denominator term
-        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K, S, S_star)
-        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K + 1, S, S_star)
+        log_likelihood_ratio = log_likelihood_ratio + fB(l, K, S, S_star)
+        log_likelihood_ratio = log_likelihood_ratio + fB(l, K + 1, S, S_star)
     }
     
     for (l in (K + 2):M) {
         if (l > M) break; # needed because R for-loops suck
         # second numerator term
-        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K, S_proposed, S_star_proposed)
-        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K + 1, S_proposed, S_star_proposed)
+        log_likelihood_ratio = log_likelihood_ratio + fB(l, K, S_proposed, S_star_proposed)
+        log_likelihood_ratio = log_likelihood_ratio + fB(l, K + 1, S_proposed, S_star_proposed)
         # second denominator term
-        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K, S, S_star)
-        log_likelihood_ratio = log_likelihood_ratio + rhoB(l, K + 1, S, S_star)
+        log_likelihood_ratio = log_likelihood_ratio + fB(l, K, S, S_star)
+        log_likelihood_ratio = log_likelihood_ratio + fB(l, K + 1, S, S_star)
     }
     
     # third numerator term
-    log_likelihood_ratio = log_likelihood_ratio + rhoB(K, K + 1, S_proposed, S_star_proposed)
-    log_likelihood_ratio = log_likelihood_ratio + rhoB(K, K, S_proposed, S_star_proposed)
-    log_likelihood_ratio = log_likelihood_ratio + rhoB(K + 1, K + 1, S_proposed, S_star_proposed)
+    log_likelihood_ratio = log_likelihood_ratio + fB(K, K + 1, S_proposed, S_star_proposed)
+    log_likelihood_ratio = log_likelihood_ratio + fB(K, K, S_proposed, S_star_proposed)
+    log_likelihood_ratio = log_likelihood_ratio + fB(K + 1, K + 1, S_proposed, S_star_proposed)
     # third denominator term
-    log_likelihood_ratio = log_likelihood_ratio + rhoB(K, K + 1, S, S_star)
-    log_likelihood_ratio = log_likelihood_ratio + rhoB(K, K, S, S_star)
-    log_likelihood_ratio = log_likelihood_ratio + rhoB(K + 1, K + 1, S, S_star)
+    log_likelihood_ratio = log_likelihood_ratio + fB(K, K + 1, S, S_star)
+    log_likelihood_ratio = log_likelihood_ratio + fB(K, K, S, S_star)
+    log_likelihood_ratio = log_likelihood_ratio + fB(K + 1, K + 1, S, S_star)
 
     # compute alpha_shuffle
     alpha_shuffle = min(1, exp(log_likelihood_ratio + log_prior_ratio))
@@ -691,7 +691,7 @@ get_S_star_from_S_and_rho = function(S, rho){
 
 
 # auxiliary function to evaluate the beta function for the likelihood ratio
-rhoB_general = function(group1,
+fB_general = function(group1,
                         group2,
                         S,
                         S_star,
@@ -706,7 +706,7 @@ rhoB_general = function(group1,
 }
 
 
-rhoB_zero = function(alpha,
+fB_zero = function(alpha,
                         beta,
                         log = T) {
     if (log) {
@@ -750,10 +750,10 @@ log_likelihood_ratio = function(alpha_add,
     # number of groups
     M = length(rho_current)
     
-    # wrap the general rhoB into this version where I don't have to specify
+    # wrap the general fB into this version where I don't have to specify
     # alpha and beta (doing this for adaptiveness)
-    rhoB = function(group1, group2, S, S_star) {
-        return(rhoB_general(
+    fB = function(group1, group2, S, S_star) {
+        return(fB_general(
             group1,
             group2,
             S,
@@ -773,39 +773,39 @@ log_likelihood_ratio = function(alpha_add,
     
     K = get_index_changed_group(rho_current, rho_proposed)
     
-    log_ratio = -(M + 1) * rhoB_zero(alpha, beta)
+    log_ratio = -(M + 1) * fB_zero(alpha, beta)
     # TODO mettere questo in tutti quelli sotto per
     # consentire l'aggiornamento di alpha e beta
     
     for (l in 1:(K - 1)) {
         if (l > (K - 1)) break; # needed because R for-loops suck
         # first numerator term
-        log_ratio = log_ratio + rhoB(l, K, S_proposed, S_star_proposed)
-        log_ratio = log_ratio + rhoB(l, K + 1, S_proposed, S_star_proposed)
+        log_ratio = log_ratio + fB(l, K, S_proposed, S_star_proposed)
+        log_ratio = log_ratio + fB(l, K + 1, S_proposed, S_star_proposed)
         # first denominator term
-        log_ratio = log_ratio - rhoB(l, K, S_current, S_star_current)
+        log_ratio = log_ratio - fB(l, K, S_current, S_star_current)
     }
     
     for (m in (K + 2):(M + 1)) {
         if (m > (M + 1)) break; # needed because R for-loops suck
         # second numerator term
-        log_ratio = log_ratio + rhoB(K, m, S_proposed, S_star_proposed) +
-                                rhoB(K + 1, m, S_proposed, S_star_proposed)
+        log_ratio = log_ratio + fB(K, m, S_proposed, S_star_proposed) +
+                                fB(K + 1, m, S_proposed, S_star_proposed)
     }
     
     # third numerator term
-    log_ratio = log_ratio + rhoB(K, K + 1, S_proposed, S_star_proposed) +
-                            rhoB(K, K, S_proposed, S_star_proposed) +
-                            rhoB(K + 1, K + 1, S_proposed, S_star_proposed)
+    log_ratio = log_ratio + fB(K, K + 1, S_proposed, S_star_proposed) +
+                            fB(K, K, S_proposed, S_star_proposed) +
+                            fB(K + 1, K + 1, S_proposed, S_star_proposed)
     
     for (m in (K + 1):M) {
         if (m > M) break; # needed because R for-loops suck
         # second denominator term
-        log_ratio = log_ratio - rhoB(K, m, S_current, S_star_current)
+        log_ratio = log_ratio - fB(K, m, S_current, S_star_current)
     }
     
     # third denominator term
-    log_ratio = log_ratio - rhoB(K, K, S_current, S_star_current)
+    log_ratio = log_ratio - fB(K, K, S_current, S_star_current)
     
     if (!choose_add) {
         # in the delete/merge case we have to invert everything
