@@ -1189,8 +1189,8 @@ Gibbs_sampler = function(data, niter, nburn, thin,
                          beta_params)
     }
     
-    # TODO extract the updated rho
-    list_output_update_partition$rho_updated
+    # TODO save the updated rho
+    rho = list_output_update_partition$rho_updated
 
 
     # update the single weight at the point only if the move has been accepted
