@@ -96,20 +96,6 @@ ComputeV = function(nu,W,z){
 
 
 ```{r}
-z_true = c(1,1,1,2,2,3,3,3,4,4) # these are the groups memberships (10 nodes)
-counts_true = as.vector(table(z_true))
-Nclust_true  = length(counts_true)
-
-p = length(z_true)
-n = 100
-data_from_prior = Generate_data(n=n,p=p,z=z_true,seed=27091999)
-nu = n # why?
-data = data_from_prior$data
-Omega_true = data_from_prior$Omega # Omega is Kappa (precision matrix TODO change)
-Sigma_true = data_from_prior$Sigma
-V = data_from_prior$V # cos'è?
-U = t(data)%*%data
-
 # Plot V
 #ACutils::ACheatmap(V,use_x11_device = F,horizontal = F)
 
@@ -140,14 +126,27 @@ file.exists(data_generation_path)
 source(data_generation_path)
 
 
+z_true = c(1,1,1,2,2,3,3,3,4,4) # these are the groups memberships (10 nodes)
+counts_true = as.vector(table(z_true))
+Nclust_true  = length(counts_true)
+
+p = length(z_true)
+n = 100
+data_from_prior = Generate_data(n=n,p=p,z=z_true,seed=27091999)
+nu = n # why?
+data = data_from_prior$data
+Omega_true = data_from_prior$Omega # Omega is Kappa (precision matrix TODO change)
+Sigma_true = data_from_prior$Sigma
+V = data_from_prior$V # cos'è?
+U = t(data)%*%data
 
 options = set_options(sigma0=0.5,
                       sigma_parameters=c(1,1,1,1),
                       theta_prior0=1,
                       theta_parameters=c(1,1),
                       rho0=c(5,5),
-                      weights_a0=rep(1,p), # da fixare devono essere p-1 dim
-                      weights_d0=rep(1,p),
+                      weights_a0=rep(1,p-1),
+                      weights_d0=rep(1,p-1),
                       alpha_target=0.40,
                       mu_beta=0.5, # mu of the Beta
                       sig2_beta=0.2, # variance of the Beta

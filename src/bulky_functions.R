@@ -2,8 +2,8 @@
 #'
 #' @param rho The partition in compact form (e.g. rho=c(1,4,5) means that the first group has 1 element, the second has 4 elements and the last has 5 elements).
 #' @param alpha_add Fixed probability of choosing an add move or delete move.
-#' @param a_weights Vector of size (number of nodes - 1) containing at element j the weights to consider when ADDING a changepoint between point j and point j+1 (weights are non-normalized probabilities).
-#' @param d_weights Vector of size (number of nodes - 1) containing at element j the weights to consider when DELETING a changepoint between point j and point j+1 (weights are non-normalized probabilities).
+#' @param weights_a Vector of size (number of nodes - 1) containing at element j the weights to consider when ADDING a changepoint between point j and point j+1 (weights are non-normalized probabilities).
+#' @param weights_d Vector of size (number of nodes - 1) containing at element j the weights to consider when DELETING a changepoint between point j and point j+1 (weights are non-normalized probabilities).
 #' @param Theta_groups 
 #' @param theta_prior Prior parameter as in martined and Mena, 2014
 #' @param sigma Prior parameter as in martined and Mena, 2014
@@ -14,23 +14,22 @@
 #' @examples
 update_partition = function(rho,
                             alpha_add,
-                            a_weights,
-                            d_weights,
+                            weights_a,
+                            weights_d,
                             theta_prior,
                             sigma,
                             G,
                             beta_params) {
     unifsample = runif(n = 1)
     choose_add = unifsample < alpha_add
-    print("Hai scelto una mossa")
     if (choose_add){
-        print("ADD/SPLIT")
+        print("Hai scelto una mossa ADD/SPLIT")
     }else{
-        print("DELETE/MERGE")
+        print("Hai scelto una mossa DELETE/MERGE")
     }
     
     # OK
-    proposal_list = proposal_ratio(rho, alpha_add, a_weights, d_weights, choose_add)
+    proposal_list = proposal_ratio(rho, alpha_add, weights_a, weights_d, choose_add)
     log_proposal_ratioNow = log(proposal_list$ratio)
     candidate = proposal_list$candidate
     
@@ -43,25 +42,28 @@ update_partition = function(rho,
     } else {
         list_output_modify_partition = merge_partition(candidate, rho)
     }
-    proposed_rho = list_output_modify_partition$rho
-    print("proposed partition")
-    print(proposed_rho)
+    rho_proposed = list_output_modify_partition$rho
     
     # TODO cambiare questo nome per renderlo coerente con ciÃ² che c'Ã¨ sotto
     THE_GROUP = list_output_modify_partition$group_index
     
     # OK
-    current_rho = rho
+    rho_current = rho
+    print("rho_proposed")
+    print(rho_proposed)
+    print("rho_current")
+    print(rho_current)
+
     # c'e' un ricalcolo inutile dell'indice del gruppo da splittare o mergiare
-    log_priorRatioNow = log_priorRatio(theta_prior, sigma, current_rho, proposed_rho, choose_add)
+    log_priorRatioNow = log_priorRatio(theta_prior, sigma, rho_current, rho_proposed, choose_add)
     
     # OK
     log_likelihood_ratioNow = log_likelihood_ratio(alpha_add,
-                                    a_weights,
-                                    d_weights,
+                                    weights_a,
+                                    weights_d,
                                     G,
-                                    current_rho,
-                                    proposed_rho,
+                                    rho_current,
+                                    rho_proposed,
                                     choose_add,
                                     beta_params$alpha,
                                     beta_params$beta) 
@@ -165,13 +167,13 @@ partition_data <- function(y, rho) {
 #' @examples
 proposal_ratio = function(rho,
                          alpha_add,
-                         a_weights,
-                         d_weights,
+                         weights_a,
+                         weights_d,
                          choose_add) {
     # number of groups
     M = length(rho)
     
-    n_elems = length(a_weights)
+    n_elems = length(weights_a)
     
     # preliminary check for extreme cases
     if ((!choose_add & M == 1) | (choose_add & M == n_elems)) {
@@ -181,38 +183,38 @@ proposal_ratio = function(rho,
     }
     
     # select the element range which we will use to extract the useful indexes
-    elems_range <- 1:n_elems # same size of a_weights and d_weights
+    elems_range <- 1:n_elems # same size of weights_a and weights_d
     
     # indexes of the changepoints
     cp_indexes <- get_group_indexes(rho)
     
-    # PER ORA SUPPONGO CHE A_WEIGHTS SIA DELLA STESSA DIMENSIONE N, NON N-1
+    # PER ORA SUPPONGO CHE WEIGHTS_a SIA DELLA STESSA DIMENSIONE N, NON N-1
     # QUELLO MANCANTE SI SETTA A MANO
     
-    #a_weights
+    #weights_a
     #rho=c(1,5,1)
     
-    #n_elem=length(a_weights)
+    #n_elem=length(weights_a)
     
     a_weights[n_elems] = 0
     d_weights[n_elems] = 0
     
     # not all points can be selected for an add move
     # assign probability zero to those who cannot be
-    a_weights_available = a_weights
-    a_weights_available[cp_indexes] = 0
-    a_weights_available_sum = sum(a_weights_available)
+    weights_a_available = weights_a
+    weights_a_available[cp_indexes] = 0
+    weights_a_available_sum = sum(weights_a_available)
     
     # not all points can be selected for a delete move
     # assign probability zero to those who cannot be
-    d_weights_available = d_weights
-    d_weights_available[-cp_indexes] = 0
-    d_weights_available_sum = sum(d_weights_available)
+    weights_d_available = weights_d
+    weights_d_available[-cp_indexes] = 0
+    weights_d_available_sum = sum(weights_d_available)
     
     if (choose_add) {
-        draw_weights = a_weights_available
+        draw_weights = weights_a_available
     } else {
-        draw_weights = d_weights_available
+        draw_weights = weights_d_available
     }
     
     # my candidate cannot be the first node by definition
@@ -221,14 +223,14 @@ proposal_ratio = function(rho,
     if (choose_add & M == 1) {
         # case in which you choose to propose an add move
         # (with just 1 group) that may or may not be accepted
-        ratio = (alpha_add / 1) * (a_weights_available_sum / a_weights[candidate])
+        ratio = (alpha_add / 1) * (weights_a_available_sum / weights_a[candidate])
         return(list("ratio" = ratio, "candidate" = candidate))
     }
     
     if (!choose_add & M == n_elems) {
         # case in which you choose to propose an delete move
         # (with every point being a group) that may or may not be accepted
-        ratio = (alpha_add / 1) * (d_weights_available_sum / d_weights[candidate])
+        ratio = (alpha_add / 1) * (weights_d_available_sum / weights_d[candidate])
         return(list("ratio" = ratio, "candidate" = candidate))
     }
     
@@ -236,12 +238,12 @@ proposal_ratio = function(rho,
     # only the general cases remain
     if (choose_add) {
         ratio = (1 - alpha_add) / alpha_add *
-            a_weights_available_sum / a_weights[candidate] *
-            d_weights[candidate] / (d_weights[candidate] + d_weights_available_sum)
+            weights_a_available_sum / weights_a[candidate] *
+            weights_d[candidate] / (weights_d[candidate] + weights_d_available_sum)
     } else {
         ratio = alpha_add / (1 - alpha_add) *
-            d_weights_available_sum / d_weights[candidate] *
-            a_weights[candidate] / (a_weights[candidate] + a_weights_available_sum)
+            weights_d_available_sum / weights_d[candidate] *
+            weights_a[candidate] / (weights_a[candidate] + weights_a_available_sum)
     }
     
     return(list("ratio" = ratio, "candidate" = candidate))
@@ -374,44 +376,44 @@ merge_partition <- function(candidate_index, rho) {
 shuffle_partition <- function(rho, G) {
     # vedi Corradin p.16
     
-    current_rho = rho
+    rho_current = rho
     
     # number of groups
-    M = length(current_rho)
+    M = length(rho_current)
     
     if (M < 2) {
         # shuffling can be done only if the number of groups is at least 2
-        return(current_rho)
+        return(rho_current)
     }
     
     # build new proposed rho
-    proposed_rho = current_rho
+    rho_proposed = rho_current
 
     # K is the index of the shuffle group with K+1
     K <- sample(1:(M - 1), 1)
     # sample how many elements to keep in the K-th group
-    l <- sample(1:(current_rho[K] + current_rho[K + 1] - 1), 1)
+    l <- sample(1:(rho_current[K] + rho_current[K + 1] - 1), 1)
     # move the elements
-    proposed_rho[K + 1] <- current_rho[K + 1] + current_rho[K] - l
-    proposed_rho[K] <- l
+    rho_proposed[K + 1] <- rho_current[K + 1] + rho_current[K] - l
+    rho_proposed[K] <- l
     
     # compute log_prior_ratio
     log_prior_ratio = lpochhammer(1 - sigma, l)
-                    + lpochhammer(1 - sigma, current_rho[j] + current_rho[j + 1] - l)
-                    - lpochhammer(1 - sigma, current_rho[j] - 1)
-                    - lpochhammer(1 - sigma, current_rho[j + 1] - 1)
-                    + lfactorial(current_rho[j])
-                    + lfactorial(current_rho[j + 1])
+                    + lpochhammer(1 - sigma, rho_current[j] + rho_current[j + 1] - l)
+                    - lpochhammer(1 - sigma, rho_current[j] - 1)
+                    - lpochhammer(1 - sigma, rho_current[j + 1] - 1)
+                    + lfactorial(rho_current[j])
+                    + lfactorial(rho_current[j + 1])
                     - lfactorial(l)
-                    - lfactorial(current_rho[j] + current_rho[j + 1] - l)
+                    - lfactorial(rho_current[j] + rho_current[j + 1] - l)
     
     # to compute log_likelihood_ratio I need S
 
-    S_current = get_S_from_G_rho(G, current_rho)
-    S_star_current = get_S_star_from_S_and_rho(S, current_rho)
+    S_current = get_S_from_G_rho(G, rho_current)
+    S_star_current = get_S_star_from_S_and_rho(S, rho_current)
     
-    S_proposed = get_S_from_G_rho(G, proposed_rho)
-    S_star_proposed = get_S_star_from_S_and_rho(S, proposed_rho)
+    S_proposed = get_S_from_G_rho(G, rho_proposed)
+    S_star_proposed = get_S_star_from_S_and_rho(S, rho_proposed)
     
     # wrap the general rhoB into this version where I don't have to specify
     # alpha and beta (doing this for adaptiveness)
@@ -465,10 +467,10 @@ shuffle_partition <- function(rho, G) {
     
     if (runif(n = 1) < alpha_shuffle) {
         # accept the shuffle
-        return(proposed_rho)
+        return(rho_proposed)
     } else {
         # reject the shuffle
-        return(current_rho)
+        return(rho_current)
     }
     
 }
@@ -727,8 +729,8 @@ rhoB_zero = function(alpha,
 #'
 #' @inheritParams update_partition
 #' @inheritParams shuffle_partition
-#' @param current_rho Current partition.
-#' @param proposed_rho Proposed partition.
+#' @param rho_current Current partition.
+#' @param rho_proposed Proposed partition.
 #' @param alpha Parameter of the Beta of the Graph.
 #' @param beta Parameter of the Beta of the Graph.
 #'
@@ -737,24 +739,24 @@ rhoB_zero = function(alpha,
 #'
 #' @examples
 log_likelihood_ratio = function(alpha_add,
-                               a_weights,
-                               d_weights,
+                               weights_a,
+                               weights_d,
                                G,
-                               current_rho,
-                               proposed_rho,
+                               rho_current,
+                               rho_proposed,
                                choose_add,
                                alpha,
                                beta) {
     # differentiate delete/merge case
     if (!choose_add) {
         # swap rhos 'cause we're lazy
-        temp = current_rho
-        current_rho = proposed_rho
-        proposed_rho = temp
+        temp = rho_current
+        rho_current = rho_proposed
+        rho_proposed = temp
     }
     
     # number of groups
-    M = length(current_rho)
+    M = length(rho_current)
     
     # wrap the general rhoB into this version where I don't have to specify
     # alpha and beta (doing this for adaptiveness)
@@ -771,13 +773,13 @@ log_likelihood_ratio = function(alpha_add,
     }
         
     
-    S_current = get_S_from_G_rho(G, current_rho)
-    S_star_current = get_S_star_from_S_and_rho(S_current, current_rho)
+    S_current = get_S_from_G_rho(G, rho_current)
+    S_star_current = get_S_star_from_S_and_rho(S_current, rho_current)
     
-    S_proposed = get_S_from_G_rho(G, proposed_rho)
-    S_star_proposed = get_S_star_from_S_and_rho(S_proposed, proposed_rho)
+    S_proposed = get_S_from_G_rho(G, rho_proposed)
+    S_star_proposed = get_S_star_from_S_and_rho(S_proposed, rho_proposed)
     
-    K = get_index_changed_group(current_rho, proposed_rho)
+    K = get_index_changed_group(rho_current, rho_proposed)
     
     log_ratio = -(M + 1) * rhoB_zero(alpha, beta)
     # TODO mettere questo in tutti quelli sotto per
@@ -824,17 +826,17 @@ log_likelihood_ratio = function(alpha_add,
 
 
 #TODO add documentation here!!
-get_index_changed_group = function(current_rho,proposed_rho){
+get_index_changed_group = function(rho_current,rho_proposed){
 
     # indexes of the changepoints in the current partition
-    cp_idxs_current = get_group_indexes(current_rho)
+    cp_idxs_current = get_group_indexes(rho_current)
     
     # move from the rho representation to r representation
     # i.e. from c(2,3) to c(0,1,0,0,1)
     # both for the current and the proposed partition
      
-    current_r = rho_to_r(current_rho)
-    proposed_r = rho_to_r(proposed_rho)
+    current_r = rho_to_r(rho_current)
+    proposed_r = rho_to_r(rho_proposed)
     
     # now by making the difference I can extract the index
     # of the new changepoint (or the one deleted)
@@ -859,29 +861,29 @@ get_index_changed_group = function(current_rho,proposed_rho){
 #TODO add documentation here!!
 log_priorRatio = function(theta_prior,
                           sigma,
-                          current_rho,
-                          proposed_rho,
+                          rho_current,
+                          rho_proposed,
                           choose_add)
 {
     # differentiate delete/merge case
     if (!choose_add) {
         # swap rhos 'cause we're lazy
-        temp = current_rho
-        current_rho = proposed_rho
-        proposed_rho = temp
+        temp = rho_current
+        rho_current = rho_proposed
+        rho_proposed = temp
     }
     
     # number of groups in the current partition
-    M = length(current_rho)
+    M = length(rho_current)
     
-    K = get_index_changed_group(current_rho,proposed_rho)
+    K = get_index_changed_group(rho_current,rho_proposed)
     
     # move from the current quantities to the math formulas ones
     
     # cardinality of the group in the proposed partition
-    n_star_s = proposed_rho[K]
+    n_star_s = rho_proposed[K]
     # same but the next one
-    n_star_s_plus_1 = proposed_rho[K + 1]
+    n_star_s_plus_1 = rho_proposed[K + 1]
     # in the add move, the cardinality in the current partition is the sum
     n_s = n_star_s + n_star_s_plus_1
     
@@ -922,17 +924,17 @@ full_conditional_theta <- function(c, d, candidate, k, n){
     f <- rexp (1,candidate + 1)
     for(j in 1:k){ 
         # compute theta
-        weight_j=compute_weights_theta(c, d, n, sigma, k, j-1, f, z)
-        gamma_weights[j] <- weight_j
+        weight_j <- compute_weights_theta(c, d, n, sigma, k, j-1, f, z)
+        weights_gamma[j] <- weight_j
     }
     #Normalizing the weights
-    gamma_weights = gamma_weights/sum(gamma_weights)
+    weights_gamma = weights_gamma/sum(weights_gamma)
     
     #  I choose a random sample
     u = runif(1)
     
     #TODO understand the meaning of this step
-    component <- min(which(cumsum(gamma_weights) > u))
+    component <- min(which(cumsum(weights_gamma) > u))
     
     #BEWARE! There might be an error here on sigma, but it may depend on how it is passed
     theta <- shifted_gamma(prior_c + (component-1), prior_d + f - log(z), sigma) #!!!shouldn't it be -sigma??
@@ -1076,8 +1078,8 @@ Gibbs_sampler = function(data, niter, nburn, thin,
   sigma            = options$sigma0 # initial parameter of the PY prior
   theta_prior      = options$theta_prior0 # initial parameter of the PY prior
   rho              = options$rho0 # initial partition (e.g. c(150,151))
-  a_weights        = options$weights_a0 # add weights
-  d_weights        = options$weights_d0 # delete weights
+  weights_a        = options$weights_a0 # add weights
+  weights_d        = options$weights_d0 # delete weights
   
   # constant parameters
   alpha_add = options$alpha_add # probability of choosing add over delete
@@ -1167,8 +1169,8 @@ Gibbs_sampler = function(data, niter, nburn, thin,
       
         update_partition(rho,
                          alpha_add,
-                         a_weights,
-                         d_weights,
+                         weights_a,
+                         weights_d,
                          theta_prior,
                          sigma,
                          G=last_G,
