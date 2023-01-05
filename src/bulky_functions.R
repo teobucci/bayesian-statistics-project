@@ -72,12 +72,15 @@ update_partition = function(rho,
                                log_priorRatioNow +
                                log_proposal_ratioNow))
     
+
     if (runif(n = 1) < alpha_accept) {
-        # accept the move
-        
+        accepted = TRUE
+        rho_updated = rho_proposed
+
         if (choose_add) {
             # accepted move is a split
             # TODO split_partition(candidate,rho)
+
         }
         else{
             # accepted move is a merge
@@ -86,8 +89,11 @@ update_partition = function(rho,
         partition_data
     } else {
         # don't do anything
+        accepted = FALSE
+        rho_updated = rho_current
         
     }
+    return(list("rho_updated" = rho_updated, "accepted" = accepted, "choose_add" = choose_add, "candidate" = candidate))
     
 }
 
@@ -110,10 +116,17 @@ update_partition = function(rho,
 #'
 #' @examples
 #' 
-log_weights_adaptation = function(logweights, t, h, alpha_target, alpha_add) {
+update_weight = function(weights, index, h, t_over_p, alpha_add, alpha_target) {
     if (!h > 0)
         stop("Adaptation step h must be positive")
-    return (logweights + h * length(logweights) / t * (alpha_add - alpha_target))
+    # select the weight that has to be updated
+    weight = weights[index]
+    # update according to Benson
+    weight = exp(log(weight) + h / t_over_p * (alpha_add - alpha_target))
+    # put it back
+    weights[index] = weight
+    # return the vector of weights
+    return(weights)
 }
 
 
@@ -1159,7 +1172,7 @@ Gibbs_sampler = function(data, niter, nburn, thin,
     if(options$update_partition){
       # TODO
       
-        update_partition(rho,
+        list_output_update_partition <- update_partition(rho,
                          alpha_add,
                          weights_a,
                          weights_d,
@@ -1169,13 +1182,16 @@ Gibbs_sampler = function(data, niter, nburn, thin,
                          beta_params)
     }
     
-    
-    if(options$update_weights){
-      weights_a = exp(log_weights_adaptation(
-        log(weights_a), iter, 1/p, alpha_target, alpha_add))
-      
-      weights_d = exp(log_weights_adaptation(
-        log(weights_d), iter, 1/p, alpha_target, 1-alpha_add))
+    # TODO extract the updated rho
+    list_output_update_partition$rho_updated
+
+    # update the single weight at the point only if the move has been accepted
+    if(options$update_weights & list_output_update_partition$accepted){
+        if(list_output_update_partition$choose_add){
+            weights_a = update_weight(weights_a, list_output_update_partition$candidate, h, t_over_p, alpha_add, alpha_target)
+        } else {
+            weights_d = update_weight(weights_d, list_output_update_partition$candidate, h, t_over_p, 1-alpha_add, alpha_target)
+        }
     }
     
     if(options$perform_shuffle){
