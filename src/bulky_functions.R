@@ -166,10 +166,10 @@ partition_data <- function(y, rho) {
 #'
 #' @examples
 proposal_ratio = function(rho,
-                         alpha_add,
-                         weights_a,
-                         weights_d,
-                         choose_add) {
+                          alpha_add,
+                          weights_a,
+                          weights_d,
+                          choose_add) {
     # number of groups
     M = length(rho)
     
@@ -187,19 +187,9 @@ proposal_ratio = function(rho,
     
     # indexes of the changepoints
     cp_indexes <- get_group_indexes(rho)
+    
     # exclude the last one because it's technically always 1 (a changepoint)
     cp_indexes <- cp_indexes[-length(cp_indexes)]
-    
-    # PER ORA SUPPONGO CHE WEIGHTS_a SIA DELLA STESSA DIMENSIONE N, NON N-1
-    # QUELLO MANCANTE SI SETTA A MANO
-    
-    #weights_a
-    #rho=c(1,5,1)
-    
-    #n_elem=length(weights_a)
-    
-    #weights_a[n_elems] = 0
-    #weights_d[n_elems] = 0
     
     # not all points can be selected for an add move
     # assign probability zero to those who cannot be
@@ -219,7 +209,7 @@ proposal_ratio = function(rho,
         draw_weights = weights_d_available
     }
     
-    # my candidate cannot be the first node by definition
+    # draw the candidate among the first 1:(p-1)
     candidate = sample(1:n_elems, 1, prob = draw_weights)
     
     if (choose_add & M == 1) {
