@@ -187,6 +187,8 @@ proposal_ratio = function(rho,
     
     # indexes of the changepoints
     cp_indexes <- get_group_indexes(rho)
+    # exclude the last one because it's technically always 1 (a changepoint)
+    cp_indexes <- cp_indexes[-length(cp_indexes)]
     
     # PER ORA SUPPONGO CHE WEIGHTS_a SIA DELLA STESSA DIMENSIONE N, NON N-1
     # QUELLO MANCANTE SI SETTA A MANO
@@ -196,8 +198,8 @@ proposal_ratio = function(rho,
     
     #n_elem=length(weights_a)
     
-    a_weights[n_elems] = 0
-    d_weights[n_elems] = 0
+    #weights_a[n_elems] = 0
+    #weights_d[n_elems] = 0
     
     # not all points can be selected for an add move
     # assign probability zero to those who cannot be
