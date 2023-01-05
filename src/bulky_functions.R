@@ -33,9 +33,6 @@ update_partition = function(rho,
     log_proposal_ratioNow = log(proposal_list$ratio)
     candidate = proposal_list$candidate
     
-    print("candidate")
-    print(candidate)
-    
     # compute proposed partition based on candidate and index of the group
     if (choose_add) {
         list_output_modify_partition = split_partition(candidate, rho)
@@ -49,10 +46,10 @@ update_partition = function(rho,
     
     # OK
     rho_current = rho
-    print("rho_proposed")
-    print(rho_proposed)
     print("rho_current")
     print(rho_current)
+    print("rho_proposed")
+    print(rho_proposed)
 
     # c'e' un ricalcolo inutile dell'indice del gruppo da splittare o mergiare
     log_priorRatioNow = log_priorRatio(theta_prior, sigma, rho_current, rho_proposed, choose_add)
@@ -75,6 +72,7 @@ update_partition = function(rho,
 
     if (runif(n = 1) < alpha_accept) {
         accepted = TRUE
+        print("Move accepted")
         rho_updated = rho_proposed
 
         if (choose_add) {
@@ -90,6 +88,7 @@ update_partition = function(rho,
     } else {
         # don't do anything
         accepted = FALSE
+        print("Move rejected")
         rho_updated = rho_current
         
     }
@@ -378,23 +377,19 @@ merge_partition <- function(candidate_index, rho) {
 #' @export
 #'
 #' @examples
-shuffle_partition <- function(rho, G) {
-    # vedi Corradin p.16
-    
-    rho_current = rho
+shuffle_partition <- function(rho_current, G, sigma, alpha, beta) {
+    # vedi Corradin p.16 step (ii)
     
     # number of groups
     M = length(rho_current)
     
-    if (M < 2) {
-        # shuffling can be done only if the number of groups is at least 2
-        return(rho_current)
-    }
+    # shuffling can be done only if the number of groups is at least 2
+    if (M < 2) return(rho_current)
     
     # build new proposed rho
     rho_proposed = rho_current
 
-    # K is the index of the shuffle group with K+1
+    # going to shuffle group K with group K+1
     K <- sample(1:(M - 1), 1)
     # sample how many elements to keep in the K-th group
     l <- sample(1:(rho_current[K] + rho_current[K + 1] - 1), 1)
@@ -404,21 +399,21 @@ shuffle_partition <- function(rho, G) {
     
     # compute log_prior_ratio
     log_prior_ratio = lpochhammer(1 - sigma, l)
-                    + lpochhammer(1 - sigma, rho_current[j] + rho_current[j + 1] - l)
-                    - lpochhammer(1 - sigma, rho_current[j] - 1)
-                    - lpochhammer(1 - sigma, rho_current[j + 1] - 1)
-                    + lfactorial(rho_current[j])
-                    + lfactorial(rho_current[j + 1])
+                    + lpochhammer(1 - sigma, rho_current[K] + rho_current[K + 1] - l)
+                    - lpochhammer(1 - sigma, rho_current[K] - 1)
+                    - lpochhammer(1 - sigma, rho_current[K + 1] - 1)
+                    + lfactorial(rho_current[K])
+                    + lfactorial(rho_current[K + 1])
                     - lfactorial(l)
-                    - lfactorial(rho_current[j] + rho_current[j + 1] - l)
+                    - lfactorial(rho_current[K] + rho_current[K + 1] - l)
     
     # to compute log_likelihood_ratio I need S
 
     S_current = get_S_from_G_rho(G, rho_current)
-    S_star_current = get_S_star_from_S_and_rho(S, rho_current)
+    S_star_current = get_S_star_from_S_and_rho(S_current, rho_current)
     
     S_proposed = get_S_from_G_rho(G, rho_proposed)
-    S_star_proposed = get_S_star_from_S_and_rho(S, rho_proposed)
+    S_star_proposed = get_S_star_from_S_and_rho(S_proposed, rho_proposed)
     
     # wrap the general fB into this version where I don't have to specify
     # alpha and beta (doing this for adaptiveness)
@@ -428,9 +423,9 @@ shuffle_partition <- function(rho, G) {
             group2,
             S,
             S_star,
-            log = T,
             alpha = alpha,
-            beta = beta
+            beta = beta,
+            log = T
         ))
     }
     
@@ -444,8 +439,8 @@ shuffle_partition <- function(rho, G) {
         log_likelihood_ratio = log_likelihood_ratio + fB(l, K, S_proposed, S_star_proposed)
         log_likelihood_ratio = log_likelihood_ratio + fB(l, K + 1, S_proposed, S_star_proposed)
         # first denominator term
-        log_likelihood_ratio = log_likelihood_ratio + fB(l, K, S, S_star)
-        log_likelihood_ratio = log_likelihood_ratio + fB(l, K + 1, S, S_star)
+        log_likelihood_ratio = log_likelihood_ratio + fB(l, K, S_current, S_star_current)
+        log_likelihood_ratio = log_likelihood_ratio + fB(l, K + 1, S_current, S_star_current)
     }
     
     for (l in (K + 2):M) {
@@ -454,8 +449,8 @@ shuffle_partition <- function(rho, G) {
         log_likelihood_ratio = log_likelihood_ratio + fB(l, K, S_proposed, S_star_proposed)
         log_likelihood_ratio = log_likelihood_ratio + fB(l, K + 1, S_proposed, S_star_proposed)
         # second denominator term
-        log_likelihood_ratio = log_likelihood_ratio + fB(l, K, S, S_star)
-        log_likelihood_ratio = log_likelihood_ratio + fB(l, K + 1, S, S_star)
+        log_likelihood_ratio = log_likelihood_ratio + fB(l, K, S_current, S_star_current)
+        log_likelihood_ratio = log_likelihood_ratio + fB(l, K + 1, S_current, S_star_current)
     }
     
     # third numerator term
@@ -463,18 +458,24 @@ shuffle_partition <- function(rho, G) {
     log_likelihood_ratio = log_likelihood_ratio + fB(K, K, S_proposed, S_star_proposed)
     log_likelihood_ratio = log_likelihood_ratio + fB(K + 1, K + 1, S_proposed, S_star_proposed)
     # third denominator term
-    log_likelihood_ratio = log_likelihood_ratio + fB(K, K + 1, S, S_star)
-    log_likelihood_ratio = log_likelihood_ratio + fB(K, K, S, S_star)
-    log_likelihood_ratio = log_likelihood_ratio + fB(K + 1, K + 1, S, S_star)
+    log_likelihood_ratio = log_likelihood_ratio + fB(K, K + 1, S_current, S_star_current)
+    log_likelihood_ratio = log_likelihood_ratio + fB(K, K, S_current, S_star_current)
+    log_likelihood_ratio = log_likelihood_ratio + fB(K + 1, K + 1, S_current, S_star_current)
 
     # compute alpha_shuffle
     alpha_shuffle = min(1, exp(log_likelihood_ratio + log_prior_ratio))
     
     if (runif(n = 1) < alpha_shuffle) {
         # accept the shuffle
+        print("Proposed shuffling")
+        print(rho_proposed)
+        print("SHUFFLE accepted")
         return(rho_proposed)
     } else {
         # reject the shuffle
+        print("Proposed shuffling")
+        print(rho_proposed)
+        print("SHUFFLE rejected")
         return(rho_current)
     }
     
@@ -1007,6 +1008,7 @@ set_options = function(sigma0,
                        sig2_beta=0.2, # variance of the Beta
                        d=3,
                        alpha_add=0.5,
+                       adaptation_step,
                        update_sigma=T,
                        update_theta_prior=T,
                        update_weights=T,
@@ -1027,6 +1029,7 @@ set_options = function(sigma0,
     "sig2_beta"          = sig2_beta,
     "d"                  = d,
     "alpha_add"          = alpha_add,
+    "adaptation_step"    = adaptation_step,
     "update_sigma"       = update_sigma,
     "update_theta_prior" = update_theta_prior,
     "update_weights"     = update_weights,
@@ -1085,6 +1088,7 @@ Gibbs_sampler = function(data, niter, nburn, thin,
   rho              = options$rho0 # initial partition (e.g. c(150,151))
   weights_a        = options$weights_a0 # add weights
   weights_d        = options$weights_d0 # delete weights
+  adaptation_step  = options$adaptation_step # adaptation step h
   
   # constant parameters
   alpha_add = options$alpha_add # probability of choosing add over delete
@@ -1107,8 +1111,11 @@ Gibbs_sampler = function(data, niter, nburn, thin,
   if(!(sig2_beta > 0 & sig2_beta < 0.25))
       stop("The mean of the Beta must be between 0 and 1")
   
-  
-  beta_params = estimate_Beta_params(mu_beta,sig2_beta)
+  # TODO sistemare questo non ho capito cosa intende con "iterations (t) per number of datapoints (n)"
+  # da noi non c'è n ma c'è p, però è l'iterazione attuale oppure n_total_iter?
+    t_over_p = n_total_iter / p
+
+  beta_params = estimate_Beta_params(mu_beta, sig2_beta)
   
   # TODO check qui dei parametri del grafo
   # if(nrow(options$W)!=p)
@@ -1185,17 +1192,18 @@ Gibbs_sampler = function(data, niter, nburn, thin,
     # TODO extract the updated rho
     list_output_update_partition$rho_updated
 
+
     # update the single weight at the point only if the move has been accepted
     if(options$update_weights & list_output_update_partition$accepted){
         if(list_output_update_partition$choose_add){
-            weights_a = update_weight(weights_a, list_output_update_partition$candidate, h, t_over_p, alpha_add, alpha_target)
+            weights_a = update_weight(weights_a, list_output_update_partition$candidate, adaptation_step, t_over_p, alpha_add, alpha_target)
         } else {
-            weights_d = update_weight(weights_d, list_output_update_partition$candidate, h, t_over_p, 1-alpha_add, alpha_target)
+            weights_d = update_weight(weights_d, list_output_update_partition$candidate, adaptation_step, t_over_p, 1-alpha_add, alpha_target)
         }
     }
     
     if(options$perform_shuffle){
-      rho = shuffle_partition(rho)
+      rho = shuffle_partition(rho, last_G, sigma, beta_params$alpha, beta_params$beta)
     }
     
     if(options$update_sigma){

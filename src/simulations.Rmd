@@ -152,14 +152,15 @@ options = set_options(sigma0=0.5,
                       sig2_beta=0.2, # variance of the Beta
                       d=3,
                       alpha_add=0.5,
+                      adaptation_step=0.5,
                       update_sigma=F,
                       update_theta_prior=F,
-                      update_weights=F,
+                      update_weights=T,
                       update_partition=T,
                       update_graph=T,
-                      perform_shuffle=F)
+                      perform_shuffle=T)
 
-niter = 5
+niter = 8
 nburn = 1
 thin = 1 # tieni tutti i multipli di thin
 
