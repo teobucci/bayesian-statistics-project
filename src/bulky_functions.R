@@ -22,6 +22,16 @@ update_partition = function(rho,
                             beta_params) {
     unifsample = runif(n = 1)
     choose_add = unifsample < alpha_add
+    
+    M = length(rho)
+    p = sum(rho)
+    # preliminary check for extreme cases
+    if ((!choose_add & M == 1) | (choose_add & M == p)) {
+        # incompatible to delete when only one group is present
+        # or to add when every point is a group
+        choose_add = !choose_add #Force opposite choice if merging/splitting is not feasible
+    }
+    
     if (choose_add){
         print("Hai scelto una mossa ADD/SPLIT")
     }else{
@@ -186,13 +196,6 @@ proposal_ratio = function(rho,
     M = length(rho)
     
     n_elems = length(weights_a)
-    
-    # preliminary check for extreme cases
-    if ((!choose_add & M == 1) | (choose_add & M == n_elems)) {
-        # incompatible to delete when only one group is present
-        # or to add when every point is a group
-        return(list("ratio" = 0, "candidate" = -1)) # fictitious candidate
-    }
     
     # select the element range which we will use to extract the useful indexes
     elems_range <- 1:n_elems # same size of weights_a and weights_d
@@ -1167,7 +1170,8 @@ Gibbs_sampler = function(data, niter, nburn, thin,
   
   # Start the simulation
   for(iter in 1:n_total_iter){
-    
+    print("Iter: ")
+    print(iter)
     # Update graph
     if(options$update_graph){
       # we ran a single iteration of BDgraph with iter=1 and burning=0
