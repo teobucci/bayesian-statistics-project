@@ -1143,7 +1143,7 @@ Gibbs_sampler = function(data,
 
     # TODO sistemare questo non ho capito cosa intende con "iterations (t) per number of datapoints (n)"
     # da noi non c'è n ma c'è p, però è l'iterazione attuale oppure n_total_iter?
-      t_over_p = n_total_iter / p
+    t_over_p = n_total_iter / p
   
     beta_params = estimate_Beta_params(mu_beta, sig2_beta)
     
@@ -1163,37 +1163,35 @@ Gibbs_sampler = function(data,
     # initialize the sum of the weights of the graphs
     total_weights = 0
     
-    #initialize the sum of all graphs
+    # initialize the sum of all graphs
     total_graphs = matrix(0,p,p)
     g.start = "empty"
     
-    # Start the simulation
+    # start the simulation
     for(iter in 1:n_total_iter){
 
         print("Iter: ")
         print(iter)
-        # Update graph
 
+        # update graph
         if (options$update_graph){
-            # we ran a single iteration of BDgraph with iter=1 and burning=0
-            # TODO think about extracting fixes parameters such as S, n, p which
-            # at the moment are computed for every bdgraph iteration
-            output = bdgraph( data, rho, n, method = "ggm", algorithm = "bdmcmc", iter=1,
-                              burnin = 0, not.cont = NULL, g.prior = 0.5, df.prior = d,
-                              CCG_D = NULL, g.start = g.start, jump = NULL, save = TRUE, print = 1000,
-                              cores = NULL, threshold = 1e-8 )
-          
-            # Extracting the matrix with edges between groups
-            #last_Theta = output$last_theta
+            # we run a single iteration of BDgraph with iter = 1 and burnin = 0
+            output = bdgraph(data, rho, n, method = "ggm", algorithm = "bdmcmc", iter = 1,
+                             burnin = 0, not.cont = NULL, g.prior = 0.5, df.prior = d,
+                             CCG_D = NULL, g.start = g.start, jump = NULL, save = TRUE, print = 1000,
+                             cores = NULL, threshold = 1e-8)
+
+            # TODO think about extracting S
+            # last_Theta = output$last_theta
+            # extract adjacency matrix G
             last_G = output$last_graph
+            # update for the next iteration
             g.start = last_G
-            # Extracting the  precision matrix ?? Quale delle due ? effettivamente l'ultima precision matrix?
-            # K_hat = output$K_hat
+            # extract precision matrix K
             last_K = output$last_K
-            # Kappa = UpdatePrecision(options$nu,options$W,n,U,z)
-            # Updating total_weights
+            # update total_weights
             total_weights = total_weights + output$all_weights
-            # Updating total_graphs taking into consideration the weights
+            # update total_graphs taking into consideration the weights
             total_graphs = total_graphs + output$last_graph * output$all_weights
         }
 
@@ -1218,7 +1216,7 @@ Gibbs_sampler = function(data,
                                                              weights_d,
                                                              theta_prior,
                                                              sigma,
-                                                             G=last_G,
+                                                             last_G,
                                                              beta_params)
         }
         
@@ -1235,22 +1233,23 @@ Gibbs_sampler = function(data,
         }
         
         if(options$perform_shuffle){
-          rho = shuffle_partition(rho, last_G, sigma, beta_params$alpha, beta_params$beta)
+            rho = shuffle_partition(rho, last_G, sigma, beta_params$alpha, beta_params$beta)
         }
         
         if(options$update_sigma){
-            #TODO check whether a,b,c,d are just for sigma or 
-            #whether they are shared with other functions!
-            #And then just call them in a different way maybe
+            # TODO check whether a,b,c,d are just for sigma or 
+            # whether they are shared with other functions!
+            # And then just call them in a different way maybe
             sigma = full_conditional_sigma(
                 sigma,theta,k,rho,
                 sigma_parameters$a,
                 sigma_parameters$b,
                 sigma_parameters$c,
-                sigma_parameters$d)
+                sigma_parameters$d
+                )
         }
 
-        #TODO understend wether the theta parameters are the same of sigma!
+        # TODO understend wether the theta parameters are the same of sigma!
         # TODO understand better what is k and what is n
         if(options$update_theta_prior){
           theta = full_conditional_theta(
@@ -1269,57 +1268,16 @@ Gibbs_sampler = function(data,
         }
         
         if(print){
-          setTxtProgressBar(pb, iter)
+            setTxtProgressBar(pb, iter)
         }
         
-        
-        
-        
-        # Update partition
-        # if(options$UpdatePartition){
-        #     cat("Updating the partition...")
-        #     # cat('\n pre z = ', z, '\n')
-        #     # cat('\n pre counts = ', counts, '\n')
-        #     # cat('\n pre Nclust = ', Nclust, '\n')
-        #     list_update_part = UpdatePartition(z,counts,Nclust,alpha,
-        #                                        MARGINAL = marginal_Wishartdes,
-        #                                        Kappa,options$nu,options$W)
-        #     z = list_update_part$z
-        #     counts = list_update_part$counts
-        #     Nclust = list_update_part$Nclust
-        #     # cat('\n post z = ', z, '\n')
-        #     # cat('\n post counts = ', counts, '\n')
-        #     # cat('\n post Nclust = ', Nclust, '\n')
-        # }
-        
-        # Update alpha 
-        #if(options$UpdateAlpha){
-        #    cat("Updating the a and d weights...")
-        #alpha = Updatealpha_augmentation(alpha,Nclust,p,options$a_alpha,options$b_alpha)
-        #list_update_alpha = Updatealpha_MH(alpha,Nclust,p,options$a_alpha,options$b_alpha, var_alpha_adp, iter, options$adaptiveAlpha)
-        #alpha = list_update_alpha$alpha
-        #var_alpha_adp = list_update_alpha$var_alpha_adp
-        #}
-        
-        # save results
-        # if(iter>nburn & (iter-nburn)%%thin == 0){
-        #     it_saved = it_saved + 1 
-        #     #save_res$Kappa[[it_saved]] = Kappa
-        #     #save_res$Partition[it_saved,] = z
-        #     #save_res$alpha[it_saved] = alpha
-        #     #save_res$var_alpha_adp[it_saved] = var_alpha_adp
-        # }
-        
-        # if(print){
-        #     setTxtProgressBar(pb, iter)
-        # }
-        log_print("Iter:")
+        log_print("iter:")
         log_print(iter)
         log_print("last_G:")
         log_print(last_G)
-        log_print("Last_K:")
+        log_print("last_K:")
         log_print(last_K)
-        log_print("Total Weights:")
+        log_print("total_weights:")
         log_print(total_weights)
     }
   
