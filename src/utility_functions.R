@@ -13,7 +13,7 @@
 #' @export
 #'
 #' @examples
-get_group_indexes=function(rho){
+get_group_indexes = function(rho){
     return(cumsum(rho))
 }
 
@@ -29,14 +29,14 @@ get_group_indexes=function(rho){
 #' @export
 #'
 #' @examples
-rho_to_r=function(rho){
-  group_indexes=get_group_indexes(rho)
-  total_n=sum(rho)
-  r<-numeric(total_n)
-  for(i in group_indexes){
-    r[i]=1
-  }
-  return(r)
+rho_to_r = function(rho){
+    group_indexes = get_group_indexes(rho)
+    total_n = sum(rho)
+    r <- numeric(total_n)
+    for(i in group_indexes){
+        r[i]=1
+    }
+    return(r)
 }
 
 
@@ -50,14 +50,14 @@ rho_to_r=function(rho){
 #' @export
 #'
 #' @examples
-rho_to_z=function(rho){
-  total_n=sum(rho)
-  n_groups<-length(rho)
-  z<-{}
-  for(i in 1:n_groups){
-    z<-c(z, rep(i,rho[i]))
-  }
-  return(z)
+rho_to_z = function(rho){
+    total_n = sum(rho)
+    n_groups <- length(rho)
+    z <- {}
+    for(i in 1:n_groups){
+        z <- c(z, rep(i,rho[i]))
+    }
+    return(z)
 }
 
 
