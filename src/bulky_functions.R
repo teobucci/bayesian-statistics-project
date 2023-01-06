@@ -1034,28 +1034,28 @@ set_options = function(sigma0,
                        update_graph=T,
                        perform_shuffle=T) {
   
-  options = list(
-    "sigma0"             = sigma0,
-    "sigma_parameters"   = sigma_parameters,
-    "theta_prior0"       = theta_prior0,
-    "theta_parameters"   = theta_parameters,
-    "rho0"               = rho0,
-    "weights_a0"         = weights_a0,
-    "weights_d0"         = weights_d0,
-    "alpha_target"       = alpha_target,
-    "mu_beta"            = mu_beta,
-    "sig2_beta"          = sig2_beta,
-    "d"                  = d,
-    "alpha_add"          = alpha_add,
-    "adaptation_step"    = adaptation_step,
-    "update_sigma"       = update_sigma,
-    "update_theta_prior" = update_theta_prior,
-    "update_weights"     = update_weights,
-    "update_partition"   = update_partition,
-    "update_graph"       = update_graph,
-    "perform_shuffle"    = perform_shuffle
-  )
-  return(options)
+    options = list(
+        "sigma0"             = sigma0,
+        "sigma_parameters"   = sigma_parameters,
+        "theta_prior0"       = theta_prior0,
+        "theta_parameters"   = theta_parameters,
+        "rho0"               = rho0,
+        "weights_a0"         = weights_a0,
+        "weights_d0"         = weights_d0,
+        "alpha_target"       = alpha_target,
+        "mu_beta"            = mu_beta,
+        "sig2_beta"          = sig2_beta,
+        "d"                  = d,
+        "alpha_add"          = alpha_add,
+        "adaptation_step"    = adaptation_step,
+        "update_sigma"       = update_sigma,
+        "update_theta_prior" = update_theta_prior,
+        "update_weights"     = update_weights,
+        "update_partition"   = update_partition,
+        "update_graph"       = update_graph,
+        "perform_shuffle"    = perform_shuffle
+    )
+    return(options)
 }
 
 #' Estimate alpha and beta from a Beta function given mean and variance
@@ -1092,240 +1092,244 @@ estimate_Beta_params <- function(mu, var) {
 #' @export
 #'
 #' @examples
-Gibbs_sampler = function(data, niter, nburn, thin,
+Gibbs_sampler = function(data,
+                         niter,
+                         nburn,
+                         thin,
                          options,
-                         seed=1234, print=T)
+                         seed=1234,
+                         print=T)
 {
-  n = nrow(data) # number of observations
-  p = ncol(data) # number of nodes
-  n_total_iter = nburn + niter*thin # total iterations to be made
-  
-  # dynamic parameters
-  sigma            = options$sigma0 # initial parameter of the PY prior
-  theta_prior      = options$theta_prior0 # initial parameter of the PY prior
-  rho              = options$rho0 # initial partition (e.g. c(150,151))
-  weights_a        = options$weights_a0 # add weights
-  weights_d        = options$weights_d0 # delete weights
-  adaptation_step  = options$adaptation_step # adaptation step h
-  
-  # constant parameters
-  alpha_add = options$alpha_add # probability of choosing add over delete
-  alpha_target = options$alpha_target # target alpha for adapting weights
- 
-  # parameter for the Wishart
-  d = options$d
-  
-  # parameters for the Beta
-  mu_beta = options$mu_beta
-  sig2_beta = options$sig2_beta
-
-  #Checks that the parameter for the partition and the beta's mu and sigma are admissible
-  if(sum(rho) != p)
-    stop("The partition rho must sum to p")
-  if(d<3)
-    stop("The Wishart's d must be greater or equal than 3")
-  if(!(mu_beta > 0 & mu_beta < 1))
-      stop("The mean of the Beta must be between 0 and 1")
-  if(!(sig2_beta > 0 & sig2_beta < 0.25))
-      stop("The mean of the Beta must be between 0 and 1")
-  
-  # TODO sistemare questo non ho capito cosa intende con "iterations (t) per number of datapoints (n)"
-  # da noi non c'è n ma c'è p, però è l'iterazione attuale oppure n_total_iter?
-    t_over_p = n_total_iter / p
-
-  beta_params = estimate_Beta_params(mu_beta, sig2_beta)
-  
-  # TODO check qui dei parametri del grafo
-  # if(nrow(options$W)!=p)
-  #     stop("nrow W not coherent with ncol(data)")  
-  # if(nrow(options$Kappa0)!=p)
-  #     stop("nrow Kappa0 not coherent with ncol(data)")
-  
-  
-  #   var_alpha_adp = options$var_alpha_adp0
-  #   # other quantities
-  #   U = t(data)%*%data # compute U (data must have zero mean)
-  #   counts = as.vector(table(z))  # initial data counts at each cluster
-  #   Nclust = length(counts)	  # initial number of clusters
-  #   
-  #   # Define structure to save sampled values
-  save_res = vector("list",length = 4)
-  #   names(save_res) = c("Kappa","Partition","alpha","var_alpha_adp")
-  #   save_res$Kappa = vector("list",length = niter) 
-  #   save_res$Partition = matrix(NA,nrow = niter, ncol = p)
-  #   save_res$alpha = rep(NA,niter)
-  #   save_res$var_alpha_adp = rep(NA,niter)
-  
-  # initialize iteration counter
-  it_saved = 0
-  
-  # initialize progress bar
-  pb = txtProgressBar(min=1, max=n_total_iter, initial=1, style=3)
-  
-  # initialize the sum of the weights of the graphs
-  total_weights = 0
-  
-  #initialize the sum of all graphs
-  total_graphs = matrix(0,p,p)
-  g.start = "empty"
-  
-  # Start the simulation
-  for(iter in 1:n_total_iter){
-    print("Iter: ")
-    print(iter)
-    # Update graph
-    if(options$update_graph){
-      # we ran a single iteration of BDgraph with iter=1 and burning=0
-      #TODO think about extracting fixes parameters such as S, n, p which
-      # at the moment are computed for every bdgraph iteration
-      output = bdgraph( data, rho, n, method = "ggm", algorithm = "bdmcmc", iter=1,
-                        burnin = 0, not.cont = NULL, g.prior = 0.5, df.prior = d,
-                        CCG_D = NULL, g.start = g.start, jump = NULL, save = TRUE, print = 1000,
-                        cores = NULL, threshold = 1e-8 )
-      
-      # Extracting the matrix with edges between groups
-      #last_Theta = output$last_theta
-      last_G = output$last_graph
-      g.start = last_G
-      # Extracting the  precision matrix ?? Quale delle due ? effettivamente l'ultima precision matrix?
-      # K_hat = output$K_hat
-      last_K = output$last_K
-      # Kappa = UpdatePrecision(options$nu,options$W,n,U,z)
-      # Updating total_weights
-      total_weights = total_weights + output$all_weights
-      # Updating total_graphs taking into consideration the weights
-      total_graphs = total_graphs + output$last_graph * output$all_weights
-    }
-
-    # fake G
-    #last_G = matrix(c(
-    #    0,0,0,0,0,0,0,0,0,1,
-    #    0,0,1,0,0,0,0,0,0,0,
-    #    0,1,0,0,0,0,0,0,0,0,
-    #    0,0,0,0,0,0,0,0,0,0,
-    #    0,0,0,0,0,0,0,0,0,0,
-    #    0,0,0,0,0,0,0,0,0,0,
-    #    0,0,0,0,0,0,0,0,0,0,
-    #    0,0,0,0,0,0,0,0,0,1,
-    #    0,0,0,0,0,0,0,0,0,0,
-    #    1,0,0,0,0,0,0,1,0,0
-    #    ), ncol = 10, byrow=TRUE)
+    n = nrow(data) # number of observations
+    p = ncol(data) # number of nodes
+    n_total_iter = nburn + niter*thin # total iterations to be made
     
-    if(options$update_partition){
-      # TODO
-      
-        list_output_update_partition <- update_partition(rho,
-                         alpha_add,
-                         weights_a,
-                         weights_d,
-                         theta_prior,
-                         sigma,
-                         G=last_G,
-                         beta_params)
-    }
+    # dynamic parameters
+    sigma            = options$sigma0 # initial parameter of the PY prior
+    theta_prior      = options$theta_prior0 # initial parameter of the PY prior
+    rho              = options$rho0 # initial partition (e.g. c(150,151))
+    weights_a        = options$weights_a0 # add weights
+    weights_d        = options$weights_d0 # delete weights
+    adaptation_step  = options$adaptation_step # adaptation step h
     
-    # TODO save the updated rho
-    rho = list_output_update_partition$rho_updated
+    # constant parameters
+    alpha_add = options$alpha_add # probability of choosing add over delete
+    alpha_target = options$alpha_target # target alpha for adapting weights
+   
+    # parameter for the Wishart
+    d = options$d
+    
+    # parameters for the Beta
+    mu_beta = options$mu_beta
+    sig2_beta = options$sig2_beta
+  
+    #Checks that the parameter for the partition and the beta's mu and sigma are admissible
+    if(sum(rho) != p)
+        stop("The partition rho must sum to p")
+    if(d<3)
+        stop("The Wishart's d must be greater or equal than 3")
+    if(!(mu_beta > 0 & mu_beta < 1))
+        stop("The mean of the Beta must be between 0 and 1")
+    if(!(sig2_beta > 0 & sig2_beta < 0.25))
+        stop("The mean of the Beta must be between 0 and 1")
+    
+    # TODO sistemare questo non ho capito cosa intende con "iterations (t) per number of datapoints (n)"
+    # da noi non c'è n ma c'è p, però è l'iterazione attuale oppure n_total_iter?
+      t_over_p = n_total_iter / p
+  
+    beta_params = estimate_Beta_params(mu_beta, sig2_beta)
+    
+    # TODO check qui dei parametri del grafo
+    # if(nrow(options$W)!=p)
+    #     stop("nrow W not coherent with ncol(data)")  
+    # if(nrow(options$Kappa0)!=p)
+    #     stop("nrow Kappa0 not coherent with ncol(data)")
+    
+    
+    #   var_alpha_adp = options$var_alpha_adp0
+    #   # other quantities
+    #   U = t(data)%*%data # compute U (data must have zero mean)
+    #   counts = as.vector(table(z))  # initial data counts at each cluster
+    #   Nclust = length(counts)	  # initial number of clusters
+    #   
+    #   # Define structure to save sampled values
+    save_res = vector("list",length = 4)
+    #   names(save_res) = c("Kappa","Partition","alpha","var_alpha_adp")
+    #   save_res$Kappa = vector("list",length = niter) 
+    #   save_res$Partition = matrix(NA,nrow = niter, ncol = p)
+    #   save_res$alpha = rep(NA,niter)
+    #   save_res$var_alpha_adp = rep(NA,niter)
+    
+    # initialize iteration counter
+    it_saved = 0
+    
+    # initialize progress bar
+    pb = txtProgressBar(min=1, max=n_total_iter, initial=1, style=3)
+    
+    # initialize the sum of the weights of the graphs
+    total_weights = 0
+    
+    #initialize the sum of all graphs
+    total_graphs = matrix(0,p,p)
+    g.start = "empty"
+    
+    # Start the simulation
+    for(iter in 1:n_total_iter){
 
+        print("Iter: ")
+        print(iter)
+        # Update graph
 
-    # update the single weight at the point only if the move has been accepted
-    if(options$update_weights & list_output_update_partition$accepted){
-        if(list_output_update_partition$choose_add){
-            weights_a = update_weight(weights_a, list_output_update_partition$candidate, adaptation_step, t_over_p, alpha_add, alpha_target)
-        } else {
-            weights_d = update_weight(weights_d, list_output_update_partition$candidate, adaptation_step, t_over_p, 1-alpha_add, alpha_target)
+        if (options$update_graph){
+            # we ran a single iteration of BDgraph with iter=1 and burning=0
+            # TODO think about extracting fixes parameters such as S, n, p which
+            # at the moment are computed for every bdgraph iteration
+            output = bdgraph( data, rho, n, method = "ggm", algorithm = "bdmcmc", iter=1,
+                              burnin = 0, not.cont = NULL, g.prior = 0.5, df.prior = d,
+                              CCG_D = NULL, g.start = g.start, jump = NULL, save = TRUE, print = 1000,
+                              cores = NULL, threshold = 1e-8 )
+          
+            # Extracting the matrix with edges between groups
+            #last_Theta = output$last_theta
+            last_G = output$last_graph
+            g.start = last_G
+            # Extracting the  precision matrix ?? Quale delle due ? effettivamente l'ultima precision matrix?
+            # K_hat = output$K_hat
+            last_K = output$last_K
+            # Kappa = UpdatePrecision(options$nu,options$W,n,U,z)
+            # Updating total_weights
+            total_weights = total_weights + output$all_weights
+            # Updating total_graphs taking into consideration the weights
+            total_graphs = total_graphs + output$last_graph * output$all_weights
         }
-    }
-    
-    if(options$perform_shuffle){
-      rho = shuffle_partition(rho, last_G, sigma, beta_params$alpha, beta_params$beta)
-    }
-    
-    if(options$update_sigma){
-        #TODO check whether a,b,c,d are just for sigma or 
-        #whether they are shared with other functions!
-        #And then just call them in a different way maybe
-        sigma = full_conditional_sigma(
-            sigma,theta,k,rho,
-            sigma_parameters$a,
-            sigma_parameters$b,
-            sigma_parameters$c,
-            sigma_parameters$d)
-    }
 
-    #TODO understend wether the theta parameters are the same of sigma!
-    # TODO understand better what is k and what is n
-    if(options$update_theta_prior){
-      theta = full_conditional_theta(
-          theta_parameters$c, 
-          theta_parameters$d, 
-          candidate, k, n)
+        # fake G
+        #last_G = matrix(c(
+        #    0,0,0,0,0,0,0,0,0,1,
+        #    0,0,1,0,0,0,0,0,0,0,
+        #    0,1,0,0,0,0,0,0,0,0,
+        #    0,0,0,0,0,0,0,0,0,0,
+        #    0,0,0,0,0,0,0,0,0,0,
+        #    0,0,0,0,0,0,0,0,0,0,
+        #    0,0,0,0,0,0,0,0,0,0,
+        #    0,0,0,0,0,0,0,0,0,1,
+        #    0,0,0,0,0,0,0,0,0,0,
+        #    1,0,0,0,0,0,0,1,0,0
+        #    ), ncol = 10, byrow=TRUE)
+        
+        if(options$update_partition){
+            list_output_update_partition <- update_partition(rho,
+                                                             alpha_add,
+                                                             weights_a,
+                                                             weights_d,
+                                                             theta_prior,
+                                                             sigma,
+                                                             G=last_G,
+                                                             beta_params)
+        }
+        
+        # TODO save the updated rho
+        rho = list_output_update_partition$rho_updated
+
+        # update the single weight at the point only if the move has been accepted
+        if(options$update_weights & list_output_update_partition$accepted){
+            if(list_output_update_partition$choose_add){
+                weights_a = update_weight(weights_a, list_output_update_partition$candidate, adaptation_step, t_over_p, alpha_add, alpha_target)
+            } else {
+                weights_d = update_weight(weights_d, list_output_update_partition$candidate, adaptation_step, t_over_p, 1-alpha_add, alpha_target)
+            }
+        }
+        
+        if(options$perform_shuffle){
+          rho = shuffle_partition(rho, last_G, sigma, beta_params$alpha, beta_params$beta)
+        }
+        
+        if(options$update_sigma){
+            #TODO check whether a,b,c,d are just for sigma or 
+            #whether they are shared with other functions!
+            #And then just call them in a different way maybe
+            sigma = full_conditional_sigma(
+                sigma,theta,k,rho,
+                sigma_parameters$a,
+                sigma_parameters$b,
+                sigma_parameters$c,
+                sigma_parameters$d)
+        }
+
+        #TODO understend wether the theta parameters are the same of sigma!
+        # TODO understand better what is k and what is n
+        if(options$update_theta_prior){
+          theta = full_conditional_theta(
+              theta_parameters$c, 
+              theta_parameters$d, 
+              candidate, k, n)
+        }
+        
+        # save results only on thin iterations
+        # (i.e. only save multiples of thin)
+        if(iter > nburn & (iter - nburn)%%thin == 0) {
+          # TODO
+          it_saved = it_saved + 1
+        }
+        
+        if(print){
+          setTxtProgressBar(pb, iter)
+        }
+        
+        
+        
+        
+        # Update partition
+        # if(options$UpdatePartition){
+        #     cat("Updating the partition...")
+        #     # cat('\n pre z = ', z, '\n')
+        #     # cat('\n pre counts = ', counts, '\n')
+        #     # cat('\n pre Nclust = ', Nclust, '\n')
+        #     list_update_part = UpdatePartition(z,counts,Nclust,alpha,
+        #                                        MARGINAL = marginal_Wishartdes,
+        #                                        Kappa,options$nu,options$W)
+        #     z = list_update_part$z
+        #     counts = list_update_part$counts
+        #     Nclust = list_update_part$Nclust
+        #     # cat('\n post z = ', z, '\n')
+        #     # cat('\n post counts = ', counts, '\n')
+        #     # cat('\n post Nclust = ', Nclust, '\n')
+        # }
+        
+        # Update alpha 
+        #if(options$UpdateAlpha){
+        #    cat("Updating the a and d weights...")
+        #alpha = Updatealpha_augmentation(alpha,Nclust,p,options$a_alpha,options$b_alpha)
+        #list_update_alpha = Updatealpha_MH(alpha,Nclust,p,options$a_alpha,options$b_alpha, var_alpha_adp, iter, options$adaptiveAlpha)
+        #alpha = list_update_alpha$alpha
+        #var_alpha_adp = list_update_alpha$var_alpha_adp
+        #}
+        
+        # save results
+        # if(iter>nburn & (iter-nburn)%%thin == 0){
+        #     it_saved = it_saved + 1 
+        #     #save_res$Kappa[[it_saved]] = Kappa
+        #     #save_res$Partition[it_saved,] = z
+        #     #save_res$alpha[it_saved] = alpha
+        #     #save_res$var_alpha_adp[it_saved] = var_alpha_adp
+        # }
+        
+        # if(print){
+        #     setTxtProgressBar(pb, iter)
+        # }
+        log_print("Iter:")
+        log_print(iter)
+        log_print("last_G:")
+        log_print(last_G)
+        log_print("Last_K:")
+        log_print(last_K)
+        log_print("Total Weights:")
+        log_print(total_weights)
     }
-    
-    # save results only on thin iterations
-    # (i.e. only save multiples of thin)
-    if(iter > nburn & (iter - nburn)%%thin == 0) {
-      # TODO
-      it_saved = it_saved + 1
-    }
-    
-    if(print){
-      setTxtProgressBar(pb, iter)
-    }
-    
-    
-    
-    
-    # Update partition
-    # if(options$UpdatePartition){
-    #     cat("Updating the partition...")
-    #     # cat('\n pre z = ', z, '\n')
-    #     # cat('\n pre counts = ', counts, '\n')
-    #     # cat('\n pre Nclust = ', Nclust, '\n')
-    #     list_update_part = UpdatePartition(z,counts,Nclust,alpha,
-    #                                        MARGINAL = marginal_Wishartdes,
-    #                                        Kappa,options$nu,options$W)
-    #     z = list_update_part$z
-    #     counts = list_update_part$counts
-    #     Nclust = list_update_part$Nclust
-    #     # cat('\n post z = ', z, '\n')
-    #     # cat('\n post counts = ', counts, '\n')
-    #     # cat('\n post Nclust = ', Nclust, '\n')
-    # }
-    
-    # Update alpha 
-    #if(options$UpdateAlpha){
-    #    cat("Updating the a and d weights...")
-    #alpha = Updatealpha_augmentation(alpha,Nclust,p,options$a_alpha,options$b_alpha)
-    #list_update_alpha = Updatealpha_MH(alpha,Nclust,p,options$a_alpha,options$b_alpha, var_alpha_adp, iter, options$adaptiveAlpha)
-    #alpha = list_update_alpha$alpha
-    #var_alpha_adp = list_update_alpha$var_alpha_adp
-    #}
-    
-    # save results
-    # if(iter>nburn & (iter-nburn)%%thin == 0){
-    #     it_saved = it_saved + 1 
-    #     #save_res$Kappa[[it_saved]] = Kappa
-    #     #save_res$Partition[it_saved,] = z
-    #     #save_res$alpha[it_saved] = alpha
-    #     #save_res$var_alpha_adp[it_saved] = var_alpha_adp
-    # }
-    
-    # if(print){
-    #     setTxtProgressBar(pb, iter)
-    # }
-    log_print("Iter:")
-    log_print(iter)
-    log_print("last_G:")
-    log_print(last_G)
-    log_print("Last_K:")
-    log_print(last_K)
-    log_print("Total Weights:")
-    log_print(total_weights)}
   
-  graph_final = total_graphs/total_weights
-  save_res$graph = graph_final
-  
-  close(pb)
-  return(save_res)
+    graph_final = total_graphs/total_weights
+    save_res$graph = graph_final
+    
+    close(pb)
+    return(save_res)
 }

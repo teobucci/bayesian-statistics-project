@@ -76,6 +76,8 @@ Supervisor: Alessandro Colombi ([@alessandrocolombi](https://github.com/alessand
 ### Some help for debugging
 
 Open an R console in this way
+
+macOS
 ```
 R -d lldb
 ```
