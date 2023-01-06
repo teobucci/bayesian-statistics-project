@@ -157,14 +157,14 @@ options = set_options(sigma0=0.5,
                       update_theta_prior=F,
                       update_weights=T,
                       update_partition=T,
-                      update_graph=T,
+                      update_graph=F,
                       perform_shuffle=T)
 
-niter = 100
+niter = 5000
 nburn = 1
 thin = 1 # tieni tutti i multipli di thin
 
-res = invisible(Gibbs_sampler(data,niter,nburn,thin,options,seed=1234,print=F))
+res = invisible(Gibbs_sampler(data,niter,nburn,thin,options,seed=270999,print=F))
 ```
 
 If you are here, you are very luck. Don't even look at what's below if the upper code doesn't run. Fool.

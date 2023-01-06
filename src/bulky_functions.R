@@ -1194,6 +1194,20 @@ Gibbs_sampler = function(data, niter, nburn, thin,
       # Updating total_graphs taking into consideration the weights
       total_graphs = total_graphs + output$last_graph * output$all_weights
     }
+
+    # fake G
+    #last_G = matrix(c(
+    #    0,0,0,0,0,0,0,0,0,1,
+    #    0,0,1,0,0,0,0,0,0,0,
+    #    0,1,0,0,0,0,0,0,0,0,
+    #    0,0,0,0,0,0,0,0,0,0,
+    #    0,0,0,0,0,0,0,0,0,0,
+    #    0,0,0,0,0,0,0,0,0,0,
+    #    0,0,0,0,0,0,0,0,0,0,
+    #    0,0,0,0,0,0,0,0,0,1,
+    #    0,0,0,0,0,0,0,0,0,0,
+    #    1,0,0,0,0,0,0,1,0,0
+    #    ), ncol = 10, byrow=TRUE)
     
     if(options$update_partition){
       # TODO
