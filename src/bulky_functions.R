@@ -1123,16 +1123,24 @@ Gibbs_sampler = function(data,
     mu_beta = options$mu_beta
     sig2_beta = options$sig2_beta
   
-    #Checks that the parameter for the partition and the beta's mu and sigma are admissible
+    # checks
     if(sum(rho) != p)
-        stop("The partition rho must sum to p")
-    if(d<3)
-        stop("The Wishart's d must be greater or equal than 3")
+        stop("The partition rho must sum to the number of variables p")
+    if(d < 3)
+        stop("The Wishart's d parameter must be greater or equal than 3")
     if(!(mu_beta > 0 & mu_beta < 1))
         stop("The mean of the Beta must be between 0 and 1")
     if(!(sig2_beta > 0 & sig2_beta < 0.25))
-        stop("The mean of the Beta must be between 0 and 1")
-    
+        stop("The variance of the Beta must be between 0 and 0.25")
+    if(length(weights_a) != (p-1) | length(weights_d) != (p-1))
+        stop("The number of elements in the weights vectors must be equal to p-1")
+    if(!(adaptation_step > 0))
+        stop("The adapation step h must be positive")
+    if(!(alpha_add > 0 & alpha_add < 1))
+        stop("The probability of choosing an add move alpha_add must be between 0 and 1")
+    if(!(alpha_target > 0 & alpha_target < 1))
+        stop("The target acceptance rate of the Metropolis-Hastings alpha_target must be between 0 and 1")
+
     # TODO sistemare questo non ho capito cosa intende con "iterations (t) per number of datapoints (n)"
     # da noi non c'è n ma c'è p, però è l'iterazione attuale oppure n_total_iter?
       t_over_p = n_total_iter / p
