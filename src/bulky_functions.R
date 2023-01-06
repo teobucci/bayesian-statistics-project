@@ -1139,26 +1139,12 @@ Gibbs_sampler = function(data,
   
     beta_params = estimate_Beta_params(mu_beta, sig2_beta)
     
-    # TODO check qui dei parametri del grafo
-    # if(nrow(options$W)!=p)
-    #     stop("nrow W not coherent with ncol(data)")  
-    # if(nrow(options$Kappa0)!=p)
-    #     stop("nrow Kappa0 not coherent with ncol(data)")
-    
-    
-    #   var_alpha_adp = options$var_alpha_adp0
-    #   # other quantities
-    #   U = t(data)%*%data # compute U (data must have zero mean)
-    #   counts = as.vector(table(z))  # initial data counts at each cluster
-    #   Nclust = length(counts)	  # initial number of clusters
-    #   
-    #   # Define structure to save sampled values
-    save_res = vector("list",length = 4)
-    #   names(save_res) = c("Kappa","Partition","alpha","var_alpha_adp")
-    #   save_res$Kappa = vector("list",length = niter) 
-    #   save_res$Partition = matrix(NA,nrow = niter, ncol = p)
-    #   save_res$alpha = rep(NA,niter)
-    #   save_res$var_alpha_adp = rep(NA,niter)
+    # define structure to save sampled values
+    save_res = list(
+        G = vector("list", length = niter),
+        K = vector("list", length = niter),
+        rho = matrix(NA, nrow = niter, ncol = p)
+        )
     
     # initialize iteration counter
     it_saved = 0
@@ -1267,9 +1253,11 @@ Gibbs_sampler = function(data,
         
         # save results only on thin iterations
         # (i.e. only save multiples of thin)
-        if(iter > nburn & (iter - nburn)%%thin == 0) {
-          # TODO
-          it_saved = it_saved + 1
+        if(iter > nburn & (iter - nburn) %% thin == 0) {
+            it_saved = it_saved + 1
+            save_res$K[[it_saved]] = last_K
+            save_res$G[[it_saved]] = last_G
+            save_res$rho[it_saved,] = rho
         }
         
         if(print){
