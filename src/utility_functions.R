@@ -19,6 +19,7 @@ get_group_indexes=function(rho){
 
 
 
+
 #' Rho to changepoint function
 #' #TODO Add checks
 #'
