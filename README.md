@@ -71,3 +71,21 @@ Supervisor: Alessandro Colombi ([@alessandrocolombi](https://github.com/alessand
 - Flavia Petruso ([@fl-hi1](https://github.com/fl-hi1))
 - Andrea Puricelli ([@apuri99](https://github.com/apuri99))
 - Giulio Venturini ([@Vinavil334](https://github.com/Vinavil334))
+
+
+### Some help for debugging
+
+Open an R console in this way
+```
+R -d lldb
+```
+then
+```
+run
+```
+then
+```
+source("src/main.R")
+```
+
+More [stuff here](https://blog.davisvaughan.com/posts/2019-04-05-debug-r-package-with-cpp/).

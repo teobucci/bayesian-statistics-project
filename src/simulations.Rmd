@@ -164,7 +164,7 @@ niter = 5000
 nburn = 1
 thin = 1 # tieni tutti i multipli di thin
 
-res = invisible(Gibbs_sampler(data,niter,nburn,thin,options,seed=270999,print=F))
+res = Gibbs_sampler(data,niter,nburn,thin,options,seed=270999,print=F)
 ```
 
 If you are here, you are very luck. Don't even look at what's below if the upper code doesn't run. Fool.
