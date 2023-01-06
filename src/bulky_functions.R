@@ -271,19 +271,19 @@ split_partition <- function(candidate_index, rho) {
     
     # number of changepoints = n_elems - 1
     # case: all groups with 1 element or index out of bound
-    if (n_elems == M | candidate_index > n_elems - 1) {
-        return(list('rho' = rho, 'group_index' = -1))
-    }
+    # if (n_elems == M | candidate_index > n_elems - 1) {
+    #     return(list('rho' = rho, 'group_index' = -1))
+    # }
     
     group_indexes = get_group_indexes(rho)
     found = F
     
     for (i in 1:M) {
         
-        if (!found & group_indexes[i] == candidate_index) {
-            # candidate_index is already a changepoint, return the original rho
-            return(list('rho' = rho, 'group_index' = -1))
-        }
+        # if (!found & group_indexes[i] == candidate_index) {
+        #     # candidate_index is already a changepoint, return the original rho
+        #     return(list('rho' = rho, 'group_index' = -1))
+        # }
         
         # update the partition in the general case
         # (either I have already split the group or not, just the index changes)
@@ -330,18 +330,18 @@ merge_partition <- function(candidate_index, rho) {
     
     # number of changepoints = n_elems - 1
     # case: only 1 group or index out of bound
-    if (M == 1 | candidate_index > n_elems - 1) {
-        return(list('rho' = rho, 'group_index' = -1))
-    }
+    # if (M == 1 | candidate_index > n_elems - 1) {
+    #     return(list('rho' = rho, 'group_index' = -1))
+    # }
     
     group_indexes = get_group_indexes(rho)
     found = F
     
     for (i in 1:(M - 1)) {
-        if (!found & group_indexes[i] != candidate_index) {
-            # candidate_index is already a changepoint, return the original rho
-            return(list('rho' = rho, 'group_index' = -1))
-        }
+        # if (!found & group_indexes[i] != candidate_index) {
+        #    # candidate_index is already a changepoint, return the original rho
+        #    return(list('rho' = rho, 'group_index' = -1))
+        # }
         
         # update the partition in the general case
         # (either I have already merged the group or not, just the index changes)
