@@ -690,7 +690,7 @@ get_S_from_G_rho_oldrho_oldS = function(G,rho,oldrho,oldS,debug=F){
 #' @param S MxM matrix, where M is number of groups, containing the sum of edges.
 #' @inheritParams update_partition
 #'
-#' @return a positive scalar indicating the number of non-edges between teo groups
+#' @return a positive scalar indicating the number of non-edges between two groups
 #' computed as the possible number of edges between two groups 
 #' (depending on group cardinality) minus the effective number of edges 
 #' (depending on the edges actually present in the current Graph)
@@ -976,29 +976,31 @@ full_conditional_theta <- function(c, d, candidate, k, n){
 #'
 #' @param sigma ? not sure whether it is the previous
 #' @param theta Other parameter for the prior
-#' @param k Changepoint index
 #' @param rho Current partition
 #' @param a First parameter of the distribution
 #' @param b Second parameter of the distribution
 #' @param c Third parameter of the distribution
 #' @param d Fourth parameter of the distribution
+#' @param n_groups It is the "k" of Martinez and Mena #TODO check but makes sense
 #'
 #' @return the value for sigma for the current iteration 
 #' @export
 #'
 #' @examples
-full_conditional_sigma <- function(sigma,theta,k,rho,a,b,c,d){
+full_conditional_sigma <- function(sigma,theta,rho,a,b,c,d){
+    
+    n_groups=length(rho)
     
     #First product term
     log_prod_1 = numeric(0)
-    for(i in 1:(k-1)){
+    for(i in 1:(n_groups-1)){
         log_prod_1 = log_prod_1 + log(theta + i*sigma)
     }
     
     #Second product term
     log_prod_2 <- numeric(0)
-    for(i in 1:k){
-        log_prod_2 = log_prod_2 + log_pochhammer((1-sigma),(rho[i]-1))
+    for(i in 1:n_groups){
+        log_prod_2 = log_prod_2 + lpochhammer((1-sigma),(rho[i]-1))
     }
     
     #Final output
@@ -1122,7 +1124,13 @@ Gibbs_sampler = function(data,
     # parameters for the Beta
     mu_beta = options$mu_beta
     sig2_beta = options$sig2_beta
-  
+    
+    #parameters for the sigma prior
+    sigma_parameters = list("a"=options$sigma_parameters[1],
+                            "b"=options$sigma_parameters[2],
+                            "c"=options$sigma_parameters[3],
+                            "d"=options$sigma_parameters[4] ) 
+
     # checks
     if(sum(rho) != p)
         stop("The partition rho must sum to the number of variables p")
@@ -1242,7 +1250,7 @@ Gibbs_sampler = function(data,
             # whether they are shared with other functions!
             # And then just call them in a different way maybe
             sigma = full_conditional_sigma(
-                sigma,theta,k,rho,
+                sigma,theta_prior,rho,
                 sigma_parameters$a,
                 sigma_parameters$b,
                 sigma_parameters$c,
