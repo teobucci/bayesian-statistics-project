@@ -126,6 +126,8 @@ file.exists(data_generation_path)
 source(data_generation_path)
 
 
+library(logr)
+
 z_true = c(1,1,1,2,2,3,3,3,4,4) # these are the groups memberships (10 nodes)
 counts_true = as.vector(table(z_true))
 Nclust_true  = length(counts_true)
@@ -160,7 +162,7 @@ options = set_options(sigma0=0.5,
                       update_graph=T,
                       perform_shuffle=T)
 
-niter = 2
+niter = 250
 nburn = 1
 thin = 1 # tieni tutti i multipli di thin
 

@@ -31,7 +31,7 @@ devtools::install_github("alessandrocolombi/ACutils")
 and install the required packages from CRAN
 
 ```
-packages_list <- c("tidyverse","mvtnorm","salso")
+packages_list <- c("tidyverse","mvtnorm","salso","logr")
 install.packages(packages_list)
 ```
 
