@@ -391,8 +391,15 @@ shuffle_partition <- function(rho_current, G, sigma, alpha, beta) {
 
     # going to shuffle group K with group K+1
     K <- sample(1:(M - 1), 1)
+    
+    if (rho_current[K] == 1 & rho_current[K+1] == 1){
+        # can't shuffle anything without reproposing the same partition
+        return(rho_current)
+    }
+    
     # sample how many elements to keep in the K-th group
     sample_vector <- 1:(rho_current[K] + rho_current[K + 1] - 1)
+    # avoid proposing the same partition (shuffling nothing)
     sample_vector <- sample_vector[-c(rho_current[K])]
     l <- sample(sample_vector, 1)
     print("sample vector")
