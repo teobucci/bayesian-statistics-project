@@ -1167,6 +1167,7 @@ Gibbs_sampler = function(data, niter, nburn, thin,
   
   #initialize the sum of all graphs
   total_graphs = matrix(0,p,p)
+  g.start = "empty"
   
   # Start the simulation
   for(iter in 1:n_total_iter){
@@ -1179,12 +1180,13 @@ Gibbs_sampler = function(data, niter, nburn, thin,
       # at the moment are computed for every bdgraph iteration
       output = bdgraph( data, rho, n, method = "ggm", algorithm = "bdmcmc", iter=1,
                         burnin = 0, not.cont = NULL, g.prior = 0.5, df.prior = d,
-                        CCG_D = NULL, g.start = "empty", jump = NULL, save = TRUE, print = 1000,
+                        CCG_D = NULL, g.start = g.start, jump = NULL, save = TRUE, print = 1000,
                         cores = NULL, threshold = 1e-8 )
       
       # Extracting the matrix with edges between groups
       #last_Theta = output$last_theta
       last_G = output$last_graph
+      g.start = last_G
       # Extracting the  precision matrix ?? Quale delle due ? effettivamente l'ultima precision matrix?
       # K_hat = output$K_hat
       last_K = output$last_K
@@ -1312,8 +1314,15 @@ Gibbs_sampler = function(data, niter, nburn, thin,
     # if(print){
     #     setTxtProgressBar(pb, iter)
     # }
-    
-  }
+    log_print("Iter:")
+    log_print(iter)
+    log_print("last_G:")
+    log_print(last_G)
+    log_print("Last_K:")
+    log_print(last_K)
+    log_print("Total Weights:")
+    log_print(total_weights)}
+  
   graph_final = total_graphs/total_weights
   save_res$graph = graph_final
   
