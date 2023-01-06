@@ -1,32 +1,4 @@
-#' Create Theta_groups
-#' #TODO Add checks
-#'
-#' @param rho 
-#' @param G 
-#'
-#' @return
-#' @export
-#'
-#' @examples
-create_Theta=function(rho, G){
-  n_groups=length(rho)
-  Theta= as.numeric(n_groups*n_groups)
-  z=rho_to_z(rho)
-  p = sum(rho)
-  for(i in 1:p){
-    for(j in 1:(i-1)){
-      if (G[ i*p + j] == 1){
-        ++Theta[z[i] * n_groups + z[j]];
-        ++Theta[z[j] * n_groups + z[i]];
-      }
-    }
-  }
-  return(Theta)
-}
-
-
-#
-#' get group indexes
+##' get group indexes
 #'
 #' @param rho partition in che compact version ef c(1,3,3)
 #'
