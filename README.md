@@ -16,16 +16,24 @@ git submodule update --recursive
 
 ## How to build the `FGM` package
 
-Open the `FGM.rproj` and type:
+Open the `FGM.Rproj` and type:
 
 - `Ctrl+Shift+B` on Windows
 - `CMD+Shift+B` on macOS
 
 ## How to install the packages
 
+Install the custom utilities by Alessandro Colombi
+```
 devtools::install_github("alessandrocolombi/ACutils")
+```
+
+and install the required packages from CRAN
+
+```
 packages_list <- c("tidyverse","mvtnorm","salso")
 install.packages(packages_list)
+```
 
 ## How to update the submodule
 
