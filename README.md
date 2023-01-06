@@ -4,6 +4,8 @@
 
 This project was developed for the course of **Bayesian Statistics** for the MSc. in Mathematical Engineering at Politecnico di Milano, A.Y. 2022/2023.
 
+# Instructions
+
 ## How to clone the repository
 
 ```
@@ -11,6 +13,19 @@ git clone https://github.com/teobucci/bayesian-statistics-project
 git submodule update --init
 git submodule update --recursive
 ```
+
+## How to build the `FGM` package
+
+Open the `FGM.rproj` and type:
+
+- `Ctrl+Shift+B` on Windows
+- `CMD+Shift+B` on macOS
+
+## How to install the packages
+
+devtools::install_github("alessandrocolombi/ACutils")
+packages_list <- c("tidyverse","mvtnorm","salso")
+install.packages(packages_list)
 
 ## How to update the submodule
 
@@ -20,6 +35,8 @@ git submodule foreach git pull
 git commit -a -m 'Update submodule with fixes'
 git push origin master
 ```
+
+# Output
 
 ## How to compile the PDF files
 
