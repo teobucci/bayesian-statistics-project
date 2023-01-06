@@ -1151,7 +1151,8 @@ Gibbs_sampler = function(data,
     save_res = list(
         G = vector("list", length = niter),
         K = vector("list", length = niter),
-        rho = matrix(NA, nrow = niter, ncol = p)
+        #rho = matrix(NA, nrow = niter, ncol = p)
+        rho = vector("list", length = niter)
         )
     
     # initialize iteration counter
@@ -1264,7 +1265,8 @@ Gibbs_sampler = function(data,
             it_saved = it_saved + 1
             save_res$K[[it_saved]] = last_K
             save_res$G[[it_saved]] = last_G
-            save_res$rho[it_saved,] = rho
+            # save_res$rho[it_saved,] = rho
+            save_res$rho[[it_saved]] = rho
         }
         
         if(print){
