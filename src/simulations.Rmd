@@ -26,11 +26,11 @@ suppressWarnings(suppressPackageStartupMessages(library(salso)))
 ```{r}
 # copy and paste from functions.R
 Generate_data = function(n,p,z=NULL,W=NULL,seed=123421){
-    
+
     nu = max(n,p) # default choice of nu
     if(n<p)
         stop("p can not be larger than n")
-    
+
     if(is.null(z)){ #default is 3 groups
         if(p<3)
             stop("p must be greater than 3 if z is defaulted")
@@ -42,27 +42,27 @@ Generate_data = function(n,p,z=NULL,W=NULL,seed=123421){
         if(p != length(z))
             stop("the length of z should be p")
     }
-    
+
     if(is.null(W)){ #default is to sample a W from Wishart(nu, I_p)
         D = diag(p)
         set.seed(seed)
         W = MCMCpack::rwish(nu,D)
     }
-    
+
     # Generate V
     V = ComputeV(nu,W,z)
-    
+
     # Generate Omega
     Omega = MCMCpack::rwish(nu,V)
-    
+
     # Compute Sigma (inefficient)
     Sigma = solve(Omega)
-    
+
     # Generate data
     data = matrix(NA,nrow = n, ncol = p)
     data = t(apply(data, 1, FUN = function(x){ mvtnorm::rmvnorm(n = 1, sigma = Sigma)  }))
-    
-    #return 
+
+    #return
     return(list("data" = data,
                 "Omega" = Omega,
                 "Sigma" = Sigma,
@@ -78,8 +78,8 @@ ComputeV = function(nu,W,z){
         stop("length of z is different from nrow(W)")
     if(nu<=0)
         stop("nu can not be negative or zero")
-    
-    V = matrix(0,nrow = p,ncol = p) 
+
+    V = matrix(0,nrow = p,ncol = p)
     # fill the upper triangular part of V
     for(i in 1:p){
         for(j in (i+1):p){
@@ -165,8 +165,8 @@ nburn = 1
 thin = 1 # tieni tutti i multipli di thin
 
 log_open(file_name = "log_aiuto", show_notes=FALSE)
-res = invisible(Gibbs_sampler(data,niter,nburn,thin,options,seed=270999,print=F))
-log_close()
+res = Gibbs_sampler(data,niter,nburn,thin,options,seed=270999,print=F)
+
 ```
 
 If you are here, you are very luck. Don't even look at what's below if the upper code doesn't run. Fool.
@@ -218,7 +218,7 @@ plot(res$var_alpha_adp,type = 'l')
 
 # Diagnosis for the number of clusters
 
-nclus_per_iter = apply(res$Partition, 1, 
+nclus_per_iter = apply(res$Partition, 1,
                        FUN = function(x){length(unique(x))}) # res$Partition is a n_iter x p matrix
 plot(nclus_per_iter,type = 'l')
 barplot(table(nclus_per_iter)/length(nclus_per_iter) )
@@ -226,7 +226,7 @@ barplot(table(nclus_per_iter)/length(nclus_per_iter) )
 
 # Compute VI and Binder Loss function to select best partition
 
-# Get labels for each iterations for each data point 
+# Get labels for each iterations for each data point
 part_matrix <- res$Partition # (n_iter x n_data) matrix
 
 # Compute similarity matrix
@@ -299,7 +299,7 @@ plot(res$var_alpha_adp,type = 'l')
 
 # Diagnosis for the number of clusters
 
-nclus_per_iter = apply(res$Partition, 1, 
+nclus_per_iter = apply(res$Partition, 1,
                        FUN = function(x){length(unique(x))}) # res$Partition is a n_iter x p matrix
 plot(nclus_per_iter,type = 'l')
 barplot(table(nclus_per_iter)/length(nclus_per_iter) )
@@ -307,7 +307,7 @@ barplot(table(nclus_per_iter)/length(nclus_per_iter) )
 
 # Compute VI and Binder Loss function to select best partition
 
-# Get labels for each iterations for each data point 
+# Get labels for each iterations for each data point
 part_matrix <- res$Partition # (n_iter x n_data) matrix
 
 # Compute similarity matrix
@@ -349,7 +349,7 @@ seed=4567
 Omega = matrix(0,nrow = p,ncol = p)
 for(i in 1:(p-1)){
   for(j in (i+1):p){
-    
+
     if(z_true[i]==z_true[j]){
       # draw with prob p_in
       if(runif(n=1)<p_in)
@@ -359,7 +359,7 @@ for(i in 1:(p-1)){
         if(runif(n=1)<p_out)
           Omega[i,j] = 3.3
     }
-      
+
   }
 }
 Omega = Omega + t(Omega)
@@ -407,21 +407,21 @@ for(i in 1:length(res$Omega))
 Omega_est = Omega_est/length(res$Omega)
 
 # Plot Omega_true
-ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F, main = "Omega true", 
+ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F, main = "Omega true",
                    center_value = NULL,  
                    col.upper = "black",
                    col.center = "grey50",
                    col.lower = "white")
 
 #Plot empirical estimate
-ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F, main = "Empirical est", 
+ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F, main = "Empirical est",
                    center_value = NULL,  
                    col.upper = "black",
                    col.center = "grey50",
                    col.lower = "white")
 
 #Plot Omega estimated
-ACutils::ACheatmap(Omega_est,use_x11_device = F,horizontal = F, main = "Omega estimated", 
+ACutils::ACheatmap(Omega_est,use_x11_device = F,horizontal = F, main = "Omega estimated",
                    center_value = NULL,  
                    col.upper = "black",
                    col.center = "grey50",
@@ -453,7 +453,7 @@ plot(res$var_alpha_adp,type = 'l')
 
 # Diagnosis for the number of clusters
 
-nclus_per_iter = apply(res$Partition, 1, 
+nclus_per_iter = apply(res$Partition, 1,
                        FUN = function(x){length(unique(x))}) # res$Partition is a n_iter x p matrix
 plot(nclus_per_iter,type = 'l')
 barplot(table(nclus_per_iter)/length(nclus_per_iter) )
@@ -461,7 +461,7 @@ barplot(table(nclus_per_iter)/length(nclus_per_iter) )
 
 # Compute VI and Binder Loss function to select best partition
 
-# Get labels for each iterations for each data point 
+# Get labels for each iterations for each data point
 part_matrix <- res$Partition # (n_iter x n_data) matrix
 
 # Compute similarity matrix
@@ -523,21 +523,21 @@ for(i in 1:length(res$Omega))
 Omega_est = Omega_est/length(res$Omega)
 
 # Plot Omega_true
-ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F, main = "Omega true", 
+ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F, main = "Omega true",
                    center_value = NULL,  
                    col.upper = "black",
                    col.center = "grey50",
                    col.lower = "white")
 
 #Plot empirical estimate
-ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F, main = "Empirical est", 
+ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F, main = "Empirical est",
                    center_value = NULL,  
                    col.upper = "black",
                    col.center = "grey50",
                    col.lower = "white")
 
 #Plot Omega estimated
-ACutils::ACheatmap(Omega_est,use_x11_device = F,horizontal = F, main = "Omega estimated", 
+ACutils::ACheatmap(Omega_est,use_x11_device = F,horizontal = F, main = "Omega estimated",
                    center_value = NULL,  
                    col.upper = "black",
                    col.center = "grey50",
@@ -553,7 +553,7 @@ plot(res$var_alpha_adp,type = 'l')
 
 # Diagnosis for the number of clusters
 
-nclus_per_iter = apply(res$Partition, 1, 
+nclus_per_iter = apply(res$Partition, 1,
                        FUN = function(x){length(unique(x))}) # res$Partition is a n_iter x p matrix
 plot(nclus_per_iter,type = 'l')
 barplot(table(nclus_per_iter)/length(nclus_per_iter) )
@@ -561,7 +561,7 @@ barplot(table(nclus_per_iter)/length(nclus_per_iter) )
 
 # Compute VI and Binder Loss function to select best partition
 
-# Get labels for each iterations for each data point 
+# Get labels for each iterations for each data point
 part_matrix <- res$Partition # (n_iter x n_data) matrix
 
 # Compute similarity matrix
