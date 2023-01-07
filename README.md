@@ -11,11 +11,11 @@ This project was developed for the course of **Bayesian Statistics** for the MSc
   - [How to build the `FGM` package](#how-to-build-the-fgm-package)
   - [How to install the packages](#how-to-install-the-packages)
   - [How to compile the PDF files](#how-to-compile-the-pdf-files)
-  - [Authors](#authors)
-  - [Developer notes](#developer-notes)
-    - [How to update the submodule](#how-to-update-the-submodule)
-    - [How to format R code](#how-to-format-r-code)
-    - [Some help for debugging on macOS](#some-help-for-debugging-on-macos)
+- [Authors](#authors)
+- [Developer notes](#developer-notes)
+  - [How to update the submodule](#how-to-update-the-submodule)
+  - [How to format R code](#how-to-format-r-code)
+  - [Some help for debugging on macOS](#some-help-for-debugging-on-macos)
 
 
 # Installation
@@ -79,7 +79,7 @@ make prese1
 make prese2
 ```
 
-## Authors
+# Authors
 
 Supervisor: Alessandro Colombi ([@alessandrocolombi](https://github.com/alessandrocolombi))
 
@@ -90,9 +90,9 @@ Supervisor: Alessandro Colombi ([@alessandrocolombi](https://github.com/alessand
 - Andrea Puricelli ([@apuri99](https://github.com/apuri99))
 - Giulio Venturini ([@Vinavil334](https://github.com/Vinavil334))
 
-## Developer notes
+# Developer notes
 
-### How to update the submodule
+## How to update the submodule
 
 ```
 git pull origin master
@@ -101,13 +101,13 @@ git commit -a -m 'Update submodule with fixes'
 git push origin master
 ```
 
-### How to format R code
+## How to format R code
 
 Using [this guide](https://bookdown.org/dli/rguide/r-style-guide.html).
 
 In R you can use the commands: `Code` > `Reformat Code` to format the selected chunk of code.
 
-### Some help for debugging on macOS
+## Some help for debugging on macOS
 
 Open an R console in this way
 ```
