@@ -1228,6 +1228,16 @@ Gibbs_sampler = function(data,
                                                              last_G,
                                                              beta_params)
         }
+        else 
+            {
+                
+            pr=proposal_ratio(rho, alpha_add, weights_a, weights_d, choose_add=FALSE)
+            candidate=pr$candidate
+            list_output_update_partition<-list("rho"=rho,
+                                               "accepted" = FALSE, 
+                                               "choose_add" = FALSE, 
+                                               "candidate" = candidate)
+        }
         
         # TODO save the updated rho
         rho = list_output_update_partition$rho_updated
@@ -1298,3 +1308,4 @@ Gibbs_sampler = function(data,
     close(pb)
     return(save_res)
 }
+
