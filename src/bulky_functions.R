@@ -35,7 +35,7 @@ update_partition = function(rho,
     if (choose_add){
         log_print("Hai scelto una mossa ADD/SPLIT", console = FALSE)
     }else{
-        log_print("Hai scelto una mossa DELETE/MERGE",console = FALSE)
+        log_print("Hai scelto una mossa DELETE/MERGE", console = FALSE)
     }
     
     # OK
@@ -56,10 +56,10 @@ update_partition = function(rho,
     
     # OK
     rho_current = rho
-    log_print("rho_current",console = FALSE)
-    log_print(rho_current,console = FALSE)
-    log_print("rho_proposed",console = FALSE)
-    log_print(rho_proposed,console = FALSE)
+    log_print("rho_current", console = FALSE)
+    log_print(rho_current, console = FALSE)
+    log_print("rho_proposed", console = FALSE)
+    log_print(rho_proposed, console = FALSE)
 
     # c'e' un ricalcolo inutile dell'indice del gruppo da splittare o mergiare
     log_priorRatioNow = log_priorRatio(theta_prior, sigma_prior, rho_current, rho_proposed, choose_add)
@@ -721,12 +721,12 @@ get_S_star_from_S_and_rho = function(S, rho){
 
 # auxiliary function to evaluate the beta function for the likelihood ratio
 fB_general = function(group1,
-                        group2,
-                        S,
-                        S_star,
-                        alpha,
-                        beta,
-                        log = T) {
+                      group2,
+                      S,
+                      S_star,
+                      alpha,
+                      beta,
+                      log = T) {
     if (log) {
         return(lbeta(alpha + S[group1, group2], beta + S_star[group1, group2]))
     } else{
@@ -963,48 +963,45 @@ compute_weights_theta <- function(c, d, p, sigma_prior, k, j, f, z) {
 #'
 #' @param c First parameter of the shifted gamma prior 
 #' @param d Second parameter of the shifted gamma prior
-#' @param candidate 
-#' @param k 
+#' @param candidate proposed value for theta
+#' @param k number of groups
 #'
 #' @return scalar value for theta at the current iteration
 #' @export
 #'
 #' @examples
 #' #TODO  check that all the parameters make sense
-full_conditional_theta <- function(c, d, candidate, k, n){
+full_conditional_theta <- function(prior_c, prior_d, candidate, k, p, sigma_prior){
     weights <- rep(0,(k+1))
-    z <- rbeta(1,candidate + 2, n)
+    z <- rbeta(1,candidate + 2, p)
     f <- rexp (1,candidate + 1)
-    for(j in 1:k){ 
+    for (j in 1:k){ 
         # compute theta
-        weight_j <- compute_weights_theta(c, d, n, sigma, k, j-1, f, z)
+        weight_j <- compute_weights_theta(prior_c, prior_d, p, sigma_prior, k, j-1, f, z)
         weights_gamma[j] <- weight_j
     }
-    #Normalizing the weights
+
+    # normalizing the weights
     weights_gamma = weights_gamma/sum(weights_gamma)
     
-    #  I choose a random sample
     u = runif(1)
     
-    #TODO understand the meaning of this step
     component <- min(which(cumsum(weights_gamma) > u))
     
-    #BEWARE! There might be an error here on sigma, but it may depend on how it is passed
-    theta <- shifted_gamma(prior_c + (component-1), prior_d + f - log(z), sigma) #!!!shouldn't it be -sigma??
+    theta <- shifted_gamma(prior_c + (component-1), prior_d + f - log(z), - sigma_prior)
     
     return(theta)
 }
 
 
 
-#' Full-conditional for sigma (as in Martinez and Mena)
-#'
+#' Full-conditional for sigma (for further details see Section 4 Martinez & Mena (2014))
 #' The formula is on page 13 - ACHTUNG! They did everything in log and 
 #' returned the logged result, but I am returning the unlogged version 
 #' at the moment
 #'
-#' @param sigma ? not sure whether it is the previous
-#' @param theta Other parameter for the prior
+#' @param sigma value of sigma to be updated
+#' @param theta value of theta
 #' @param rho Current partition
 #' @param a First parameter of the distribution
 #' @param b Second parameter of the distribution
@@ -1016,27 +1013,27 @@ full_conditional_theta <- function(c, d, candidate, k, n){
 #' @export
 #'
 #' @examples
-full_conditional_sigma <- function(sigma,theta,rho,a,b,c,d){
+full_conditional_sigma <- function(sigma, theta, rho, a, b, c, d){
     
-    n_groups=length(rho)
-    
-    #First product term
-    log_prod_1 = numeric(0)
-    for(i in 1:(n_groups-1)){
-        log_prod_1 = log_prod_1 + log(theta + i*sigma)
+    n_groups <- length(rho)
+
+    # first product term
+    log_prod_1 <- 0
+    for (i in 1:(n_groups - 1)) {
+        log_prod_1 <- log_prod_1 + log(theta + i * sigma)
     }
-    
-    #Second product term
-    log_prod_2 <- numeric(0)
-    for(i in 1:n_groups){
-        log_prod_2 = log_prod_2 + lpochhammer((1-sigma),(rho[i]-1))
+
+    # second product term
+    log_prod_2 <- 0
+    for (i in 1:n_groups) {
+        log_prod_2 <- log_prod_2 + lpochhammer((1 - sigma), (rho[i] - 1))
     }
-    
-    #Final output
-    output <- (a-1) * log(sigma) + (b-1) * log(1-sigma) + 
-        (c-1)*log(theta + sigma) + log(exp(-d*sigma)) + 
+
+    # final output
+    output <- (a - 1) * log(sigma) + (b - 1) * log(1 - sigma) +
+        (c - 1) * log(theta + sigma) + log(exp(-d * sigma)) +
         log_prod_1 + log_prod_2
-    
+
     return(exp(output))
 }
 
@@ -1133,7 +1130,7 @@ Gibbs_sampler = function(data,
 {
     n = nrow(data) # number of observations
     p = ncol(data) # number of nodes
-    n_total_iter = nburn + niter*thin # total iterations to be made
+    n_total_iter = nburn + niter * thin # total iterations to be made
     
     # dynamic parameters
     sigma_prior     = options$sigma_prior_0 # initial parameter of the prior from Martinez and Mena (2014)
@@ -1145,7 +1142,7 @@ Gibbs_sampler = function(data,
     
     # constant parameters
     alpha_add = options$alpha_add # probability of choosing add over delete
-    alpha_target = options$alpha_target # target alpha for adapting weights
+    alpha_target = options$alpha_target # target acceptance ratio MH
    
     # parameter for the Wishart
     d = options$d
@@ -1207,7 +1204,7 @@ Gibbs_sampler = function(data,
     
     # start the simulation
     for(iter in 1:n_total_iter){
-        print(iter)
+
         log_print("Iter: ", console = FALSE)
         log_print(iter, console = FALSE)
 
@@ -1232,20 +1229,6 @@ Gibbs_sampler = function(data,
             # update total_graphs taking into consideration the weights
             total_graphs = total_graphs + output$last_graph * output$all_weights
         }
-
-        # fake G
-        #last_G = matrix(c(
-        #    0,0,0,0,0,0,0,0,0,1,
-        #    0,0,1,0,0,0,0,0,0,0,
-        #    0,1,0,0,0,0,0,0,0,0,
-        #    0,0,0,0,0,0,0,0,0,0,
-        #    0,0,0,0,0,0,0,0,0,0,
-        #    0,0,0,0,0,0,0,0,0,0,
-        #    0,0,0,0,0,0,0,0,0,0,
-        #    0,0,0,0,0,0,0,0,0,1,
-        #    0,0,0,0,0,0,0,0,0,0,
-        #    1,0,0,0,0,0,0,1,0,0
-        #    ), ncol = 10, byrow=TRUE)
         
         if(options$update_partition){
             list_output_update_partition <- update_partition(rho,
@@ -1311,18 +1294,14 @@ Gibbs_sampler = function(data,
             setTxtProgressBar(pb, iter)
         }
         
-        log_print("iter:",console = FALSE)
-        log_print(iter,console = FALSE)
-        log_print("last_G:",console = FALSE)
-        log_print(last_G,console = FALSE)
-        log_print("last_K:",console = FALSE)
-        log_print(last_K,console = FALSE)
-        log_print("total_weights:",console = FALSE)
-        log_print(total_weights,console = FALSE)
+        log_print("iter:", console = FALSE)
+        log_print(iter, console = FALSE)
+        log_print("last_G:", console = FALSE)
+        log_print(last_G, console = FALSE)
     }
   
-    graph_final = total_graphs/total_weights
-    save_res$graph = graph_final
+    graph_final <- total_graphs / total_weights
+    save_res$graph <- graph_final
     
     close(pb)
     return(save_res)

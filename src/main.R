@@ -130,5 +130,5 @@ nburn = 1
 thin = 1 # tieni tutti i multipli di thin
 
 log_open(file_name = "log_aiuto2", show_notes=FALSE)
-res = Gibbs_sampler(data,niter,nburn,thin,options,seed=270999,print=F)
+res = Gibbs_sampler(data,niter,nburn,thin,options,seed=270999,print=TRUE)
 log_close()
