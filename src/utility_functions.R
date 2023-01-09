@@ -172,18 +172,19 @@ compute_weights_theta=function(c, d, n, sigma, k, j, f, z){
 
 #' Shifted gamma function
 #'
-#' Computes a shifted gamma, given the parameters and the shift 
+#' Computes a shifted gamma, given the parameters and the shift.
+#' Z ~ shiftedGamma(alpha,beta,mu) is and only if Z-mu ~ Gamma(alpha,beta)
 #'
-#' @param u 
-#' @param o 
-#' @param sigma_shift 
+#' @param alpha first parameter of the Gamma
+#' @param beta second parameter of the Gamma
+#' @param mu shift parameter
 #'
 #' @return
 #' @export
 #'
 #' @examples
-shifted_gamma <- function(u,o,sigma_shift){
-    rgamma(1,u,o) + sigma_shift
+shifted_gamma <- function(alpha, beta, mu, n = 1) {
+    rgamma(n, alpha, beta) + mu
 }
 
 
