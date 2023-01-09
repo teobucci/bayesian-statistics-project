@@ -899,26 +899,18 @@ log_priorRatio = function(theta_prior,
     
     K = get_index_changed_group(rho_current,rho_proposed)
     
-    # move from the current quantities to the math formulas ones
-    
-    # cardinality of the group in the proposed partition
-    n_star_s = rho_proposed[K]
-    # same but the next one
-    n_star_s_plus_1 = rho_proposed[K + 1]
-    # in the add move, the cardinality in the current partition is the sum
-    n_s = n_star_s + n_star_s_plus_1
-    
     # compute the prior ratio
     log_ratio = - log(M) + log(theta_prior + M * sigma_prior)
-                + lpochhammer(1 - sigma_prior, n_star_s - 1)
-                + lpochhammer(1 - sigma_prior, n_star_s_plus_1 - 1)
+                + lpochhammer(1 - sigma_prior, rho_proposed[K] - 1)
+                + lpochhammer(1 - sigma_prior, rho_proposed[K + 1] - 1)
                 - lpochhammer(1 - sigma_prior, n_s - 1)
-                + lfactorial(n_s)
-                - lfactorial(n_star_s)
-                - lfactorial(n_star_s_plus_1)
+                + lfactorial(rho_proposed[K] + rho_proposed[K + 1])
+                - lfactorial(rho_proposed[K])
+                - lfactorial(rho_proposed[K + 1])
     
+    
+    # in the delete/merge case we have to invert everything
     if (!choose_add) {
-        # in the delete/merge case we have to invert everything
         log_ratio = -log_ratio
     }
     
