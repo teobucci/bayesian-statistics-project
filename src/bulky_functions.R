@@ -1007,7 +1007,6 @@ full_conditional_theta <- function(prior_c, prior_d, candidate, k, p, sigma_prio
 #' @param b Second parameter of the distribution
 #' @param c Third parameter of the distribution
 #' @param d Fourth parameter of the distribution
-#' @param n_groups It is the "k" of Martinez and Mena #TODO check but makes sense
 #'
 #' @return the value for sigma for the current iteration 
 #' @export
@@ -1151,11 +1150,6 @@ Gibbs_sampler = function(data,
     mu_beta = options$mu_beta
     sig2_beta = options$sig2_beta
     
-    #parameters for the sigma prior
-    sigma_parameters = list("a"=options$sigma_parameters[1],
-                            "b"=options$sigma_parameters[2],
-                            "c"=options$sigma_parameters[3],
-                            "d"=options$sigma_parameters[4] ) 
 
     # checks
     if(sum(rho) != p)
