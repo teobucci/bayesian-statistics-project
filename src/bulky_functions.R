@@ -926,7 +926,39 @@ log_priorRatio = function(theta_prior,
 }
 
 
-#' Full-conditional for theta (as in Martinez and Mena)
+
+
+#' Compute weights of the full conditional of theta 
+#' as described on Martinez and Mena (page 14)
+#'
+#' @param p     number of nodes
+#' @param sigma_prior other parameter used to compute the prior ratio
+#' @param k 
+#' @param j     index of the iteration for which we are computing the weight
+#' @param f     value drawn from Exp(θ+1)
+#' @param z     value drawn from Be(θ+2,n)
+#' @param c     prior first parameter of the shifted gamma
+#' @param d     prior second parameter of the shifted gamma
+#'
+#' @return
+#' @export
+#'
+#' @examples
+compute_weights_theta <- function(c, d, p, sigma_prior, k, j, f, z) {
+    abs_stir <- abs_stir_num_first_kind(k, j)
+    num <- (
+        (p - sigma_prior) * (p + 1 - sigma_prior) * abs_stirling_number_1st(k - 1, j) +
+            (2 * p + 1 - 2 * sigma_prior) * sigma_prior * abs_stirling_number_1st(k - 1, j - 1) +
+            (sigma_prior^2) * abs_stirling_number_1st(k - 1, j - 2)
+    ) * gamma(c + j)
+
+    denom <- (sigma_prior * (d + f - log(z)))^j
+    return(num / denom)
+}
+
+
+
+#' Full-conditional for theta (for further details see Proposition 1 Martinez and Mena (2014))
 #' TODO COMPLETE DOCUMENTATION
 #'
 #' @param c First parameter of the shifted gamma prior 

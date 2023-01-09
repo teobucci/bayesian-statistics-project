@@ -138,38 +138,6 @@ abs_stirling_number_1st <- function(k,j){
 }
 
 
-
-
-#' Compute weights of the full conditional of theta 
-#'
-#' as described on Martinez and Mena (page 14)
-#'
-#' @param n 
-#' @param sigma other parameter used to compute the prior ration
-#' @param k 
-#' @param j     index of the iteration for which we are computing the weight
-#' @param f     value drawn from Exp(θ+1)
-#' @param z     value drawn from Be(θ+2,n)
-#' @param c     prior first parameter of the shifted gamma
-#' @param d     prior second parameter of the shifted gamma
-#'
-#' @return
-#' @export
-#'
-#' @examples
-compute_weights_theta=function(c, d, n, sigma, k, j, f, z){
-    abs_stir= abs_stir_num_first_kind(k,j)
-    num = (
-        (n-sigma)*(n+1-sigma)*abs_stirling_number_1st(k-1,j) + 
-            (2*n + 1 - 2*sigma)*sigma*abs_stirling_number_1st(k-1,j-1) +
-            (sigma^2)*abs_stirling_number_1st(k-1,j-2)
-    ) * gamma(c+j)
-    
-    denom = (sigma * (d + f - log(z) ) )^j
-    return (num/denom)
-}
-
-
 #' Shifted gamma function
 #'
 #' Computes a shifted gamma, given the parameters and the shift.
