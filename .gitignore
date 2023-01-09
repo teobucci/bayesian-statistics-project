@@ -68,3 +68,4 @@ rsconnect/
 *.pyg
 *main.pdf
 *Bucci_Cipriani_Pagella_Petruso_Puricelli_Venturini.pdf
+.vscode/launch.json

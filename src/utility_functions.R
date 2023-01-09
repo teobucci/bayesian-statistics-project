@@ -187,3 +187,27 @@ shifted_gamma <- function(u,o,sigma_shift){
 }
 
 
+
+
+#' Computes the number of effective iterations - can be useful fod debug
+#'
+#' @param nburn burn value (number of iterations to be discarded)
+#' @param niter total number of iterations 
+#' @param nthin the number of iterations between each valid iteration and the next valid one one
+#'
+#' @return a scalar with the effective number of iterations
+#' @export
+#'
+#' @examples
+get_effective_iterations<-function(nburn,niter,nthin,print=F){
+    effective_niters=(niter/nthin)-(nburn/nthin)
+    if(print==T)
+        {
+        print("effective niters")
+        print(effective_niters)
+        }
+    return (effective_niters)
+}
+
+
+
