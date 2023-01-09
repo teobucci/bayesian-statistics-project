@@ -104,10 +104,10 @@ Sigma_true = data_from_prior$Sigma
 V = data_from_prior$V # cos'è?
 U = t(data)%*%data
 
-                      sigma_parameters=c(1,1,1,1),
-                      theta_prior0=1,
-                      theta_parameters=c(1,1),
 options = set_options(sigma_prior_0=0.5,
+                      sigma_prior_parameters=list("a"=1,"b"=1,"c"=1,"d"=1),
+                      theta_prior_0=1,
+                      theta_prior_parameters=list("c"=1,"d"=1),
                       rho0=c(5,5),
                       weights_a0=rep(1,p-1),
                       weights_d0=rep(1,p-1),

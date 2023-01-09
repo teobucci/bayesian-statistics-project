@@ -1253,7 +1253,7 @@ Gibbs_sampler = function(data,
                                                              weights_a,
                                                              weights_d,
                                                              theta_prior,
-                                                             sigma,
+                                                             sigma_prior,
                                                              last_G,
                                                              beta_params)
         }
