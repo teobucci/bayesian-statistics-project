@@ -17,7 +17,7 @@ update_partition = function(rho,
                             weights_a,
                             weights_d,
                             theta_prior,
-                            sigma,
+                            sigma_prior,
                             G,
                             beta_params) {
     unifsample = runif(n = 1)
@@ -62,7 +62,7 @@ update_partition = function(rho,
     log_print(rho_proposed,console = FALSE)
 
     # c'e' un ricalcolo inutile dell'indice del gruppo da splittare o mergiare
-    log_priorRatioNow = log_priorRatio(theta_prior, sigma, rho_current, rho_proposed, choose_add)
+    log_priorRatioNow = log_priorRatio(theta_prior, sigma_prior, rho_current, rho_proposed, choose_add)
     
     # OK
     log_likelihood_ratioNow = log_likelihood_ratio(alpha_add,
@@ -380,7 +380,7 @@ merge_partition <- function(candidate_index, rho) {
 #' @export
 #'
 #' @examples
-shuffle_partition <- function(rho_current, G, sigma, alpha, beta) {
+shuffle_partition <- function(rho_current, G, sigma_prior, alpha, beta) {
     # vedi Corradin p.16 step (ii)
     
     # number of groups
@@ -412,10 +412,10 @@ shuffle_partition <- function(rho_current, G, sigma, alpha, beta) {
     rho_proposed[K] <- l
     
     # compute log_prior_ratio
-    log_prior_ratio = lpochhammer(1 - sigma, l)
-                    + lpochhammer(1 - sigma, rho_current[K] + rho_current[K + 1] - l)
-                    - lpochhammer(1 - sigma, rho_current[K] - 1)
-                    - lpochhammer(1 - sigma, rho_current[K + 1] - 1)
+    log_prior_ratio = lpochhammer(1 - sigma_prior, l)
+                    + lpochhammer(1 - sigma_prior, rho_current[K] + rho_current[K + 1] - l)
+                    - lpochhammer(1 - sigma_prior, rho_current[K] - 1)
+                    - lpochhammer(1 - sigma_prior, rho_current[K + 1] - 1)
                     + lfactorial(rho_current[K])
                     + lfactorial(rho_current[K + 1])
                     - lfactorial(l)
@@ -881,7 +881,7 @@ get_index_changed_group = function(rho_current,rho_proposed){
 
 #TODO add documentation here!!
 log_priorRatio = function(theta_prior,
-                          sigma,
+                          sigma_prior,
                           rho_current,
                           rho_proposed,
                           choose_add)
@@ -909,10 +909,10 @@ log_priorRatio = function(theta_prior,
     n_s = n_star_s + n_star_s_plus_1
     
     # compute the prior ratio
-    log_ratio = - log(M) + log(theta_prior + M * sigma)
-                + lpochhammer(1 - sigma, n_star_s - 1)
-                + lpochhammer(1 - sigma, n_star_s_plus_1 - 1)
-                - lpochhammer(1 - sigma, n_s - 1)
+    log_ratio = - log(M) + log(theta_prior + M * sigma_prior)
+                + lpochhammer(1 - sigma_prior, n_star_s - 1)
+                + lpochhammer(1 - sigma_prior, n_star_s_plus_1 - 1)
+                - lpochhammer(1 - sigma_prior, n_s - 1)
                 + lfactorial(n_s)
                 - lfactorial(n_star_s)
                 - lfactorial(n_star_s_plus_1)
@@ -1013,10 +1013,10 @@ full_conditional_sigma <- function(sigma,theta,rho,a,b,c,d){
 #TODO add the list of sigma and theta parameters 
 #- understand whether a,b,c,d are dependent on other parameters
 
-set_options = function(sigma0,
-                       sigma_parameters,
-                       theta_prior0,
-                       theta_parameters,
+set_options = function(sigma_prior_0,
+                       sigma_prior_parameters,
+                       theta_prior_0,
+                       theta_prior_parameters,
                        rho0,
                        weights_a0,
                        weights_d0,
@@ -1026,7 +1026,7 @@ set_options = function(sigma0,
                        d=3,
                        alpha_add=0.5,
                        adaptation_step,
-                       update_sigma=T,
+                       update_sigma_prior=T,
                        update_theta_prior=T,
                        update_weights=T,
                        update_partition=T,
@@ -1034,25 +1034,25 @@ set_options = function(sigma0,
                        perform_shuffle=T) {
   
     options = list(
-        "sigma0"             = sigma0,
-        "sigma_parameters"   = sigma_parameters,
-        "theta_prior0"       = theta_prior0,
-        "theta_parameters"   = theta_parameters,
-        "rho0"               = rho0,
-        "weights_a0"         = weights_a0,
-        "weights_d0"         = weights_d0,
-        "alpha_target"       = alpha_target,
-        "mu_beta"            = mu_beta,
-        "sig2_beta"          = sig2_beta,
-        "d"                  = d,
-        "alpha_add"          = alpha_add,
-        "adaptation_step"    = adaptation_step,
-        "update_sigma"       = update_sigma,
-        "update_theta_prior" = update_theta_prior,
-        "update_weights"     = update_weights,
-        "update_partition"   = update_partition,
-        "update_graph"       = update_graph,
-        "perform_shuffle"    = perform_shuffle
+        "sigma_prior_0"         = sigma_prior_0,
+        "sigma_prior_parameters"  = sigma_prior_parameters,
+        "theta_prior_0"         = theta_prior_0,
+        "theta_prior_parameters"  = theta_prior_parameters,
+        "rho0"                    = rho0,
+        "weights_a0"              = weights_a0,
+        "weights_d0"              = weights_d0,
+        "alpha_target"            = alpha_target,
+        "mu_beta"                 = mu_beta,
+        "sig2_beta"               = sig2_beta,
+        "d"                       = d,
+        "alpha_add"               = alpha_add,
+        "adaptation_step"         = adaptation_step,
+        "update_sigma_prior"      = update_sigma_prior,
+        "update_theta_prior"      = update_theta_prior,
+        "update_weights"          = update_weights,
+        "update_partition"        = update_partition,
+        "update_graph"            = update_graph,
+        "perform_shuffle"         = perform_shuffle
     )
     return(options)
 }
@@ -1104,12 +1104,12 @@ Gibbs_sampler = function(data,
     n_total_iter = nburn + niter*thin # total iterations to be made
     
     # dynamic parameters
-    sigma            = options$sigma0 # initial parameter of the PY prior
-    theta_prior      = options$theta_prior0 # initial parameter of the PY prior
-    rho              = options$rho0 # initial partition (e.g. c(150,151))
-    weights_a        = options$weights_a0 # add weights
-    weights_d        = options$weights_d0 # delete weights
-    adaptation_step  = options$adaptation_step # adaptation step h
+    sigma_prior     = options$sigma_prior_0 # initial parameter of the prior from Martinez and Mena (2014)
+    theta_prior     = options$theta_prior_0 # initial parameter of the prior from Martinez and Mena (2014)
+    rho             = options$rho0 # initial partition (e.g. c(150,151))
+    weights_a       = options$weights_a0 # add weights
+    weights_d       = options$weights_d0 # delete weights
+    adaptation_step = options$adaptation_step # adaptation step h
     
     # constant parameters
     alpha_add = options$alpha_add # probability of choosing add over delete
@@ -1249,19 +1249,19 @@ Gibbs_sampler = function(data,
         }
         
         if(options$perform_shuffle){
-            rho = shuffle_partition(rho, last_G, sigma, beta_params$alpha, beta_params$beta)
+            rho = shuffle_partition(rho, last_G, sigma_prior, beta_params$alpha, beta_params$beta)
         }
         
-        if(options$update_sigma){
+        if(options$update_sigma_prior){
             # TODO check whether a,b,c,d are just for sigma or 
             # whether they are shared with other functions!
             # And then just call them in a different way maybe
-            sigma = full_conditional_sigma(
-                sigma,theta_prior,rho,
-                sigma_parameters$a,
-                sigma_parameters$b,
-                sigma_parameters$c,
-                sigma_parameters$d
+            sigma_prior = full_conditional_sigma(
+                sigma_prior,theta_prior,rho,
+                sigma_prior_parameters$a,
+                sigma_prior_parameters$b,
+                sigma_prior_parameters$c,
+                sigma_prior_parameters$d
                 )
         }
 
@@ -1269,8 +1269,8 @@ Gibbs_sampler = function(data,
         # TODO understand better what is k and what is n
         if(options$update_theta_prior){
           theta = full_conditional_theta(
-              theta_parameters$c, 
-              theta_parameters$d, 
+              theta_prior_parameters$c, 
+              theta_prior_parameters$d, 
               candidate, k, n)
         }
         

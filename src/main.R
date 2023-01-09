@@ -104,10 +104,10 @@ Sigma_true = data_from_prior$Sigma
 V = data_from_prior$V # cos'è?
 U = t(data)%*%data
 
-options = set_options(sigma0=0.5,
                       sigma_parameters=c(1,1,1,1),
                       theta_prior0=1,
                       theta_parameters=c(1,1),
+options = set_options(sigma_prior_0=0.5,
                       rho0=c(5,5),
                       weights_a0=rep(1,p-1),
                       weights_d0=rep(1,p-1),
@@ -117,7 +117,7 @@ options = set_options(sigma0=0.5,
                       d=3,
                       alpha_add=0.5,
                       adaptation_step=0.5,
-                      update_sigma=F,
+                      update_sigma_prior=F,
                       update_theta_prior=F,
                       update_weights=T,
                       update_partition=T,
