@@ -555,7 +555,7 @@ get_S_from_G_rho = function(G, rho) {
 # Handles all the cases: add, delete, shuffle, i.e. "a new group is added",
 # "a group is deleted", "same number of groups, but two groups exchange some
 # elements".
-get_S_from_G_rho_oldrho_oldS = function(G,rho,oldrho,oldS,debug=F){
+get_S_from_G_rho_oldrho_oldS = function(G,rho,oldrho,oldS){
     
     # check on G
     if (!all(t(G) == G))
@@ -1054,12 +1054,12 @@ set_options = function(sigma_prior_0,
                        d=3,
                        alpha_add=0.5,
                        adaptation_step,
-                       update_sigma_prior=T,
-                       update_theta_prior=T,
-                       update_weights=T,
-                       update_partition=T,
-                       update_graph=T,
-                       perform_shuffle=T) {
+                       update_sigma_prior=TRUE,
+                       update_theta_prior=TRUE,
+                       update_weights=TRUE,
+                       update_partition=TRUE,
+                       update_graph=TRUE,
+                       perform_shuffle=TRUE) {
   
     options = list(
         "sigma_prior_0"         = sigma_prior_0,
@@ -1125,7 +1125,7 @@ Gibbs_sampler = function(data,
                          thin,
                          options,
                          seed=1234,
-                         print=T)
+                         print=TRUE)
 {
     n = nrow(data) # number of observations
     p = ncol(data) # number of nodes

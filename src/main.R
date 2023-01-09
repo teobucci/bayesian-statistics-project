@@ -104,6 +104,10 @@ Sigma_true = data_from_prior$Sigma
 V = data_from_prior$V # cos'è?
 U = t(data)%*%data
 
+
+# https://stackoverflow.com/a/57571028/16222204
+# Use TRUE/FALSE instead of T/F
+
 options = set_options(sigma_prior_0=0.5,
                       sigma_prior_parameters=list("a"=1,"b"=1,"c"=1,"d"=1),
                       theta_prior_0=1,
@@ -117,12 +121,12 @@ options = set_options(sigma_prior_0=0.5,
                       d=3,
                       alpha_add=0.5,
                       adaptation_step=0.5,
-                      update_sigma_prior=F,
-                      update_theta_prior=F,
-                      update_weights=T,
-                      update_partition=T,
-                      update_graph=T,
-                      perform_shuffle=T)
+                      update_sigma_prior=FALSE,
+                      update_theta_prior=FALSE,
+                      update_weights=TRUE,
+                      update_partition=TRUE,
+                      update_graph=TRUE,
+                      perform_shuffle=TRUE)
 
 nburn = 1
 niter = 2500
