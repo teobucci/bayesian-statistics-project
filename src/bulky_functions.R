@@ -1256,27 +1256,17 @@ Gibbs_sampler = function(data,
                                                              sigma_prior,
                                                              last_G,
                                                              beta_params)
-        }
-        else 
-            {
-                
-            pr=proposal_ratio(rho, alpha_add, weights_a, weights_d, choose_add=FALSE)
-            candidate=pr$candidate
-            list_output_update_partition<-list("rho"=rho,
-                                               "accepted" = FALSE, 
-                                               "choose_add" = FALSE, 
-                                               "candidate" = candidate)
-        }
-        
-        # TODO save the updated rho
-        rho = list_output_update_partition$rho_updated
+            
+            rho = list_output_update_partition$rho_updated
 
-        # update the single weight at the point only if the move has been accepted
-        if(options$update_weights & list_output_update_partition$accepted){
-            if(list_output_update_partition$choose_add){
-                weights_a = update_weight(weights_a, list_output_update_partition$candidate, adaptation_step, t_over_p, alpha_add, alpha_target)
-            } else {
-                weights_d = update_weight(weights_d, list_output_update_partition$candidate, adaptation_step, t_over_p, 1-alpha_add, alpha_target)
+            # it makes sense to perform the adaptive step only if we're updating the partition
+            # update the single weight at the point only if the move has been accepted
+            if(options$update_weights & list_output_update_partition$accepted){
+                if(list_output_update_partition$choose_add){
+                    weights_a = update_weight(weights_a, list_output_update_partition$candidate, adaptation_step, t_over_p, alpha_add, alpha_target)
+                } else {
+                    weights_d = update_weight(weights_d, list_output_update_partition$candidate, adaptation_step, t_over_p, 1-alpha_add, alpha_target)
+                }
             }
         }
         
