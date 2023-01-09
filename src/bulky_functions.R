@@ -439,7 +439,7 @@ shuffle_partition <- function(rho_current, G, sigma_prior, alpha, beta) {
             S_star,
             alpha = alpha,
             beta = beta,
-            log = T
+            log = TRUE
         ))
     }
     
@@ -515,7 +515,7 @@ get_S_from_G_rho = function(G, rho) {
     M = length(rho)
     
     # initialize S matrix
-    S = matrix(numeric(M * M), nrow = M, byrow = T)
+    S = matrix(numeric(M * M), nrow = M, byrow = TRUE)
     
     # indexes of the right bounds of the partition
     bounds = cumsum(rho)
@@ -574,7 +574,7 @@ get_S_from_G_rho_oldrho_oldS = function(G,rho,oldrho,oldS){
     if(M > oldM){ # case Add
         
         # initialize S matrix
-        S = matrix(numeric(M * M), nrow = M, byrow = T)
+        S = matrix(numeric(M * M), nrow = M, byrow = TRUE)
         
         # find the group that has changed
         K = min(which(rho != c(oldrho,NA)))
@@ -610,7 +610,7 @@ get_S_from_G_rho_oldrho_oldS = function(G,rho,oldrho,oldS){
     } else if(M < oldM) { # case Delete
         
         # initialize S matrix
-        S = matrix(numeric(M * M), nrow = M, byrow = T)
+        S = matrix(numeric(M * M), nrow = M, byrow = TRUE)
         
         # find the group that has changed
         K = min(which(oldrho != c(rho,NA)))
@@ -699,7 +699,7 @@ get_S_star_from_S_and_rho = function(S, rho){
     M = length(rho)
     
     # initialize S_star matrix
-    S_star = matrix(numeric(M * M), nrow = M, byrow = T)
+    S_star = matrix(numeric(M * M), nrow = M, byrow = TRUE)
     
     # loop through the groups
     for (l in 1:M) {
@@ -726,7 +726,7 @@ fB_general = function(group1,
                       S_star,
                       alpha,
                       beta,
-                      log = T) {
+                      log = TRUE) {
     if (log) {
         return(lbeta(alpha + S[group1, group2], beta + S_star[group1, group2]))
     } else{
@@ -737,7 +737,7 @@ fB_general = function(group1,
 
 fB_zero = function(alpha,
                         beta,
-                        log = T) {
+                        log = TRUE) {
     if (log) {
         return(lbeta(alpha, beta))
     } else{
