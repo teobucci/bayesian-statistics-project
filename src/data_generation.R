@@ -140,32 +140,32 @@ n = 200
 sim = Generate_BlockDiagonal(n=n,z_true = z_true)
 
 # Plot Prec
-ACutils::ACheatmap(sim$Prec,use_x11_device = F,horizontal = F, main = "Precision", 
-                   center_value = NULL,  
-                   col.upper = "black",
-                   col.center = "grey50",
-                   col.lower = "white")
+#ACutils::ACheatmap(sim$Prec,use_x11_device = F,horizontal = F, main = "Precision", 
+                   #center_value = NULL,  
+                   #col.upper = "black",
+                   #col.center = "grey50",
+                   #col.lower = "white")
 
 # Plot Cov
-ACutils::ACheatmap(sim$Cov,use_x11_device = F,horizontal = F, main = "Covariance", 
-                   center_value = NULL,  
-                   col.upper = "black",
-                   col.center = "grey50",
-                   col.lower = "white")
+#ACutils::ACheatmap(sim$Cov,use_x11_device = F,horizontal = F, main = "Covariance", 
+                   #center_value = NULL,  
+                   #col.upper = "black",
+                   #col.center = "grey50",
+                   #col.lower = "white")
 
 #Plot empirical estimate
-ACutils::ACheatmap(solve(cov(sim$data)),use_x11_device = F,horizontal = F, main = "Empirical estimate", 
-                   center_value = NULL,  
-                   col.upper = "black",
-                   col.center = "grey50",
-                   col.lower = "white")
+#ACutils::ACheatmap(solve(cov(sim$data)),use_x11_device = F,horizontal = F, main = "Empirical estimate", 
+                   #center_value = NULL,  
+                   #col.upper = "black",
+                   #col.center = "grey50",
+                   #col.lower = "white")
 
 #Plot graph
-ACutils::ACheatmap(sim$G,use_x11_device = F,horizontal = F, main = "Graph", 
-                   center_value = NULL,  
-                   col.upper = "black",
-                   col.center = "grey50",
-                   col.lower = "white")
+#ACutils::ACheatmap(sim$G,use_x11_device = F,horizontal = F, main = "Graph", 
+                  # center_value = NULL,  
+                  # col.upper = "black",
+                  # col.center = "grey50",
+                  # col.lower = "white")
 
 
 
@@ -174,39 +174,39 @@ ACutils::ACheatmap(sim$G,use_x11_device = F,horizontal = F, main = "Graph",
 sim = Generate_Block(n=n,z_true = z_true)
 
 # Plot Theta
-ACutils::ACheatmap(sim$Theta,use_x11_device = F,horizontal = F, main = "Theta", 
-                   center_value = NULL,  
-                   col.upper = "black",
-                   col.center = "grey50",
-                   col.lower = "white")
+#ACutils::ACheatmap(sim$Theta,use_x11_device = F,horizontal = F, main = "Theta", 
+                   #center_value = NULL,  
+                   #col.upper = "black",
+                   #col.center = "grey50",
+                   #col.lower = "white")
 
 # Plot Prec
-ACutils::ACheatmap(sim$Prec,use_x11_device = F,horizontal = F, main = "Precision", 
-                   center_value = NULL,  
-                   col.upper = "black",
-                   col.center = "grey50",
-                   col.lower = "white")
+#ACutils::ACheatmap(sim$Prec,use_x11_device = F,horizontal = F, main = "Precision", 
+                   #center_value = NULL,  
+                   #col.upper = "black",
+                   #col.center = "grey50",
+                   #col.lower = "white")
 
 # Plot Cov
-ACutils::ACheatmap(sim$Cov,use_x11_device = F,horizontal = F, main = "Covariance", 
-                   center_value = NULL,  
-                   col.upper = "black",
-                   col.center = "grey50",
-                   col.lower = "white")
+#ACutils::ACheatmap(sim$Cov,use_x11_device = F,horizontal = F, main = "Covariance", 
+                   #center_value = NULL,  
+                   #col.upper = "black",
+                   #col.center = "grey50",
+                   #col.lower = "white")
 
 #Plot empirical estimate
-ACutils::ACheatmap(solve(cov(sim$data)),use_x11_device = F,horizontal = F, main = "Empirical estimate", 
-                   center_value = NULL,  
-                   col.upper = "black",
-                   col.center = "grey50",
-                   col.lower = "white")
+#ACutils::ACheatmap(solve(cov(sim$data)),use_x11_device = F,horizontal = F, main = "Empirical estimate", 
+                   #center_value = NULL,  
+                   #col.upper = "black",
+                   #col.center = "grey50",
+                   #col.lower = "white")
 
 #Plot graph
-ACutils::ACheatmap(sim$G,use_x11_device = F,horizontal = F, main = "Graph", 
-                   center_value = NULL,  
-                   col.upper = "black",
-                   col.center = "grey50",
-                   col.lower = "white")
+#ACutils::ACheatmap(sim$G,use_x11_device = F,horizontal = F, main = "Graph", 
+                   #center_value = NULL,  
+                   #col.upper = "black",
+                   #col.center = "grey50",
+                   #col.lower = "white")
 
 
 

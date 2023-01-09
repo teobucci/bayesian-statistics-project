@@ -124,7 +124,11 @@ options = set_options(sigma0=0.5,
                       update_graph=T,
                       perform_shuffle=T)
 
-niter = 5000
+nburn = 1
+niter = 2500
 nburn = 1
 thin = 1 # tieni tutti i multipli di thin
+
+log_open(file_name = "log_aiuto2", show_notes=FALSE)
 res = Gibbs_sampler(data,niter,nburn,thin,options,seed=270999,print=F)
+log_close()
