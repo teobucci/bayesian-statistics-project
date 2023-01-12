@@ -41,7 +41,6 @@ where
     \item $S_{uv}$ is the sum of the edges between group $u$ and $v$.
     \item $S^{\star}_{uv}$ is the sum of the ``non-edges'', namely $S^{\star}_{uv} = T_{uv} - S_{uv}$ and $T_{uv}$ is the total number of possible edges.
 \end{itemize}
-\pause
 
 
 \end{frame}
@@ -117,6 +116,7 @@ where
             \item Propose a new partition by splitting one group into two or merging two adjacent.
             \item Accept or reject using\vphantom{un banale} Metropolis Hastings. The target is:
             $f(\rho \mid G) \approx f_G(G \mid \rho) f_{\rho}(\rho)$
+            \pause
             \[
                 \alpha_{\text{accept}} = \min
                 \bigg\{1,
@@ -174,24 +174,25 @@ Denoting by $a^{\star} = \sum_{j\in \{\text{admissible split nodes}\}}{a_{j}^{(t
     \cdot
     \frac{\frac{d_{i}^{(t)}}{d^{\star}+d_{i}^{(t)}}}{\frac{a_{i}^{(t)}}{a^{\star}}}
 \]
+\pause
 The extreme cases ``every node belonging to the same group'' and ``every node has its own group'' are dealt with separately.
 
 \end{frame}
 
 \begin{frame}{Adaptive step}
-    The two weights vectors $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$ are updated at each iteration $t$ as in \cite{bensonAdaptiveMCMCMultiple2018} using the following 
-    \textbf{adaptation scheme}.
-
+    The two weights vectors $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$ are updated at each iteration $t$ as in \cite{bensonAdaptiveMCMCMultiple2018} using the following \textbf{adaptation scheme}.
+    \pause
+    
     \begin{itemize}
         \item If a \alert{split} move at node $i$ has been accepted, then update:
 		\[
-		\log (a_i^{(t+1)})=\log (a_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{split}}-\alpha_{\text{target}}) .
+		    \log (a_i^{(t+1)})=\log (a_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{split}}-\alpha_{\text{target}}) .
 		\]
         \item If a \alert{merge} move at node $i$ has been accepted, then update:
 		\[
-		\log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{merge}}-\alpha_{\text{target}}) .
+		    \log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{merge}}-\alpha_{\text{target}}) .
 		\]
-        \end{itemize}
+    \end{itemize}
 Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number of nodes $(p)$, $\alpha_{\text{target}}$ is the target MH acceptance rate and $\alpha_{\text{merge}} = 1 - \alpha_{\text{split}}$.
 
 \end{frame}
