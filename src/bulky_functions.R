@@ -903,7 +903,7 @@ log_priorRatio = function(theta_prior,
     log_ratio = - log(M) + log(theta_prior + M * sigma_prior)
                 + lpochhammer(1 - sigma_prior, rho_proposed[K] - 1)
                 + lpochhammer(1 - sigma_prior, rho_proposed[K + 1] - 1)
-                - lpochhammer(1 - sigma_prior, n_s - 1)
+                - lpochhammer(1 - sigma_prior, rho_proposed[K] + rho_proposed[K + 1] - 1)
                 + lfactorial(rho_proposed[K] + rho_proposed[K + 1])
                 - lfactorial(rho_proposed[K])
                 - lfactorial(rho_proposed[K + 1])
