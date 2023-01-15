@@ -1,0 +1,117 @@
+%!TeX program = lualatex
+
+% Author         : Pedro Ferreira (up201806093@up.pt)
+% Version        : 1.0
+% Created on     : 12.08.2022
+% Last Edited on : 14.08.2022
+
+% Adapted from HSRM theme by Benjamin Weiss
+% Copyright      : Copyright (c) 2013-2014 by Benjamin Weiss. All rights reserved.
+% License        : This file may be distributed and/or modified under the
+%                  GNU Public License.
+% Description    : HSRM beamer theme demonstration. Also includes a short 
+%                  Tutorial regarding the beamer class.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                    !!! Compile with LuaLaTex !!!
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[compress,aspectratio=169,handout]{beamer}
+\input{style}
+\usepackage[
+backend=biber, %default
+bibstyle=authoryear,
+citestyle=authoryear,
+isbn=false,
+url=false,
+doi=false,
+eprint=false,
+firstinits=true,
+minbibnames=1,maxbibnames=5
+]{biblatex}
+\addbibresource{../../bibliography.bib}
+%\setbeamertemplate{bibliography item}{\insertbiblabel}
+
+\usepackage{bm}
+
+% per evidenziare
+\usepackage{xcolor}
+\newcommand{\highlight}[1]{%
+  \colorbox{orange!50}{$\displaystyle#1$}}
+
+\newcommand{\iid}{\overset{\text{\tiny{iid}}}{\sim}}
+\newcommand{\ind}{\overset{\text{\tiny{ind}}}{\sim}}
+\newcommand{\horiz}{\par\noindent\rule{\textwidth}{0.4pt}\\}
+\newcommand{\indep}{\perp \!\!\! \perp} % indipendenza
+\usepackage{blindtext}
+\DeclareMathOperator{\Be}{Be}
+\DeclareMathOperator{\Beta}{Beta}
+\DeclareMathOperator{\GWish}{G-Wishart}
+\renewcommand{\theta}{\vartheta}
+%--------------------------------------------------------------------------
+% Common packages
+%--------------------------------------------------------------------------
+
+\usepackage{graphicx}
+\usepackage{multicol}
+
+% Advanced table functions
+\usepackage{tabularx,ragged2e}
+\usepackage{booktabs}
+
+%--------------------------------------------------------------------------
+% Load theme
+%--------------------------------------------------------------------------
+\usepackage{sleektheme/beamerthemesleek}
+\usetheme[]{sleek}
+
+\usepackage{sleektheme/dtklogos} % must be loaded after theme
+\usepackage{tikz}
+\usetikzlibrary{mindmap,backgrounds}
+
+%--------------------------------------------------------------------------
+% General presentation settings
+%--------------------------------------------------------------------------
+\title{Stochastic Block Model Prior\\with Ordering Constraints\\for Gaussian Graphical Models}
+
+\author{\Medium{Teo Bucci, Filippo Cipriani,\\Filippo Pagella, Flavia Petruso,\\Andrea Puricelli, Giulio Venturini}}
+
+\subtitle{Supervisor: Dr. Alessandro Colombi}
+
+\institute{Bayesian Statistics\\MSc. Mathematical Engineering\\Politecnico di Milano}
+
+\date{February 14, 2023}
+
+
+%--------------------------------------------------------------------------
+% Notes settings
+%--------------------------------------------------------------------------
+\setbeameroption{show notes}
+
+\begin{document}
+%--------------------------------------------------------------------------
+% Titlepage
+%--------------------------------------------------------------------------
+\maketitle
+
+%--------------------------------------------------------------------------
+% Table of contents
+%--------------------------------------------------------------------------
+\section*{Contents}
+\begin{frame}{Contents}
+	% Add background to content page
+	\AddToShipoutPictureFG*{\includegraphics[width=\paperwidth]{Images/background.pdf}}
+	% hideallsubsections is recommended for longer presentations
+	%\tableofcontents[hideallsubsections]
+    \tableofcontents
+\end{frame}
+
+%--------------------------------------------------------------------------
+% Content
+%--------------------------------------------------------------------------
+
+\input{content}
+
+\end{document}
