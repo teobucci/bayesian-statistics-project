@@ -88,6 +88,10 @@ ComputeV = function(nu,W,z){
 #nu = max(n,p)
 library("FGM")
 library("gmp")
+library("mcclust") # masks binder from salso
+
+# devtools::install_github("sarawade/mcclust.ext")
+library("mcclust.ext")
 
 utility_path = file.path("src/utility_functions.R")
 file.exists(utility_path)
