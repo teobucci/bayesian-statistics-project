@@ -1,3 +1,14 @@
+---
+title: "simulations2"
+output: html_document
+date: "2023-01-17"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
 library(logr)
 suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
 suppressWarnings(suppressPackageStartupMessages(library(ACutils)))
@@ -76,21 +87,22 @@ ComputeV = function(nu,W,z){
 #W = solve(cov(data))
 #nu = max(n,p)
 library("FGM")
+library("gmp")
 
-utility_path = file.path("src/utility_functions.R")
+utility_path = file.path("utility_functions.R")
 file.exists(utility_path)
 source(utility_path)
 
-bulky_path = file.path("src/bulky_functions.R")
+bulky_path = file.path("bulky_functions.R")
 file.exists(bulky_path)
 source(bulky_path)
 
-data_generation_path = file.path("src/data_generation.R")
+data_generation_path = file.path("data_generation.R")
 file.exists(data_generation_path)
 source(data_generation_path)
 
 
-z_true = c(1,1,1,2,2,3,3,3,4,4) # these are the groups memberships (10 nodes)
+z_true = c(1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,5,5,5,6) # these are the groups memberships (10 nodes)
 counts_true = as.vector(table(z_true))
 Nclust_true  = length(counts_true)
 
@@ -112,7 +124,7 @@ options = set_options(sigma_prior_0=0.5,
                       sigma_prior_parameters=list("a"=1,"b"=1,"c"=1,"d"=1),
                       theta_prior_0=1,
                       theta_prior_parameters=list("c"=1,"d"=1),
-                      rho0=c(5,5),
+                      rho0=c(10,10),
                       weights_a0=rep(1,p-1),
                       weights_d0=rep(1,p-1),
                       alpha_target=0.40,
@@ -129,10 +141,13 @@ options = set_options(sigma_prior_0=0.5,
                       perform_shuffle=TRUE)
 
 nburn = 1
-niter = 1000
+niter = 25000
 nburn = 1
 thin = 1 # tieni tutti i multipli di thin
-
+```
+```{r}
 log_open(file_name = "log_aiuto2", show_notes=FALSE)
-res = Gibbs_sampler(data,niter,nburn,thin,options,seed=1234,print=TRUE)
+res = Gibbs_sampler(data,niter,nburn,thin,options,seed=123456,print=TRUE)
 log_close()
+```
+

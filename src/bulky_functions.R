@@ -397,6 +397,7 @@ shuffle_partition <- function(rho_current, G, sigma_prior, alpha, beta) {
     
     if (rho_current[K] == 1 & rho_current[K+1] == 1){
         # can't shuffle anything without reproposing the same partition
+        log_print("can't shuffle anything without reproposing the same partition", console = F)
         return(rho_current)
     }
     
@@ -899,6 +900,7 @@ log_priorRatio = function(theta_prior,
     
     K = get_index_changed_group(rho_current,rho_proposed)
     
+    #print(sigma_prior)
     # compute the prior ratio
     log_ratio = - log(M) + log(theta_prior + M * sigma_prior)
                 + lpochhammer(1 - sigma_prior, rho_proposed[K] - 1)
@@ -937,7 +939,7 @@ log_priorRatio = function(theta_prior,
 #'
 #' @examples
 compute_weights_theta <- function(c, d, p, sigma_prior, k, j, f, z) {
-    abs_stir <- abs_stir_num_first_kind(k, j)
+    abs_stir <- abs_stirling_number_1st(k, j)
     num <- (
         (p - sigma_prior) * (p + 1 - sigma_prior) * abs_stirling_number_1st(k - 1, j) +
             (2 * p + 1 - 2 * sigma_prior) * sigma_prior * abs_stirling_number_1st(k - 1, j - 1) +
@@ -964,33 +966,32 @@ compute_weights_theta <- function(c, d, p, sigma_prior, k, j, f, z) {
 #' @examples
 #' #TODO  check that all the parameters make sense
 full_conditional_theta <- function(prior_c, prior_d, candidate, k, p, sigma_prior){
-    weights <- rep(0,(k+1))
+    weights_gamma <- rep(0,k+2)
     z <- rbeta(1,candidate + 2, p)
     f <- rexp (1,candidate + 1)
-    for (j in 1:k){ 
+    for (j in 0:(k+1)){ 
         # compute theta
-        weight_j <- compute_weights_theta(prior_c, prior_d, p, sigma_prior, k, j-1, f, z)
+        weight_j <- compute_weights_theta(prior_c, prior_d, p, sigma_prior, k, j, f, z)
         weights_gamma[j] <- weight_j
     }
 
     # normalizing the weights
-    weights_gamma = weights_gamma/sum(weights_gamma)
+    if(sum(weights_gamma)!=0) {
+        weights_gamma = weights_gamma/sum(weights_gamma)
+    }
     
     u = runif(1)
     
     component <- min(which(cumsum(weights_gamma) > u))
     
-    theta <- shifted_gamma(prior_c + (component-1), prior_d + f - log(z), - sigma_prior)
-    
+    theta <- shifted_gamma(prior_c + (component-1), prior_d + f - log(z), -sigma_prior)
     return(theta)
 }
 
 
 
 #' Full-conditional for sigma (for further details see Section 4 Martinez & Mena (2014))
-#' The formula is on page 13 - ACHTUNG! They did everything in log and 
-#' returned the logged result, but I am returning the unlogged version 
-#' at the moment
+#' The formula is on page 13 
 #'
 #' @param sigma value of sigma to be updated
 #' @param theta value of theta
@@ -1010,7 +1011,9 @@ full_conditional_sigma <- function(sigma, theta, rho, a, b, c, d){
 
     # first product term
     log_prod_1 <- 0
+
     for (i in 1:(n_groups - 1)) {
+        if (i > (n_groups-1)) break; # needed because R for-loops suck
         log_prod_1 <- log_prod_1 + log(theta + i * sigma)
     }
 
@@ -1025,7 +1028,7 @@ full_conditional_sigma <- function(sigma, theta, rho, a, b, c, d){
         (c - 1) * log(theta + sigma) + log(exp(-d * sigma)) +
         log_prod_1 + log_prod_2
 
-    return(exp(output))
+    return(output)
 }
 
 
@@ -1130,6 +1133,8 @@ Gibbs_sampler = function(data,
     weights_a       = options$weights_a0 # add weights
     weights_d       = options$weights_d0 # delete weights
     adaptation_step = options$adaptation_step # adaptation step h
+    sigma_prior_parameters = options$sigma_prior_parameters
+    theta_prior_parameters = options$theta_prior_parameters
     
     # constant parameters
     alpha_add = options$alpha_add # probability of choosing add over delete
@@ -1172,7 +1177,8 @@ Gibbs_sampler = function(data,
         G = vector("list", length = niter),
         K = vector("list", length = niter),
         rho = vector("list", length = niter),
-        accepted=vector("list", length = niter)
+        accepted=vector("list", length = niter),
+        Theta = vector("list", length = niter)
         )
     
     # initialize iteration counter
@@ -1187,7 +1193,7 @@ Gibbs_sampler = function(data,
     # initialize the sum of all graphs
     total_graphs = matrix(0,p,p)
     g.start = "empty"
-    
+
     # start the simulation
     for(iter in 1:n_total_iter){
 
@@ -1202,8 +1208,7 @@ Gibbs_sampler = function(data,
                              CCG_D = NULL, g.start = g.start, jump = NULL, save = TRUE, print = 1000,
                              cores = NULL, threshold = 1e-8)
 
-            # TODO think about extracting S
-            # last_Theta = output$last_theta
+
             # extract adjacency matrix G
             last_G = output$last_graph
             # update for the next iteration
@@ -1244,26 +1249,49 @@ Gibbs_sampler = function(data,
         }
         
         if(options$update_sigma_prior){
+            candidato <- runif(1,max(0,-theta_prior),1)
+            alpha_MH <- full_conditional_sigma(candidato,
+                                               theta_prior,
+                                               rho,
+                                               sigma_prior_parameters$a,
+                                               sigma_prior_parameters$b,
+                                               sigma_prior_parameters$c,
+                                               sigma_prior_parameters$d) - 
+                        full_conditional_sigma(sigma_prior,
+                                               theta_prior,
+                                               rho,
+                                               sigma_prior_parameters$a,
+                                               sigma_prior_parameters$b,
+                                               sigma_prior_parameters$c,
+                                               sigma_prior_parameters$d)
+            
+            if(log(runif(1)) <= min(alpha_MH,log(1))){
+                sigma_prior = candidato
+                #accettato_sigma[step+1] = 1
+            }else{
+                sigma_prior = sigma_prior
+                #accettato_sigma[step+1] = 0  
+            }
             # TODO check whether a,b,c,d are just for sigma or 
             # whether they are shared with other functions!
             # And then just call them in a different way maybe
-            sigma_prior = full_conditional_sigma(
-                sigma_prior,theta_prior,rho,
-                sigma_prior_parameters$a,
-                sigma_prior_parameters$b,
-                sigma_prior_parameters$c,
-                sigma_prior_parameters$d
-                )
         }
 
         # TODO understend wether the theta parameters are the same of sigma!
         # TODO understand better what is k and what is n
         if(options$update_theta_prior){
-          theta = full_conditional_theta(
+          theta_prior = full_conditional_theta(
               theta_prior_parameters$c, 
               theta_prior_parameters$d, 
-              candidate, k, n)
+              theta_prior, length(rho), p, sigma_prior)
         }
+        
+        if (options$update_graph){
+            last_Theta = get_S_from_G_rho(last_G,rho)
+        }
+        
+        
+        
         
         # save results only on thin iterations
         # (i.e. only save multiples of thin)
@@ -1271,8 +1299,9 @@ Gibbs_sampler = function(data,
             it_saved = it_saved + 1
             save_res$K[[it_saved]] = last_K
             save_res$G[[it_saved]] = last_G
-            # save_res$rho[it_saved,] = rho
+            #save_res$rho[it_saved,] = rho
             save_res$rho[[it_saved]] = rho
+            save_res$Theta[[it_saved]] = last_Theta
             save_res$accepted[[it_saved]] =list_output_update_partition$accepted
         }
         
@@ -1280,10 +1309,13 @@ Gibbs_sampler = function(data,
             setTxtProgressBar(pb, iter)
         }
         
+        
         log_print("iter:", console = FALSE)
         log_print(iter, console = FALSE)
         log_print("last_G:", console = FALSE)
         log_print(last_G, console = FALSE)
+        log_print("last_Theta:", console = FALSE)
+        log_print(last_Theta, console = FALSE)
     }
   
     graph_final <- total_graphs / total_weights

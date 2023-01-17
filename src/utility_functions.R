@@ -125,14 +125,18 @@ lpochhammer <- function(x, n, log = T) {
 #'
 #' @examples
 abs_stirling_number_1st <- function(k,j){
+    if(j == 0 && k == 0){
+        return(1)
+    }
+
     if(k<0){
         stop("Only positive integers allowed for k!")
     }
     if(j <= 0 || j > k){
         abs_stir_num_first_kind=0
     }
-    else {
-        abs_stir_num_first_kind=(as.numeric(abs(Stirling1(k,j))))
+    else{
+        abs_stir_num_first_kind=(as.numeric(abs(gmp::Stirling1(k,j))))
     }
     return(abs_stir_num_first_kind)
 }
@@ -177,6 +181,5 @@ get_effective_iterations<-function(nburn,niter,nthin,print=F){
         }
     return (effective_niters)
 }
-
 
 
