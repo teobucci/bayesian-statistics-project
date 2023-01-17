@@ -8,6 +8,7 @@ date: "2023-01-17"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
 ```{r}
 library(logr)
 suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
@@ -15,7 +16,11 @@ suppressWarnings(suppressPackageStartupMessages(library(ACutils)))
 suppressWarnings(suppressPackageStartupMessages(library(mvtnorm)))
 suppressWarnings(suppressPackageStartupMessages(library(salso)))
 
-# copy and paste from functions.R
+```
+
+## Util functions - copied from functions.R
+
+```{r}
 Generate_data = function(n,p,z=NULL,W=NULL,seed=123421){
     
     nu = max(n,p) # default choice of nu
@@ -83,14 +88,21 @@ ComputeV = function(nu,W,z){
     diag(V) = diag(W)/nu #set the diagonal
     return (V)
 }
+```
 
+
+# Include libraries and set paths
+
+```{r}
 #W = solve(cov(data))
 #nu = max(n,p)
 library("FGM")
 library("gmp")
 library("mcclust") # masks binder from salso
+library("logr") #for logs
 
-# devtools::install_github("sarawade/mcclust.ext")
+
+#devtools::install_github("sarawade/mcclust.ext")
 library("mcclust.ext")
 
 utility_path = file.path("src/utility_functions.R")
@@ -104,8 +116,11 @@ source(bulky_path)
 data_generation_path = file.path("src/data_generation.R")
 file.exists(data_generation_path)
 source(data_generation_path)
+```
 
+## Generate data 
 
+```{r}
 z_true = c(1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,5,5,5,6)
 counts_true = as.vector(table(z_true))
 Nclust_true  = length(counts_true)
@@ -121,6 +136,16 @@ V = data_from_prior$V # cos'è?
 U = t(data)%*%data
 
 
+# Plot Kappa
+#ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F)
+
+#Plot empirical estimate of Kappa
+#ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F)
+```
+
+## Set options for the simulation
+
+```{r}
 # https://stackoverflow.com/a/57571028/16222204
 # Use TRUE/FALSE instead of T/F
 
@@ -131,12 +156,12 @@ options = set_options(sigma_prior_0=0.5,
                       rho0=c(10,10),
                       weights_a0=rep(1,p-1),
                       weights_d0=rep(1,p-1),
-                      alpha_target=0.40,
-                      mu_beta=0.5, # mu of the Beta
-                      sig2_beta=0.2, # variance of the Beta
+                      alpha_target=0.234, #suggested vaue
+                      mu_beta=0.5, # mu of the Beta - needs to reflect the density of the graph - do we have a function to do it?
+                      sig2_beta=0.03, # variance of the Beta (1/16 of mu_beta for now)
                       d=3,
                       alpha_add=0.5,
-                      adaptation_step=0.5,
+                      adaptation_step=1/n, #as suggested in Benson
                       update_sigma_prior=TRUE,
                       update_theta_prior=TRUE,
                       update_weights=TRUE,
@@ -146,11 +171,17 @@ options = set_options(sigma_prior_0=0.5,
 ```
 
 
+#Running the simulation
+
 ```{r}
-log_open(file_name = "simulation", show_notes=FALSE)
+
+#introducing a proper name
+filename=paste('sim',as.character(n), as.character(p),sep='_')
+    
+log_open(file_name = filename, show_notes=FALSE)
 res <- Gibbs_sampler(
     data = data,
-    niter = 25000,
+    niter = 500,
     nburn = 1,
     thin = 1,
     options = options,
@@ -158,5 +189,11 @@ res <- Gibbs_sampler(
     print = TRUE
 )
 log_close()
+```
+
+
+```{r}
+
+res$z
 ```
 
