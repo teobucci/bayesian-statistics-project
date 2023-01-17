@@ -41,8 +41,8 @@ rho_to_r = function(rho){
 
 
 
-#' Rho to z function
-#' #TODO Add checks
+#' Rho to z function - groups start from 0!
+#' 
 #'
 #' @param rho 
 #'
@@ -53,9 +53,15 @@ rho_to_r = function(rho){
 rho_to_z = function(rho){
     total_n = sum(rho)
     n_groups <- length(rho)
-    z <- {}
+    z <- vector(length=total_n)
+    loop_index=1
+    group_index=0
     for(i in 1:n_groups){
-        z <- c(z, rep(i,rho[i]))
+        for(j in 1:rho[i]){
+            z[loop_index]=group_index
+            loop_index=loop_index+1
+        }
+        group_index=group_index+1
     }
     return(z)
 }
@@ -166,14 +172,14 @@ shifted_gamma <- function(alpha, beta, mu, n = 1) {
 #'
 #' @param nburn burn value (number of iterations to be discarded)
 #' @param niter total number of iterations 
-#' @param nthin the number of iterations between each valid iteration and the next valid one one
+#' @param thin the number of iterations between each valid iteration and the next valid one one
 #'
 #' @return a scalar with the effective number of iterations
 #' @export
 #'
 #' @examples
-get_effective_iterations<-function(nburn,niter,nthin,print=F){
-    effective_niters=(niter/nthin)-(nburn/nthin)
+get_effective_iterations<-function(nburn,niter,thin,print=F){
+    effective_niters=(niter/thin)-(nburn/thin)
     if(print==T)
         {
         print("effective niters")
