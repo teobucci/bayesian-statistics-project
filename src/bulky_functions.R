@@ -1102,13 +1102,13 @@ estimate_Beta_params <- function(mu, var) {
 
 #' Gibbs sampler
 #'
-#' @param data an n*p matrix of data. N=sample size, p=number of variables
-#' @param niter iteration
-#' @param nburn burn in
-#' @param thin thin
-#' @param options all the parameters necessary to run the Gibbs sampler
-#' @param seed to allow reproducibiluty of result
-#' @param print boolean parameter to allow to print the output
+#' @param data an n x p matrix of data.
+#' @param niter desired number of effective iterations.
+#' @param nburn number of iterations to be burned.
+#' @param thin keep all multiples of thin.
+#' @param options all the parameters necessary to run the Gibbs sampler.
+#' @param seed seed for reproducibility.
+#' @param print print the progressbar. Default to TRUE.
 #'
 #' @return
 #' @export
