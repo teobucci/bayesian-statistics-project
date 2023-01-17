@@ -89,25 +89,25 @@ ComputeV = function(nu,W,z){
 library("FGM")
 library("gmp")
 
-utility_path = file.path("utility_functions.R")
+utility_path = file.path("src/utility_functions.R")
 file.exists(utility_path)
 source(utility_path)
 
-bulky_path = file.path("bulky_functions.R")
+bulky_path = file.path("src/bulky_functions.R")
 file.exists(bulky_path)
 source(bulky_path)
 
-data_generation_path = file.path("data_generation.R")
+data_generation_path = file.path("src/data_generation.R")
 file.exists(data_generation_path)
 source(data_generation_path)
 
 
-z_true = c(1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,5,5,5,6) # these are the groups memberships (10 nodes)
+z_true = c(1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,5,5,5,6)
 counts_true = as.vector(table(z_true))
 Nclust_true  = length(counts_true)
 
 p = length(z_true)
-n = 100
+n = 500
 data_from_prior = Generate_data(n=n,p=p,z=z_true,seed=27091999)
 nu = n # why?
 data = data_from_prior$data
@@ -139,15 +139,20 @@ options = set_options(sigma_prior_0=0.5,
                       update_partition=TRUE,
                       update_graph=TRUE,
                       perform_shuffle=TRUE)
-
-nburn = 1
-niter = 25000
-nburn = 1
-thin = 1 # tieni tutti i multipli di thin
 ```
+
+
 ```{r}
-log_open(file_name = "log_aiuto2", show_notes=FALSE)
-res = Gibbs_sampler(data,niter,nburn,thin,options,seed=123456,print=TRUE)
+log_open(file_name = "simulation", show_notes=FALSE)
+res <- Gibbs_sampler(
+    data = data,
+    niter = 25000,
+    nburn = 1,
+    thin = 1,
+    options = options,
+    seed = 123456,
+    print = TRUE
+)
 log_close()
 ```
 
