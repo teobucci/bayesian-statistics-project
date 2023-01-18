@@ -167,30 +167,6 @@ shifted_gamma <- function(alpha, beta, mu, n = 1) {
 
 
 
-
-#' Computes the number of effective iterations - can be useful fod debug
-#'
-#' @param nburn burn value (number of iterations to be discarded)
-#' @param niter total number of iterations 
-#' @param thin the number of iterations between each valid iteration and the next valid one one
-#'
-#' @return a scalar with the effective number of iterations
-#' @export
-#'
-#' @examples
-get_effective_iterations<-function(nburn,niter,thin,print=F){
-    effective_niters=(niter/thin)-(nburn/thin)
-    if(print==T)
-        {
-        print("effective niters")
-        print(effective_niters)
-        }
-    return (effective_niters)
-}
-
-
-
-
 # make a matrix symmetric
 makeSymm <- function(m, from_lower = T) {
     if (from_lower)

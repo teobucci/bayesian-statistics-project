@@ -1173,16 +1173,12 @@ Gibbs_sampler = function(data,
   
     beta_params = estimate_Beta_params(mu_beta, sig2_beta)
     
-    #When we change the thin we'll need to use the effective nnumber of iterations
-    effective_iterations=get_effective_iterations(nburn,niter,thin,print=F)
-    
     # define structure to save sampled values
     save_res = list(
         G = vector("list", length = niter),
         K = vector("list", length = niter),
         rho = vector("list", length = niter),
          z = matrix(numeric(niter * p), nrow = niter, byrow = TRUE), #adding the zeta representation
-        #z = matrix(numeric(effective_iterations * p), nrow = effective_iterations, byrow = TRUE), #adding the zeta representation
         accepted=vector("list", length = niter),
         Theta = vector("list", length = niter)
        # r_index = vector ("list", length= niter) TODO consider whether to include it directly here
@@ -1244,9 +1240,23 @@ Gibbs_sampler = function(data,
             # update the single weight at the point only if the move has been accepted
             if(options$update_weights & list_output_update_partition$accepted){
                 if(list_output_update_partition$choose_add){
-                    weights_a = update_weight(weights_a, list_output_update_partition$candidate, adaptation_step, t_over_p, alpha_add, alpha_target)
+                    weights_a = update_weight(
+                        weights_a,
+                        list_output_update_partition$candidate,
+                        adaptation_step,
+                        t_over_p,
+                        alpha_add,
+                        alpha_target
+                    )
                 } else {
-                    weights_d = update_weight(weights_d, list_output_update_partition$candidate, adaptation_step, t_over_p, 1-alpha_add, alpha_target)
+                    weights_d = update_weight(
+                        weights_d,
+                        list_output_update_partition$candidate,
+                        adaptation_step,
+                        t_over_p,
+                        1 - alpha_add,
+                        alpha_target
+                    )
                 }
             }
         }
@@ -1311,7 +1321,6 @@ Gibbs_sampler = function(data,
         if(print){
             setTxtProgressBar(pb, iter)
         }
-        
         
         log_print("iter:", console = FALSE)
         log_print(iter, console = FALSE)
