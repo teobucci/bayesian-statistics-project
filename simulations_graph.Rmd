@@ -1,0 +1,200 @@
+---
+title: "simulations2"
+output: html_document
+date: "2023-01-17"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(logr)
+suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
+suppressWarnings(suppressPackageStartupMessages(library(ACutils)))
+suppressWarnings(suppressPackageStartupMessages(library(mvtnorm)))
+suppressWarnings(suppressPackageStartupMessages(library(salso)))
+
+# copy and paste from functions.R
+Generate_data = function(n,p,z=NULL,W=NULL,seed=123421){
+    
+    nu = max(n,p) # default choice of nu
+    if(n<p)
+        stop("p can not be larger than n")
+    
+    if(is.null(z)){ #default is 3 groups
+        if(p<3)
+            stop("p must be greater than 3 if z is defaulted")
+        z = vector(length = p)
+        z[1:ceiling(p/3)] = 1
+        z[(ceiling(p/3)+1):(2*ceiling(p/3))] = 2
+        z[(2*ceiling(p/3)+1):p] = 3
+    }else{
+        if(p != length(z))
+            stop("the length of z should be p")
+    }
+    
+    if(is.null(W)){ #default is to sample a W from Wishart(nu, I_p)
+        D = diag(p)
+        set.seed(seed)
+        W = MCMCpack::rwish(nu,D)
+    }
+    
+    # Generate V
+    V = ComputeV(nu,W,z)
+    
+    # Generate Omega
+    Omega = MCMCpack::rwish(nu,V)
+    
+    # Compute Sigma (inefficient)
+    Sigma = solve(Omega)
+    
+    # Generate data
+    data = matrix(NA,nrow = n, ncol = p)
+    data = t(apply(data, 1, FUN = function(x){ mvtnorm::rmvnorm(n = 1, sigma = Sigma)  }))
+    
+    #return 
+    return(list("data" = data,
+                "Omega" = Omega,
+                "Sigma" = Sigma,
+                "V"     = V,
+                "z_true"= z
+    ))
+}
+
+
+ComputeV = function(nu,W,z){
+    p = dim(W)[1] #get dimension
+    if(length(z)!=p)
+        stop("length of z is different from nrow(W)")
+    if(nu<=0)
+        stop("nu can not be negative or zero")
+    
+    V = matrix(0,nrow = p,ncol = p) 
+    # fill the upper triangular part of V
+    for(i in 1:p){
+        for(j in (i+1):p){
+            if(j>p)break; #needed because r for loops sucks
+            if(z[i]==z[j])
+                V[i,j] = W[i,j]/nu #just see the definition
+        }
+    }
+    V = V + t(V) #set the lower trg part
+    diag(V) = diag(W)/nu #set the diagonal
+    return (V)
+}
+
+#W = solve(cov(data))
+#nu = max(n,p)
+library("FGM")
+library("gmp")
+library("mcclust") # masks binder from salso
+
+# devtools::install_github("sarawade/mcclust.ext")
+library("mcclust.ext")
+
+utility_path = file.path("src/utility_functions.R")
+file.exists(utility_path)
+source(utility_path)
+
+bulky_path = file.path("src/bulky_functions.R")
+file.exists(bulky_path)
+source(bulky_path)
+
+data_generation_path = file.path("src/data_generation.R")
+file.exists(data_generation_path)
+source(data_generation_path)
+
+
+z_true = c(1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,5,5,5,6)
+counts_true = as.vector(table(z_true))
+Nclust_true  = length(counts_true)
+
+p = length(z_true)
+n = 500
+data_from_prior = Generate_data(n=n,p=p,z=z_true,seed=27091999)
+nu = n # why?
+data = data_from_prior$data
+Omega_true = data_from_prior$Omega # Omega is Kappa (precision matrix TODO change)
+Sigma_true = data_from_prior$Sigma
+V = data_from_prior$V # cos'è?
+U = t(data)%*%data
+
+
+# https://stackoverflow.com/a/57571028/16222204
+# Use TRUE/FALSE instead of T/F
+
+options = set_options(sigma_prior_0=0.5,
+                      sigma_prior_parameters=list("a"=1,"b"=1,"c"=1,"d"=1),
+                      theta_prior_0=1,
+                      theta_prior_parameters=list("c"=1,"d"=1),
+                      rho0=c(10,10),
+                      weights_a0=rep(1,p-1),
+                      weights_d0=rep(1,p-1),
+                      alpha_target=0.40,
+                      mu_beta=0.5, # mu of the Beta
+                      sig2_beta=0.2, # variance of the Beta
+                      d=3,
+                      alpha_add=0.5,
+                      adaptation_step=0.5,
+                      update_sigma_prior=FALSE,
+                      update_theta_prior=FALSE,
+                      update_weights=FALSE,
+                      update_partition=FALSE,
+                      update_graph=TRUE,
+                      perform_shuffle=FALSE)
+```
+
+
+```{r}
+log_open(file_name = "simulation", show_notes=FALSE)
+res <- Gibbs_sampler(
+    data = data,
+    niter = 50,
+    nburn = 0,
+    thin = 1,
+    options = options,
+    seed = 123456,
+    print = TRUE
+)
+log_close()
+
+KL_dist(Omega_true,res$K_final)
+final_graph <- matrix(0,p,p)
+final_graph[which(res$graph>0.5)] = 1
+
+for(soglia in seq(0.5,1,0.01)){
+    BFDR_graph_num = 0
+    BFDR_graph_den = 0
+    id_graph = matrix(0,p,p)
+    id_graph[which(res$graph>soglia)] = 1
+    for(k in 1:p){
+        for(j in 1:k){
+        BFDR_graph_num <- BFDR_graph_num + (1-res$graph[k,j])*(id_graph[k,j])
+        BFDR_graph_den <- BFDR_graph_den + id_graph[k,j]
+        }
+    }
+    BFDR <- BFDR_graph_num/BFDR_graph_den
+    if(BFDR<0.05) {
+        break
+    }
+}
+
+final_graph <- matrix(0,p,p)
+final_graph[which(res$graph>0.5)] = 1
+final_graph
+
+
+library(igraph)
+# Create the graph object from the adjacency matrix
+g <- graph.adjacency(final_graph, mode = "undirected")
+# Plot the graph
+plot(g)
+
+library(tidygraph)
+library(ggraph)
+g <- as_tbl_graph(final_graph, directed = F)
+# Plot the graph
+ggraph(g, layout='stress') + geom_edge_link() + geom_node_point()
+```
+
