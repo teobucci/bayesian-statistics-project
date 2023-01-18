@@ -52,105 +52,46 @@ for(p in paths){
 ```
 
 
-## Util functions - copied from functions.R
+## Generate data
 
 ```{r}
-Generate_data = function(n,p,z=NULL,W=NULL,seed=123421){
-    
-    nu = max(n,p) # default choice of nu
-    if(n<p)
-        stop("p can not be larger than n")
-    
-    if(is.null(z)){ #default is 3 groups
-        if(p<3)
-            stop("p must be greater than 3 if z is defaulted")
-        z = vector(length = p)
-        z[1:ceiling(p/3)] = 1
-        z[(ceiling(p/3)+1):(2*ceiling(p/3))] = 2
-        z[(2*ceiling(p/3)+1):p] = 3
-    }else{
-        if(p != length(z))
-            stop("the length of z should be p")
-    }
-    
-    if(is.null(W)){ #default is to sample a W from Wishart(nu, I_p)
-        D = diag(p)
-        set.seed(seed)
-        W = MCMCpack::rwish(nu,D)
-    }
-    
-    # Generate V
-    V = ComputeV(nu,W,z)
-    
-    # Generate Omega
-    Omega = MCMCpack::rwish(nu,V)
-    
-    # Compute Sigma (inefficient)
-    Sigma = solve(Omega)
-    
-    # Generate data
-    data = matrix(NA,nrow = n, ncol = p)
-    data = t(apply(data, 1, FUN = function(x){ mvtnorm::rmvnorm(n = 1, sigma = Sigma)  }))
-    
-    #return 
-    return(list("data" = data,
-                "Omega" = Omega,
-                "Sigma" = Sigma,
-                "V"     = V,
-                "z_true"= z
-    ))
-}
+# Define true clustering
+z_true = c(1,1,1,1,1,1,1, # cluster 1
+           2,2,2,2,2,2,2, # cluster 2
+           3,3,3,3,3,3,3) # cluster 3
 
-ComputeV = function(nu,W,z){
-    p = dim(W)[1] #get dimension
-    if(length(z)!=p)
-        stop("length of z is different from nrow(W)")
-    if(nu<=0)
-        stop("nu can not be negative or zero")
-    
-    V = matrix(0,nrow = p,ncol = p) 
-    # fill the upper triangular part of V
-    for(i in 1:p){
-        for(j in (i+1):p){
-            if(j>p)break; #needed because r for loops sucks
-            if(z[i]==z[j])
-                V[i,j] = W[i,j]/nu #just see the definition
-        }
-    }
-    V = V + t(V) #set the lower trg part
-    diag(V) = diag(W)/nu #set the diagonal
-    return (V)
-}
-```
-
-```{r}
-#W = solve(cov(data))
-#nu = max(n,p)
-```
-
-## Generate data 
-
-```{r}
-z_true = c(1,1,1,1,2,2,2,2,2,3,3,3,3,3,4,4,5,5,5,6)
-counts_true = as.vector(table(z_true))
-Nclust_true  = length(counts_true)
-
+# Define data dimension
 p = length(z_true)
 n = 500
-data_from_prior = Generate_data(n=n,p=p,z=z_true,seed=27091999)
-nu = n # why?
-data = data_from_prior$data
-Omega_true = data_from_prior$Omega # Omega is Kappa (precision matrix TODO change)
-Sigma_true = data_from_prior$Sigma
-V = data_from_prior$V # cos'è?
-U = t(data)%*%data
 
+# z_to_rho(z_true)
+# z_to_r(z_true)
 
-# Plot Kappa
-#ACutils::ACheatmap(Omega_true,use_x11_device = F,horizontal = F)
+# Generate data
+sim = Generate_BlockDiagonal(n = n, z_true = z_true)
+#sim = Generate_Block(n = n, z_true = z_true)
 
-#Plot empirical estimate of Kappa
-#ACutils::ACheatmap(solve(cov(data)),use_x11_device = F,horizontal = F)
+ACutils::ACheatmap(sim$G,use_x11_device = F,horizontal = F, main = "Graph", 
+                  center_value = NULL,  
+                  col.upper = "black",
+                  col.center = "grey50",
+                  col.lower = "white")
+                  
+# Plot Cov
+ACutils::ACheatmap(sim$Cov,use_x11_device = F,horizontal = F, main = "Covariance", 
+                   center_value = NULL,  
+                   col.upper = "black",
+                   col.center = "grey50",
+                   col.lower = "white")
+
+```
+
+```{r}
+Prec_true = sim$Prec # precision matrix
+Graph_true = sim$Graph # true graph
+Graph_true[col(Graph_true)==row(Graph_true)] = 0 # remove self loops
+
+graph_density = sum(sim$Graph) / (p*(p-1))
 ```
 
 ## Set options for the simulation
