@@ -109,7 +109,7 @@ options = set_options(sigma_prior_0=0.5,
                       weights_d0=rep(1,p-1),
                       alpha_target=0.234, #suggested vaue
                       mu_beta=0.5, # mu of the Beta - needs to reflect the density of the graph - do we have a function to do it?
-                      sig2_beta=0.03, # variance of the Beta (1/16 of mu_beta for now)
+                      sig2_beta=1/16,
                       d=3,
                       alpha_add=0.5,
                       adaptation_step=1/n, #as suggested in Benson
