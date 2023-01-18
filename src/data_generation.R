@@ -124,20 +124,9 @@ Generate_Block = function(n,z_true,
   return(list("data"=data,"U"=U,"Prec"=Omega_true,"Cov"=Sigma_true,"Graph"=G,"Theta"=Theta))
 }
 
-# Define true clustering
-z_true = c(1,1, # cluster 1
-           2,2,2, # cluster 2
-           3,3,3, # cluster 3
-           4,4,4,4) # cluster 4
-counts_true = as.vector(table(z_true))
-Nclust_true  = length(counts_true)
 
-# Define data dimension
-p = length(z_true)
-n = 200
 
-# Generate data
-sim = Generate_BlockDiagonal(n=n,z_true = z_true)
+
 
 # Plot Prec
 #ACutils::ACheatmap(sim$Prec,use_x11_device = F,horizontal = F, main = "Precision", 
@@ -171,7 +160,7 @@ sim = Generate_BlockDiagonal(n=n,z_true = z_true)
 
 
 # Generate data - scenario II
-sim = Generate_Block(n=n,z_true = z_true)
+#sim = Generate_Block(n=n,z_true = z_true)
 
 # Plot Theta
 #ACutils::ACheatmap(sim$Theta,use_x11_device = F,horizontal = F, main = "Theta", 
