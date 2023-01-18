@@ -1,22 +1,56 @@
 ---
-title: "simulations2"
-output: html_document
+title: "Stochastic Block Model Prior with Ordering Constraints for Gaussian Graphical Models"
+output:
+    html_document:
+        toc: true
+        toc_float: true
+        number_sections: true
+    pdf_document:
+        toc: true
+        toc_depth: 3
+        number_section: true
 date: "2023-01-17"
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE,
+                      comment = "#>")
+
 ```
 
+# Simulations
+
+## Load the necessary packages
 
 ```{r}
-library(logr)
 suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
 suppressWarnings(suppressPackageStartupMessages(library(ACutils)))
 suppressWarnings(suppressPackageStartupMessages(library(mvtnorm)))
 suppressWarnings(suppressPackageStartupMessages(library(salso)))
-
+suppressWarnings(suppressPackageStartupMessages(library(FGM)))
+suppressWarnings(suppressPackageStartupMessages(library(gmp)))
+suppressWarnings(suppressPackageStartupMessages(library(mcclust)))
+suppressWarnings(suppressPackageStartupMessages(library(mcclust.ext)))
+suppressWarnings(suppressPackageStartupMessages(library(logr)))
 ```
+
+```{r}
+paths = c(
+    "src/utility_functions.R",
+    "src/bulky_functions.R",
+    "src/data_generation.R"
+)
+
+for(p in paths){
+    path = file.path(p)
+    if(file.exists(path)){
+        source(path)
+    } else {
+        cat("File",path,"wasn't found in directory, please check.")
+    }
+}
+```
+
 
 ## Util functions - copied from functions.R
 
@@ -67,7 +101,6 @@ Generate_data = function(n,p,z=NULL,W=NULL,seed=123421){
     ))
 }
 
-
 ComputeV = function(nu,W,z){
     p = dim(W)[1] #get dimension
     if(length(z)!=p)
@@ -90,32 +123,9 @@ ComputeV = function(nu,W,z){
 }
 ```
 
-
-# Include libraries and set paths
-
 ```{r}
 #W = solve(cov(data))
 #nu = max(n,p)
-library("FGM")
-library("gmp")
-library("mcclust") # masks binder from salso
-library("logr") #for logs
-
-
-#devtools::install_github("sarawade/mcclust.ext")
-library("mcclust.ext")
-
-utility_path = file.path("src/utility_functions.R")
-file.exists(utility_path)
-source(utility_path)
-
-bulky_path = file.path("src/bulky_functions.R")
-file.exists(bulky_path)
-source(bulky_path)
-
-data_generation_path = file.path("src/data_generation.R")
-file.exists(data_generation_path)
-source(data_generation_path)
 ```
 
 ## Generate data 
@@ -171,7 +181,7 @@ options = set_options(sigma_prior_0=0.5,
 ```
 
 
-#Running the simulation
+## Running the simulation
 
 ```{r}
 
