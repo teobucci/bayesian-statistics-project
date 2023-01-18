@@ -278,12 +278,12 @@ ggraph(g, layout='stress') + geom_edge_link() + geom_node_point()
 ## Traceplot of the random index
 
 ```{r}
-#library ("fossil") #for rand index. Not sure it is the exact function from the right library though!
+library (fossil) #for rand index. Not sure it is the exact function 
 
 #Recomputing zeta 
 z = do.call(rbind, lapply(res$rho, rho_to_z))
 
-#Computing rand index 
+#Computing rand index for each iteration
 rand_index = apply(z, 1, rand.index, z_true)
 
 #Plotting the traceplot of the index
