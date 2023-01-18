@@ -10,6 +10,8 @@ output:
         toc_depth: 3
         number_section: true
 date: "2023-01-17"
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
