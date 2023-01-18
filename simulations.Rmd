@@ -104,7 +104,7 @@ options = set_options(sigma_prior_0=0.5,
                       sigma_prior_parameters=list("a"=1,"b"=1,"c"=1,"d"=1),
                       theta_prior_0=1,
                       theta_prior_parameters=list("c"=1,"d"=1),
-                      rho0=c(10,10),
+                      rho0=p, # start with one group
                       weights_a0=rep(1,p-1),
                       weights_d0=rep(1,p-1),
                       alpha_target=0.234,
