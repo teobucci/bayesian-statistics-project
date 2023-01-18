@@ -40,6 +40,18 @@ rho_to_r = function(rho){
 }
 
 
+z_to_rho = function(z){
+    return(as.vector(table(z)))
+}
+
+z_to_r = function(z){
+    return(diff(z))
+}
+
+
+
+
+
 
 #' Rho to z function - groups start from 0!
 #' 
