@@ -1054,7 +1054,8 @@ set_options = function(sigma_prior_0,
                        update_weights=TRUE,
                        update_partition=TRUE,
                        update_graph=TRUE,
-                       perform_shuffle=TRUE) {
+                       perform_shuffle=TRUE
+                       ) {
   
     options = list(
         "sigma_prior_0"         = sigma_prior_0,
@@ -1172,13 +1173,19 @@ Gibbs_sampler = function(data,
   
     beta_params = estimate_Beta_params(mu_beta, sig2_beta)
     
+    #When we change the thin we'll need to use the effective nnumber of iterations
+    effective_iterations=get_effective_iterations(nburn,niter,thin,print=F)
+    
     # define structure to save sampled values
     save_res = list(
         G = vector("list", length = niter),
         K = vector("list", length = niter),
         rho = vector("list", length = niter),
+         z = matrix(numeric(niter * p), nrow = niter, byrow = TRUE), #adding the zeta representation
+        #z = matrix(numeric(effective_iterations * p), nrow = effective_iterations, byrow = TRUE), #adding the zeta representation
         accepted=vector("list", length = niter),
         Theta = vector("list", length = niter)
+       # r_index = vector ("list", length= niter) TODO consider whether to include it directly here
         )
     
     # initialize iteration counter
@@ -1278,12 +1285,8 @@ Gibbs_sampler = function(data,
                 #accettato_sigma[step+1] = 0  
             }
             # TODO check whether a,b,c,d are just for sigma or 
-            # whether they are shared with other functions!
-            # And then just call them in a different way maybe
         }
 
-        # TODO understend wether the theta parameters are the same of sigma!
-        # TODO understand better what is k and what is n
         if(options$update_theta_prior){
           theta_prior = full_conditional_theta(
               theta_prior_parameters$c, 
@@ -1297,7 +1300,6 @@ Gibbs_sampler = function(data,
         
         
         
-        
         # save results only on thin iterations
         # (i.e. only save multiples of thin)
         if(iter > nburn & (iter - nburn) %% thin == 0) {
@@ -1306,6 +1308,7 @@ Gibbs_sampler = function(data,
             save_res$G[[it_saved]] = last_G
             #save_res$rho[it_saved,] = rho
             save_res$rho[[it_saved]] = rho
+            save_res$z[it_saved ,] = rho_to_z(rho) #added
             save_res$Theta[[it_saved]] = last_Theta
             if(options$update_partition){
                 save_res$accepted[[it_saved]] =list_output_update_partition$accepted
