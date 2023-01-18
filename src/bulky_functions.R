@@ -1189,6 +1189,7 @@ Gibbs_sampler = function(data,
     
     # initialize the sum of the weights of the graphs
     total_weights = 0
+    total_K = matrix(0,p,p)
     
     # initialize the sum of all graphs
     total_graphs = matrix(0,p,p)
@@ -1215,10 +1216,14 @@ Gibbs_sampler = function(data,
             g.start = last_G
             # extract precision matrix K
             last_K = output$last_K
-            # update total_weights
-            total_weights = total_weights + output$all_weights
-            # update total_graphs taking into consideration the weights
-            total_graphs = total_graphs + output$last_graph * output$all_weights
+
+            if(niter > nburn){ # only if niter > nburn right?
+                # update total_weights
+                total_weights = total_weights + output$all_weights
+                # update total_graphs taking into consideration the weights
+                total_graphs = total_graphs + output$last_graph * output$all_weights
+                total_K = total_K + output$last_K * output$all_weights
+            }
         }
         
         if(options$update_partition){
@@ -1302,7 +1307,9 @@ Gibbs_sampler = function(data,
             #save_res$rho[it_saved,] = rho
             save_res$rho[[it_saved]] = rho
             save_res$Theta[[it_saved]] = last_Theta
-            save_res$accepted[[it_saved]] =list_output_update_partition$accepted
+            if(options$update_partition){
+                save_res$accepted[[it_saved]] =list_output_update_partition$accepted
+            }
         }
         
         if(print){
@@ -1317,9 +1324,19 @@ Gibbs_sampler = function(data,
         log_print("last_Theta:", console = FALSE)
         log_print(last_Theta, console = FALSE)
     }
-  
+    
+    #output = list( sample_graphs = sample_graphs, graph_weights = graph_weights, K_hat = 'empty',
+    #                   all_graphs = niter-nburn, all_weights = all_weights, last_graph = last_G,
+    #                   last_K = last_K, last_Theta = last_Theta )
+    #
+    
     graph_final <- total_graphs / total_weights
+    K_final <- total_K / total_weights
+    
+    #KL_distance <- KL_dist(K_true,K_final) se abbiamo K true
+    
     save_res$graph <- graph_final
+    save_res$K_final <- K_final
     
     close(pb)
     return(save_res)
