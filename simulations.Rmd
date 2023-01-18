@@ -289,13 +289,47 @@ rand_index = apply(z, 1, rand.index, z_true)
 #Plotting the traceplot of the index
 plot(rand_index,type = 'l')
 
-#index of the first iteration  
+#index of the first iteration (after the burnin)
 first_rand_index=rand_index[1]
 first_rand_index
 
 #Index of the last iteration
 last_rand_index=rand_index[length(rand_index)]
 last_rand_index
+
+```
+
+#Compute similarity matrix
+
+```{r}
+# Compute similarity matrix 
+sim_matrix <- psm(z)
+
+#Adding names for the heatmap - todo order by name!
+rownames(sim_matrix)=1:length(z_true)
+colnames(sim_matrix)=1:length(z_true)
+
+heatmap(sim_matrix,Colv=FALSE, Rowv=FALSE)
+```
+
+#Computing binder loss e VI - do not take into account order!
+
+```{r}
+#Binder loss function to compute an optimal cluster given the 
+#similarity matrix (do not think it accounts for ordering though!)
+optimal_cluster = minbinder(sim_matrix)
+
+#Computing VI (to understand)
+VI_sara = minVI(sim_matrix)
+
+#Plotting tables
+cat('Binder loss \n')
+table(binder_sara$cl)
+
+cat('Variance loss \n')
+table(VI_sara$cl)
+
+
 
 ```
 
