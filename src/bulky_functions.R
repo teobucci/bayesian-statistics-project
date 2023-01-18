@@ -1178,10 +1178,8 @@ Gibbs_sampler = function(data,
         G = vector("list", length = niter),
         K = vector("list", length = niter),
         rho = vector("list", length = niter),
-         z = matrix(numeric(niter * p), nrow = niter, byrow = TRUE), #adding the zeta representation
-        accepted=vector("list", length = niter),
-        Theta = vector("list", length = niter)
-       # r_index = vector ("list", length= niter) TODO consider whether to include it directly here
+        accepted = vector("list", length = niter),
+        S = vector("list", length = niter)
         )
     
     # initialize iteration counter
@@ -1305,24 +1303,23 @@ Gibbs_sampler = function(data,
         }
         
         if (options$update_graph){
-            last_Theta = get_S_from_G_rho(last_G,rho)
+            last_S = get_S_from_G_rho(last_G,rho)
         }
-        
-        
         
         # save results only on thin iterations
         # (i.e. only save multiples of thin)
         if(iter > nburn & (iter - nburn) %% thin == 0) {
             it_saved = it_saved + 1
-            save_res$K[[it_saved]] = last_K
-            save_res$G[[it_saved]] = last_G
-            #save_res$rho[it_saved,] = rho
-            save_res$rho[[it_saved]] = rho
-            save_res$z[it_saved ,] = rho_to_z(rho) #added
-            save_res$Theta[[it_saved]] = last_Theta
-            if(options$update_partition){
-                save_res$accepted[[it_saved]] =list_output_update_partition$accepted
+            if(options$update_graph){
+                # cumulative K and G
+                save_res$K[[it_saved]] = total_K / total_weights
+                save_res$G[[it_saved]] = total_graphs / total_weights
             }
+            if(options$update_partition){
+                save_res$rho[[it_saved]] = rho
+                save_res$accepted[[it_saved]] = list_output_update_partition$accepted
+            }
+            save_res$S[[it_saved]] = last_S
         }
         
         if(print){
@@ -1333,22 +1330,14 @@ Gibbs_sampler = function(data,
         log_print(iter, console = FALSE)
         log_print("last_G:", console = FALSE)
         log_print(last_G, console = FALSE)
-        log_print("last_Theta:", console = FALSE)
-        log_print(last_Theta, console = FALSE)
+        log_print("last_S:", console = FALSE)
+        log_print(last_S, console = FALSE)
     }
     
     #output = list( sample_graphs = sample_graphs, graph_weights = graph_weights, K_hat = 'empty',
     #                   all_graphs = niter-nburn, all_weights = all_weights, last_graph = last_G,
     #                   last_K = last_K, last_Theta = last_Theta )
     #
-    
-    graph_final <- total_graphs / total_weights
-    K_final <- total_K / total_weights
-    
-    #KL_distance <- KL_dist(K_true,K_final) se abbiamo K true
-    
-    save_res$graph <- graph_final
-    save_res$K_final <- K_final
     
     close(pb)
     return(save_res)
