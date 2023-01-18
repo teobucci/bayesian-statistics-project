@@ -142,7 +142,130 @@ res <- Gibbs_sampler(
 log_close()
 ```
 
+# Posterior analysis
+
+## Partition
+
+Barplot of changepoints
 
 ```{r}
-res$z
+r = do.call(rbind, lapply(res$rho, rho_to_r))
+
+# method 1
+freq = do.call(rbind, lapply(as.data.frame(r), function(x){sum(abs(diff(x)))}))
+
+# method 2
+# freq = do.call(cbind, lapply(as.data.frame(r), function(x){diff(x)}))
+# freq[which(freq==-1)] = 0
+# freq=colSums(freq)
+
+freq = data.frame(freq=freq)
+
+r_true = z_to_r(z_true)
+indexes = which(r_true==1)
+
+barplot(freq$freq,
+        names = 1:21,
+        las = 1)
+abline(v=indexes, col='red')
+
+z = do.call(rbind, lapply(res$rho, rho_to_z))
 ```
+
+Number of clusters per iteration
+
+```{r}
+num_clusters = do.call(rbind, lapply(res$rho, length))
+num_clusters = as.vector(num_clusters)
+
+plot(x =  1:length(num_clusters), y = num_clusters, type = "n", xlab='Iterations', ylab='Number of groups')
+lines(x =  1:length(num_clusters), y = num_clusters)
+
+abline(h=length(z_to_rho(z_true)), col='red', lwd=6)
+```
+
+## Graph
+
+Kullback–Leibler
+```{r}
+kl_dist = do.call(rbind, lapply(res$K, function(k){ACutils::KL_dist(Prec_true,k)}))
+
+last = round(kl_dist[length(kl_dist)],4)
+plot(x =  1:length(kl_dist), y = kl_dist, type = "n", xlab='Iterations', ylab='Number of groups', main=paste('KL distance last',last))
+lines(x =  1:length(kl_dist), y = kl_dist)
+```
+
+```{r}
+library(igraph)
+plot_graph = function(adjacency_matrix, title){
+    # Create the graph object from the adjacency matrix
+    g <- graph.adjacency(adjacency_matrix, mode = "undirected")
+    # Plot the graph
+    plot(g, main=title)
+}
+```
+
+Extract last graph
+
+```{r}
+last_G = res$G[[length(res$G)]]
+```
+
+
+Criterion 1 to select the threshold (shouldn't work very well).
+
+```{r}
+threshold = 0.5
+```
+
+Criterion 2 to select the threshold
+
+```{r}
+threshold = 0
+for(threshold_i in seq(0,1,0.001)){
+    BFDR_graph_num = 0
+    BFDR_graph_den = 0
+    id_graph = matrix(0,p,p)
+    id_graph[which(last_G>threshold_i)] = 1
+    for(k in 1:p){
+        for(j in 1:k){
+        BFDR_graph_num <- BFDR_graph_num + (1-last_G[k,j])*(id_graph[k,j])
+        BFDR_graph_den <- BFDR_graph_den + id_graph[k,j]
+        }
+    }
+    BFDR <- BFDR_graph_num/BFDR_graph_den
+    if(BFDR < 0.05) { # tweak, lower = more restrictive
+        threshold = threshold_i
+        break
+    }
+}
+```
+
+Inspect the threshold
+
+```{r}
+threshold
+```
+
+Select the graph and plot it against the original
+
+```{r}
+final_graph <- matrix(0,p,p)
+final_graph[which(last_G>threshold)] = 1
+par(mfrow=c(2,1))
+plot_graph(final_graph, 'Estimated')
+plot_graph(Graph_true, 'True')
+par(mfrow=c(1,1))
+```
+
+Fancy stuff work in progress
+
+```{r}
+library(tidygraph)
+library(ggraph)
+g <- as_tbl_graph(final_graph, directed = F)
+# Plot the graph
+ggraph(g, layout='stress') + geom_edge_link() + geom_node_point()
+```
+
+
