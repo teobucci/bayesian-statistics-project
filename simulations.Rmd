@@ -58,9 +58,15 @@ for(p in paths){
 # Define true clustering
 z_true = c(1,1,1,1,1,1,1, # cluster 1
            2,2,2,2,2,2,2, # cluster 2
-           3,3,3,3,3,3,3,
-           4,4,4,4,4,4,4,
-           5,5,5,5,5,5,5) # cluster 3
+           3,3,3,3,3,3,3, # cluster 3
+           4,4,4,4,4,4,4, # cluster 4
+           5,5,5,5,
+           6,6,6,6,6,
+           7,7,7,
+           8,8,8,8,8,8,
+           9,
+           10,
+           11) # cluster 
 
 # Define data dimension
 p = length(z_true)
@@ -167,7 +173,7 @@ r_true = z_to_r(z_true)
 indexes = which(r_true==1)
 
 barplot(freq$freq,
-        names = 1:21,
+        names = 1:length(z_true),
         las = 1)
 abline(v=indexes, col='red')
 
@@ -212,7 +218,6 @@ Extract last graph
 ```{r}
 last_G = res$G[[length(res$G)]]
 ```
-
 
 Criterion 1 to select the threshold (shouldn't work very well).
 
@@ -270,31 +275,28 @@ g <- as_tbl_graph(final_graph, directed = F)
 ggraph(g, layout='stress') + geom_edge_link() + geom_node_point()
 ```
 
-
 ## Traceplot of the random index
 
 ```{r}
+#library ("fossil") #for rand index. Not sure it is the exact function from the right library though!
 
-#library ("fossil")
-
-#Computing zeta
+#Recomputing zeta 
 z = do.call(rbind, lapply(res$rho, rho_to_z))
 
-
-#Computing random index for traceplot
-#temporary horror
-compute_random_index<-function(x,z_true=z_true){
-    return (rand.index(x,z_true))
-}
-
-
+#Computing rand index 
 rand_index = apply(z, 1, rand.index, z_true)
 
-plot(rand_index)
+#Plotting the traceplot of the index
+plot(rand_index,type = 'l')
 
-#rand_index = do.call(rbind, lapply(rand.index,z,z_true))
+#index of the first iteration  
+first_rand_index=rand_index[1]
+first_rand_index
 
-rand.index(group1, group2)
+#Index of the last iteration
+last_rand_index=rand_index[length(rand_index)]
+last_rand_index
 
 ```
+
 
