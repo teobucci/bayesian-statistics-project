@@ -33,9 +33,9 @@ update_partition = function(rho,
     }
     
     if (choose_add){
-        log_print("Hai scelto una mossa ADD/SPLIT", console = FALSE)
+        log_print("You chose an ADD/SPLIT move", console = FALSE)
     }else{
-        log_print("Hai scelto una mossa DELETE/MERGE", console = FALSE)
+        log_print("You chose a DELETE/MERGE move", console = FALSE)
     }
     
     # OK
