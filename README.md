@@ -60,16 +60,18 @@ On macOS on M1 chip you may get an error involving `gfortran`, in which case pro
 
 ## How to install the packages
 
-Install the custom utilities by Alessandro Colombi
+Install the required packages from CRAN
+
+```
+packages_list <- c("tidyverse","mvtnorm","salso","logr","gmp","mcclust")
+install.packages(packages_list)
+```
+
+and install the custom utilities by Alessandro Colombi and `mcclust.ext`
+
 ```
 devtools::install_github("alessandrocolombi/ACutils")
-```
-
-and install the required packages from CRAN
-
-```
-packages_list <- c("tidyverse","mvtnorm","salso","logr")
-install.packages(packages_list)
+devtools::install_github("sarawade/mcclust.ext")
 ```
 
 ## How to compile the PDF files
