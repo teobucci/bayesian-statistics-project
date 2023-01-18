@@ -131,10 +131,10 @@ filename=paste('sim',as.character(n), as.character(p),sep='_')
     
 log_open(file_name = filename, show_notes=FALSE)
 res <- Gibbs_sampler(
-    data = data,
-    niter = 500,
-    nburn = 1,
-    thin = 1,
+    data = sim$data,
+    niter = 2500,
+    nburn = 300,
+    thin = 2,
     options = options,
     seed = 123456,
     print = TRUE
