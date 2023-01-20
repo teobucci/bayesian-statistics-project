@@ -1,0 +1,12 @@
+Ciao, 
+
+vi mando un esempio su come lanciare script R in parallelo. Potrebbe tornarvi utile per le simulazioni, o comunque in generale nella vita. Non so se sia il modo migliore per farlo, però funziona. Nel caso vi venga in mente un altro modo, fatemi sapere che sono curioso. Penso che questo funzioni solo con script R, non con Rmarkdown.
+Scrivo in inglese perché è una mail che ho mandato all'altro gruppo.
+
+I attach two files as an example of how to execute R scripts in parallel.
+
+Open "parallel_main.R", this is the file you must execute to run the program. Variable "scriptpath" must contain the path of the file where you implemented the code you want to run in parallel. variable "idx" contains the number of the simulation, as if you were looping over idx. Hence, running the first time it will run simulations number 1,2,3,4, then to run a second time you must change idx and set it equal to 5:8. Finally you can execute lines 11-15 simultaneously.
+
+Regarding "simulation_file.R", this is the code you would write within a loop for over idx but without the for loop. As you can see, in lines 1 and 4 I am using variable idx even though no value has been assigned to such variable in this script. This is possible because it would take the value you are setting in parallel_main.R
+
+Finally, you can save the results in a file, so that at the end of the simulations you can just read all such files to produce your plots.
