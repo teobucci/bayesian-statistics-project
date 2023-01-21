@@ -220,10 +220,19 @@ legend("topright", legend=c("True CPs"),
 num_clusters = do.call(rbind, lapply(res$rho, length))
 num_clusters = as.vector(num_clusters)
 
-plot(x =  1:length(num_clusters), y = num_clusters, type = "n", xlab='Iterations', ylab='Number of groups', main='Number of groups - Traceplot')
+plot(
+    x =  1:length(num_clusters),
+    y = num_clusters,
+    type = "n",
+    xlab = 'Iterations',
+    ylab = 'Number of groups',
+    main = 'Number of groups - Traceplot'
+)
 lines(x =  1:length(num_clusters), y = num_clusters)
 
-abline(h=length(z_to_rho(z_true)), col='red', lwd=4)
+abline(h = length(z_to_rho(z_true)),
+       col = 'red',
+       lwd = 4)
 ```
 
 ### Traceplot of the random index
@@ -238,16 +247,17 @@ z = do.call(rbind, lapply(res$rho, rho_to_z))
 rand_index = apply(z, 1, mcclust::arandi, z_true)
 
 #Plotting the traceplot of the index
-plot(rand_index,type = 'l')
+plot(
+    x =  1:length(rand_index),
+    y = rand_index,
+    type = 'n',
+    xlab = 'Iterations',
+    ylab = 'Rand Index',
+    main = paste('Rand Index - Traceplot - Last value:', last)
+)
+lines(x =  1:length(rand_index), y = rand_index)
 
-#index of the first iteration (after the burnin)
-first_rand_index=rand_index[1]
-first_rand_index
-
-#Index of the last iteration
-last_rand_index=rand_index[length(rand_index)]
-last_rand_index
-
+abline(h = 1, col = 'red', lwd = 4)
 ```
 
 
