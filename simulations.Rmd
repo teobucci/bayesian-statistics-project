@@ -184,15 +184,37 @@ freq = data.frame(freq=freq)
 r_true = z_to_r(z_true)
 indexes = which(r_true==1)
 
-barplot(freq$freq,
-        names = 1:length(z_true),
-        las = 1)
-abline(v=indexes, col='red')
+barplot(
+    freq$freq,
+    names = seq_along(freq$freq),
+    border = "NA",
+    space = 0,
+    yaxt = "n"
+)
+abline(v=indexes-0.5, col='red')
 
 z = do.call(rbind, lapply(res$rho, rho_to_z))
 ```
 
-Number of clusters per iteration
+
+```{r}
+# method 0
+# https://stackoverflow.com/questions/62061859/abline-not-fitting-to-barplot
+bar_heights = colSums(r)
+bar_heights = bar_heights[-c(length(bar_heights))]
+barplot(
+    bar_heights,
+    names = seq_along(bar_heights),
+    border = "NA",
+    space = 0,
+    yaxt = "n"
+)
+abline(v=indexes-0.5, col='red', lwd=2)
+legend("topright", legend=c("True CPs"),
+       col=c("red"), lty=1, cex=0.8)
+```
+
+### Evolution of the number of clusters
 
 ```{r}
 num_clusters = do.call(rbind, lapply(res$rho, length))
