@@ -220,10 +220,10 @@ legend("topright", legend=c("True CPs"),
 num_clusters = do.call(rbind, lapply(res$rho, length))
 num_clusters = as.vector(num_clusters)
 
-plot(x =  1:length(num_clusters), y = num_clusters, type = "n", xlab='Iterations', ylab='Number of groups')
+plot(x =  1:length(num_clusters), y = num_clusters, type = "n", xlab='Iterations', ylab='Number of groups', main='Number of groups - Traceplot')
 lines(x =  1:length(num_clusters), y = num_clusters)
 
-abline(h=length(z_to_rho(z_true)), col='red', lwd=6)
+abline(h=length(z_to_rho(z_true)), col='red', lwd=4)
 ```
 
 ## Graph
