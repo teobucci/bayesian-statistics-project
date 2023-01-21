@@ -166,7 +166,7 @@ log_close()
 
 ## Partition
 
-Barplot of changepoints
+### Barplot of changepoints
 
 ```{r}
 r = do.call(rbind, lapply(res$rho, rho_to_r))
@@ -226,16 +226,99 @@ lines(x =  1:length(num_clusters), y = num_clusters)
 abline(h=length(z_to_rho(z_true)), col='red', lwd=4)
 ```
 
+### Traceplot of the random index
+
+```{r}
+library (fossil) #for rand index. Not sure it is the exact function 
+
+#Recomputing zeta 
+z = do.call(rbind, lapply(res$rho, rho_to_z))
+
+#Computing rand index for each iteration
+rand_index = apply(z, 1, mcclust::arandi, z_true)
+
+#Plotting the traceplot of the index
+plot(rand_index,type = 'l')
+
+#index of the first iteration (after the burnin)
+first_rand_index=rand_index[1]
+first_rand_index
+
+#Index of the last iteration
+last_rand_index=rand_index[length(rand_index)]
+last_rand_index
+
+```
+
+
+### Computing binder loss e VI - do not take into account order!
+
+```{r}
+#Binder loss function to compute an optimal cluster given the 
+#similarity matrix (do not think it accounts for ordering though!)
+optimal_cluster = minbinder(sim_matrix)
+
+#Computing VI (to understand)
+VI_sara = minVI(sim_matrix)
+
+#Plotting tables
+cat('Binder loss \n')
+table(binder_sara$cl)
+
+cat('Variance loss \n')
+table(VI_sara$cl)
+
+
+
+```
+
+### TODO smistare
+
+```{r}
+# Clustering --------------------------------------------------------------
+
+
+# Get labels for each iterations for each data point
+#GDFMM$Partition is a (n_iter x n_data) matrix
+part_matrix <- GDFMM$Partition
+## ---> this is the object where you saved all the partitions
+
+
+# Compute similarity matrix
+sim_matrix <- psm(part_matrix)
+
+# Heatmap, to understand the uncertainty in the similarity matrix
+heatmap(sim_matrix)
+
+# Compute final partition by minimazing the Binder loss or the VI loss functions
+binder = minbinder(sim_matrix)
+VI     = minVI(sim_matrix)
+
+# Compare partitions just in terms of number of clusters and cluster cardinalities
+table(binder$cl)
+table(VI$cl)
+table(real_partition)
+
+# Compute Rand Index
+arandi(binder$cl,real_partition, adjust = F)
+arandi(VI$cl,real_partition, adjust = T)
+
+```
+
+
 ## Graph
 
-Kullback–Leibler
+### Evolution of the Kullback–Leibler
+
 ```{r}
 kl_dist = do.call(rbind, lapply(res$K, function(k){ACutils::KL_dist(Prec_true,k)}))
 
 last = round(kl_dist[length(kl_dist)],4)
-plot(x =  1:length(kl_dist), y = kl_dist, type = "n", xlab='Iterations', ylab='Number of groups', main=paste('KL distance last',last))
+plot(x =  1:length(kl_dist), y = kl_dist, type = "n", xlab='Iterations', ylab='K-L distance', main=paste('Kullback–Leibler distance - Last value:',last))
 lines(x =  1:length(kl_dist), y = kl_dist)
 ```
+
+### Graph visualization
 
 ```{r}
 library(igraph)
@@ -309,31 +392,8 @@ g <- as_tbl_graph(final_graph, directed = F)
 ggraph(g, layout='stress') + geom_edge_link() + geom_node_point()
 ```
 
-## Traceplot of the random index
 
-```{r}
-library (fossil) #for rand index. Not sure it is the exact function 
-
-#Recomputing zeta 
-z = do.call(rbind, lapply(res$rho, rho_to_z))
-
-#Computing rand index for each iteration
-rand_index = apply(z, 1, rand.index, z_true)
-
-#Plotting the traceplot of the index
-plot(rand_index,type = 'l')
-
-#index of the first iteration (after the burnin)
-first_rand_index=rand_index[1]
-first_rand_index
-
-#Index of the last iteration
-last_rand_index=rand_index[length(rand_index)]
-last_rand_index
-
-```
-
-## Compute similarity matrix
+### Compute similarity matrix
 
 ```{r}
 # Compute similarity matrix 
@@ -346,25 +406,5 @@ colnames(sim_matrix)=1:length(z_true)
 heatmap(sim_matrix,Colv=FALSE, Rowv=FALSE)
 ```
 
-## Computing binder loss e VI - do not take into account order!
-
-```{r}
-#Binder loss function to compute an optimal cluster given the 
-#similarity matrix (do not think it accounts for ordering though!)
-optimal_cluster = minbinder(sim_matrix)
-
-#Computing VI (to understand)
-VI_sara = minVI(sim_matrix)
-
-#Plotting tables
-cat('Binder loss \n')
-table(binder_sara$cl)
-
-cat('Variance loss \n')
-table(VI_sara$cl)
-
-
-
-```
 
 
