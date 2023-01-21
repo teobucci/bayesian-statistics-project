@@ -330,52 +330,36 @@ plot_graph = function(adjacency_matrix, title){
 }
 ```
 
-Extract last graph
+Extract last plinks
 
 ```{r}
 last_G = res$G[[length(res$G)]]
 ```
 
-Criterion 1 to select the threshold (shouldn't work very well).
+Criterion 1 to select the threshold (shouldn't work very well) and assign final graph
 
 ```{r}
 threshold = 0.5
+final_graph <- matrix(0,p,p)
+final_graph[which(last_G>threshold)] = 1
 ```
 
 Criterion 2 to select the threshold
 
 ```{r}
-threshold = 0
-for(threshold_i in seq(0,1,0.001)){
-    BFDR_graph_num = 0
-    BFDR_graph_den = 0
-    id_graph = matrix(0,p,p)
-    id_graph[which(last_G>threshold_i)] = 1
-    for(k in 1:p){
-        for(j in 1:k){
-        BFDR_graph_num <- BFDR_graph_num + (1-last_G[k,j])*(id_graph[k,j])
-        BFDR_graph_den <- BFDR_graph_den + id_graph[k,j]
-        }
-    }
-    BFDR <- BFDR_graph_num/BFDR_graph_den
-    if(BFDR < 0.05) { # tweak, lower = more restrictive
-        threshold = threshold_i
-        break
-    }
-}
+bfdr_select = BFDR_selection(last_G, tol = seq(0.1, 1, by = 0.001))
 ```
 
-Inspect the threshold
+Inspect the threshold and assign final graph
 
 ```{r}
-threshold
+bfdr_select$best_treshold
+final_graph = bfdr_select$best_truncated_graph
 ```
 
 Select the graph and plot it against the original
 
 ```{r}
-final_graph <- matrix(0,p,p)
-final_graph[which(last_G>threshold)] = 1
 par(mfrow=c(2,1))
 plot_graph(final_graph, 'Estimated')
 plot_graph(Graph_true, 'True')
