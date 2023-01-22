@@ -144,16 +144,27 @@ options = set_options(sigma_prior_0=0.5,
 
 ## Running the simulation
 
+Create output directory if needed
+
+```{r}
+dir.create(file.path('output', 'data'), showWarnings = FALSE, recursive = TRUE)
+dir.create(file.path('output', 'log'), showWarnings = FALSE, recursive = TRUE)
+```
+
 ```{r}
 unique_ID = uuid::UUIDgenerate(use.time = TRUE, n = 1, output = c("string"))
 unique_ID = dittodb::hash(unique_ID, n = 8)
 cat('This simulation has been assigned ID:', unique_ID)
 
 #filename = paste("simulation_",gsub(":", "-", Sys.time()),"_file.txt",sep="")
-filename_data = paste("simulation_", unique_ID, ".rds", sep = "")
-filename_log = paste("simulation_", unique_ID, ".log", sep = "")
-    
-log_open(file_name = filename_log, show_notes=FALSE)
+filename_data = paste("output/data/simulation_", unique_ID, ".rds", sep = "")
+filename_log = paste("output/log/simulation_", unique_ID, ".log", sep = "")
+```
+
+Run the simulation
+
+```{r}
+log_open(file_name = filename_log, show_notes=FALSE, logdir = FALSE)
 res <- Gibbs_sampler(
     data = sim$data,
     niter = 1500,
