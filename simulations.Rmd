@@ -264,6 +264,8 @@ legend(
 # computing rand index for each iteration
 rand_index = apply(z, 1, mcclust::arandi, z_true)
 
+last = round(tail(rand_index, n=1), 3)
+
 # plotting the traceplot of the index
 plot(
     x = 1:length(rand_index),
@@ -271,7 +273,7 @@ plot(
     type = 'n',
     xlab = 'Iterations',
     ylab = 'Rand Index',
-    main = paste('Rand Index - Traceplot - Last value:', last)
+    main = paste('Rand Index - Traceplot - Last:', last)
 )
 lines(x =  1:length(rand_index), y = rand_index)
 abline(h = 1, col = 'red', lwd = 4)
@@ -347,7 +349,7 @@ kl_dist = do.call(rbind, lapply(res$K, function(k) {
     ACutils::KL_dist(Prec_true, k)
 }))
 
-last = round(kl_dist[length(kl_dist)], 4)
+last = round(tail(kl_dist, n=1), 3)
 plot(
     x =  1:length(kl_dist),
     y = kl_dist,
