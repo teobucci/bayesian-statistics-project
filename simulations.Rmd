@@ -145,11 +145,15 @@ options = set_options(sigma_prior_0=0.5,
 ## Running the simulation
 
 ```{r}
+unique_ID = uuid::UUIDgenerate(use.time = TRUE, n = 1, output = c("string"))
+unique_ID = dittodb::hash(unique_ID, n = 8)
+cat('This simulation has been assigned ID:', unique_ID)
 
-#introducing a proper name
-filename=paste('sim',as.character(n), as.character(p),sep='_')
+#filename = paste("simulation_",gsub(":", "-", Sys.time()),"_file.txt",sep="")
+filename_data = paste("simulation_", unique_ID, ".rds", sep = "")
+filename_log = paste("simulation_", unique_ID, ".log", sep = "")
     
-log_open(file_name = filename, show_notes=FALSE)
+log_open(file_name = filename_log, show_notes=FALSE)
 res <- Gibbs_sampler(
     data = sim$data,
     niter = 1500,
@@ -160,9 +164,19 @@ res <- Gibbs_sampler(
     print = TRUE
 )
 log_close()
+
+# save an object to a file
+saveRDS(res, file = filename_data)
 ```
 
 # Posterior analysis
+
+Restore the object
+
+```{r}
+res = readRDS(file = filename_data)
+```
+
 
 ## Partition
 
