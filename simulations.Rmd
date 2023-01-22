@@ -169,6 +169,8 @@ log_close()
 ### Barplot of changepoints
 
 ```{r}
+
+# TODO CANCELLA QUESTA CELLA
 r = do.call(rbind, lapply(res$rho, rho_to_r))
 
 # method 1
@@ -233,6 +235,26 @@ lines(x =  1:length(num_clusters), y = num_clusters)
 abline(h = length(z_to_rho(z_true)),
        col = 'red',
        lwd = 4)
+```
+
+```{r}
+hist(
+    num_clusters,
+    xlab = 'Number of groups',
+    ylab = 'Frequency',
+    #border = 'NA',
+    main = 'Number of groups - Frequency'
+)
+
+legend(
+    "topright",
+    legend = c(paste('Last:', tail(num_clusters, n = 1)),
+    paste('MCMC mean:', round(mean(num_clusters),2))),
+    col=c(NA,NA),
+     bty = "n",
+    lty = 1,
+    cex = 0.8
+)
 ```
 
 ### Traceplot of the random index
