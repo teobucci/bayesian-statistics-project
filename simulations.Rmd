@@ -271,6 +271,19 @@ table(VI_sara$cl)
 
 ```
 
+### Compute similarity matrix
+
+```{r}
+# Compute similarity matrix 
+sim_matrix <- psm(z)
+
+#Adding names for the heatmap - todo order by name!
+rownames(sim_matrix)=1:length(z_true)
+colnames(sim_matrix)=1:length(z_true)
+
+heatmap(sim_matrix,Colv=FALSE, Rowv=FALSE)
+```
+
 ### TODO smistare
 
 ```{r}
@@ -379,20 +392,6 @@ library(ggraph)
 g <- as_tbl_graph(final_graph, directed = F)
 # Plot the graph
 ggraph(g, layout='stress') + geom_edge_link() + geom_node_point()
-```
-
-
-### Compute similarity matrix
-
-```{r}
-# Compute similarity matrix 
-sim_matrix <- psm(z)
-
-#Adding names for the heatmap - todo order by name!
-rownames(sim_matrix)=1:length(z_true)
-colnames(sim_matrix)=1:length(z_true)
-
-heatmap(sim_matrix,Colv=FALSE, Rowv=FALSE)
 ```
 
 
