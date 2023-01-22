@@ -1186,7 +1186,9 @@ Gibbs_sampler = function(data,
     it_saved = 0
     
     # initialize progress bar
-    pb = txtProgressBar(min=1, max=n_total_iter, initial=1, style=3)
+    if(print){
+        pb = txtProgressBar(min=1, max=n_total_iter, initial=1, style=3)
+    }
     
     # initialize the sum of the weights of the graphs
     total_weights = 0
@@ -1339,7 +1341,7 @@ Gibbs_sampler = function(data,
     #                   last_K = last_K, last_Theta = last_Theta )
     #
     
-    close(pb)
+    if(print){close(pb)}
     return(save_res)
 }
 
