@@ -166,41 +166,18 @@ log_close()
 
 ## Partition
 
+Recomputing the partition in other forms and the number of groups
+
+```{r}
+r = do.call(rbind, lapply(res$rho, rho_to_r))
+z = do.call(rbind, lapply(res$rho, rho_to_z))
+num_clusters = do.call(rbind, lapply(res$rho, length))
+num_clusters = as.vector(num_clusters)
+```
+
 ### Barplot of changepoints
 
 ```{r}
-
-# TODO CANCELLA QUESTA CELLA
-r = do.call(rbind, lapply(res$rho, rho_to_r))
-
-# method 1
-freq = do.call(rbind, lapply(as.data.frame(r), function(x){sum(abs(diff(x)))}))
-
-# method 2
-# freq = do.call(cbind, lapply(as.data.frame(r), function(x){diff(x)}))
-# freq[which(freq==-1)] = 0
-# freq=colSums(freq)
-
-freq = data.frame(freq=freq)
-
-r_true = z_to_r(z_true)
-indexes = which(r_true==1)
-
-barplot(
-    freq$freq,
-    names = seq_along(freq$freq),
-    border = "NA",
-    space = 0,
-    yaxt = "n"
-)
-abline(v=indexes-0.5, col='red')
-
-z = do.call(rbind, lapply(res$rho, rho_to_z))
-```
-
-
-```{r}
-# method 0
 # https://stackoverflow.com/questions/62061859/abline-not-fitting-to-barplot
 bar_heights = colSums(r)
 bar_heights = bar_heights[-c(length(bar_heights))]
@@ -219,9 +196,6 @@ legend("topright", legend=c("True CPs"),
 ### Evolution of the number of clusters
 
 ```{r}
-num_clusters = do.call(rbind, lapply(res$rho, length))
-num_clusters = as.vector(num_clusters)
-
 plot(
     x =  1:length(num_clusters),
     y = num_clusters,
@@ -260,8 +234,6 @@ legend(
 ### Traceplot of the random index
 
 ```{r}
-library (fossil) #for rand index. Not sure it is the exact function 
-
 #Recomputing zeta 
 z = do.call(rbind, lapply(res$rho, rho_to_z))
 
