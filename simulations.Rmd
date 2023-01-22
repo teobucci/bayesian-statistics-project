@@ -231,7 +231,7 @@ legend(
 )
 ```
 
-### Traceplot of the random index
+### Evolution of the Rand Index
 
 ```{r}
 # computing rand index for each iteration
