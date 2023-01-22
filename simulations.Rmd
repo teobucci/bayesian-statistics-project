@@ -70,6 +70,7 @@ for(p in paths){
 
 rho_true = c(7,8,7,4,6)
 z_true = rho_to_z(rho_true)
+r_true = z_to_r(z_true)
 # Define data dimension
 p = length(z_true)
 n = 500
@@ -213,7 +214,8 @@ barplot(
     space = 0,
     yaxt = "n"
 )
-abline(v=indexes-0.5, col='red', lwd=2)
+cp_true = which(r_true==1)
+abline(v=cp_true-0.5, col='red', lwd=2)
 legend("topright", legend=c("True CPs"),
        col=c("red"), lty=1, cex=0.8)
 ```
