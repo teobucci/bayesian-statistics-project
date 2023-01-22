@@ -264,6 +264,19 @@ lines(x =  1:length(rand_index), y = rand_index)
 abline(h = 1, col = 'red', lwd = 4)
 ```
 
+### Compute similarity matrix
+
+```{r}
+# compute similarity matrix 
+sim_matrix <- salso::psm(z)
+
+# adding names for the heatmap
+rownames(sim_matrix) = 1:length(z_true)
+colnames(sim_matrix) = 1:length(z_true)
+
+heatmap(sim_matrix, Colv = FALSE, Rowv = FALSE)
+```
+
 ### Computing binder loss e VI - do not take into account order!
 
 ```{r}
@@ -280,19 +293,6 @@ table(binder_sara$cl)
 
 cat('Variance loss \n')
 table(VI_sara$cl)
-```
-
-### Compute similarity matrix
-
-```{r}
-# compute similarity matrix 
-sim_matrix <- salso::psm(z)
-
-# adding names for the heatmap
-rownames(sim_matrix) = 1:length(z_true)
-colnames(sim_matrix) = 1:length(z_true)
-
-heatmap(sim_matrix, Colv = FALSE, Rowv = FALSE)
 ```
 
 ### TODO smistare
