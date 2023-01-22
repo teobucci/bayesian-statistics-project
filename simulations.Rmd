@@ -277,43 +277,53 @@ colnames(sim_matrix) = 1:length(z_true)
 heatmap(sim_matrix, Colv = FALSE, Rowv = FALSE)
 ```
 
-### Computing binder loss e VI - do not take into account order!
+### Computing Binder loss e VI
+
+TODO: is order respected?
 
 ```{r}
-#Binder loss function to compute an optimal cluster given the 
-#similarity matrix (do not think it accounts for ordering though!)
-optimal_cluster = minbinder(sim_matrix)
+# compute final partition by minimizing the Binder loss or the VI loss functions
+binder = mcclust::minbinder(sim_matrix)
+VI     = mcclust.ext::minVI(sim_matrix)
 
-#Computing VI (to understand)
-VI_sara = minVI(sim_matrix)
+# compare partitions just in terms of number of clusters and cluster cardinalities
 
-#Plotting tables
-cat('Binder loss \n')
-table(binder_sara$cl)
-
-cat('Variance loss \n')
-table(VI_sara$cl)
-```
-
-### TODO smistare
-
-```{r}
-
-# Compute final partition by minimizing the Binder loss or the VI loss functions
-binder = minbinder(sim_matrix)
-VI     = minVI(sim_matrix)
-
-# Compare partitions just in terms of number of clusters and cluster cardinalities
+cat('Binder loss')
 table(binder$cl)
+
+cat('Variance of Information')
 table(VI$cl)
-table(real_partition)
 
-# Compute Rand Index
-arandi(binder$cl,real_partition, adjust = F)
-arandi(VI$cl,real_partition, adjust = T)
+cat('True')
+table(z_true)
 
+# compute Rand Index
+
+cat('Binder loss')
+mcclust::arandi(binder$cl, z_true, adjust = F)
+
+cat('Variance of Information')
+mcclust::arandi(VI$cl, z_true, adjust = T)
 ```
 
+Here we are satisfied with finding the optimal partition only in the set of those visited, not in all the possible ones. I expect it could work even worse. But at least it guarantees to find an admissible one.
+I would say that it is the implementation of formula (13) of the Corradin-Danese paper (https://doi.org/10.1016/j.ijar.2021.12.019).
+
+```{r}
+library("Rcpp")
+library("RcppArmadillo")
+sourceCpp("src/wade.cpp")
+
+# compute VI loss for all visited partitions
+dists <- VI_LB(z, psm_mat = sim_matrix)
+
+# select best partition (among the visited ones)
+final_partition_VI <- z[which.min(dists),]
+table(final_partition_VI)
+
+# compute Rand Index
+mcclust::arandi(final_partition_VI,z_true)
+```
 
 ## Graph
 
