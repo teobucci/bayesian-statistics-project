@@ -234,15 +234,12 @@ legend(
 ### Traceplot of the random index
 
 ```{r}
-#Recomputing zeta 
-z = do.call(rbind, lapply(res$rho, rho_to_z))
-
-#Computing rand index for each iteration
+# computing rand index for each iteration
 rand_index = apply(z, 1, mcclust::arandi, z_true)
 
-#Plotting the traceplot of the index
+# plotting the traceplot of the index
 plot(
-    x =  1:length(rand_index),
+    x = 1:length(rand_index),
     y = rand_index,
     type = 'n',
     xlab = 'Iterations',
@@ -250,10 +247,8 @@ plot(
     main = paste('Rand Index - Traceplot - Last value:', last)
 )
 lines(x =  1:length(rand_index), y = rand_index)
-
 abline(h = 1, col = 'red', lwd = 4)
 ```
-
 
 ### Computing binder loss e VI - do not take into account order!
 
@@ -279,9 +274,6 @@ table(VI_sara$cl)
 ### TODO smistare
 
 ```{r}
-# Clustering --------------------------------------------------------------
-
-
 # Get labels for each iterations for each data point
 #GDFMM$Partition is a (n_iter x n_data) matrix
 part_matrix <- GDFMM$Partition
@@ -289,12 +281,12 @@ part_matrix <- GDFMM$Partition
 
 
 # Compute similarity matrix
-sim_matrix <- psm(part_matrix)
+sim_matrix <- salso::psm(part_matrix)
 
 # Heatmap, to understand the uncertainty in the similarity matrix
 heatmap(sim_matrix)
 
-# Compute final partition by minimazing the Binder loss or the VI loss functions
+# Compute final partition by minimizing the Binder loss or the VI loss functions
 binder = minbinder(sim_matrix)
 VI     = minVI(sim_matrix)
 
@@ -315,10 +307,19 @@ arandi(VI$cl,real_partition, adjust = T)
 ### Evolution of the Kullback–Leibler
 
 ```{r}
-kl_dist = do.call(rbind, lapply(res$K, function(k){ACutils::KL_dist(Prec_true,k)}))
+kl_dist = do.call(rbind, lapply(res$K, function(k) {
+    ACutils::KL_dist(Prec_true, k)
+}))
 
-last = round(kl_dist[length(kl_dist)],4)
-plot(x =  1:length(kl_dist), y = kl_dist, type = "n", xlab='Iterations', ylab='K-L distance', main=paste('Kullback–Leibler distance - Last value:',last))
+last = round(kl_dist[length(kl_dist)], 4)
+plot(
+    x =  1:length(kl_dist),
+    y = kl_dist,
+    type = "n",
+    xlab = 'Iterations',
+    ylab = 'K-L distance',
+    main = paste('Kullback–Leibler distance - Last value:', last)
+)
 lines(x =  1:length(kl_dist), y = kl_dist)
 ```
 
