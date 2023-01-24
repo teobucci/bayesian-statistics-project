@@ -16,6 +16,8 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# pdf(file="saving_plot4.pdf")
+# dev.off()
 ```
 
 # Simulations
