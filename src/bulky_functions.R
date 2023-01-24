@@ -102,7 +102,7 @@ update_partition = function(rho,
         rho_updated = rho_current
         
     }
-    return(list("rho_updated" = rho_updated, "accepted" = accepted, "choose_add" = choose_add, "candidate" = candidate))
+    return(list("rho_updated" = rho_updated, "accepted" = as.numeric(accepted), "choose_add" = choose_add, "candidate" = candidate))
     
 }
 
@@ -1178,7 +1178,7 @@ Gibbs_sampler = function(data,
         G = vector("list", length = niter),
         K = vector("list", length = niter),
         rho = vector("list", length = niter),
-        accepted = vector("list", length = niter),
+        accepted = vector("numeric", length = niter),
         S = vector("list", length = niter)
         )
     
