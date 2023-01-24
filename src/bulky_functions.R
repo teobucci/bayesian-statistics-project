@@ -1044,8 +1044,8 @@ set_options = function(sigma_prior_0,
                        weights_a0,
                        weights_d0,
                        alpha_target,
-                       mu_beta=0.5, # mu of the Beta
-                       sig2_beta=0.2, # variance of the Beta
+                       beta_mu=0.5, # mu of the Beta
+                       beta_sig2=0.2, # variance of the Beta
                        d=3,
                        alpha_add=0.5,
                        adaptation_step,
@@ -1066,8 +1066,8 @@ set_options = function(sigma_prior_0,
         "weights_a0"              = weights_a0,
         "weights_d0"              = weights_d0,
         "alpha_target"            = alpha_target,
-        "mu_beta"                 = mu_beta,
-        "sig2_beta"               = sig2_beta,
+        "beta_mu"                 = beta_mu,
+        "beta_sig2"               = beta_sig2,
         "d"                       = d,
         "alpha_add"               = alpha_add,
         "adaptation_step"         = adaptation_step,
@@ -1145,8 +1145,8 @@ Gibbs_sampler = function(data,
     d = options$d
     
     # parameters for the Beta
-    mu_beta = options$mu_beta
-    sig2_beta = options$sig2_beta
+    beta_mu = options$beta_mu
+    beta_sig2 = options$beta_sig2
     
 
     # checks
@@ -1154,9 +1154,9 @@ Gibbs_sampler = function(data,
         stop("The partition rho must sum to the number of variables p")
     if(d < 3)
         stop("The Wishart's d parameter must be greater or equal than 3")
-    if(!(mu_beta > 0 & mu_beta < 1))
+    if(!(beta_mu > 0 & beta_mu < 1))
         stop("The mean of the Beta must be between 0 and 1")
-    if(!(sig2_beta > 0 & sig2_beta < 0.25))
+    if(!(beta_sig2 > 0 & beta_sig2 < 0.25))
         stop("The variance of the Beta must be between 0 and 0.25")
     if(length(weights_a) != (p-1) | length(weights_d) != (p-1))
         stop("The number of elements in the weights vectors must be equal to p-1")
@@ -1171,7 +1171,7 @@ Gibbs_sampler = function(data,
     # da noi non c'è n ma c'è p, però è l'iterazione attuale oppure n_total_iter?
     t_over_p = n_total_iter / p
   
-    beta_params = estimate_Beta_params(mu_beta, sig2_beta)
+    beta_params = estimate_Beta_params(beta_mu, beta_sig2)
     
     # define structure to save sampled values
     save_res = list(
