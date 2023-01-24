@@ -1,12 +1,15 @@
+library(logr)
+
 #' Main function that updates the partition
 #'
 #' @param rho The partition in compact form (e.g. rho=c(1,4,5) means that the first group has 1 element, the second has 4 elements and the last has 5 elements).
 #' @param alpha_add Fixed probability of choosing an add move or delete move.
 #' @param weights_a Vector of size (number of nodes - 1) containing at element j the weights to consider when ADDING a changepoint between point j and point j+1 (weights are non-normalized probabilities).
 #' @param weights_d Vector of size (number of nodes - 1) containing at element j the weights to consider when DELETING a changepoint between point j and point j+1 (weights are non-normalized probabilities).
-#' @param Theta_groups 
-#' @param theta_prior Prior parameter as in martined and Mena, 2014
-#' @param sigma Prior parameter as in martined and Mena, 2014
+#' @param theta_prior Prior parameter as in Martinez and Mena (2014)
+#' @param sigma_prior Prior parameter as in Martinez and Mena (2014)
+#' @param G Adjacency matrix of the graph
+#' @param beta_params Parameters of the Beta
 #'
 #' @return a new partition in the compact form
 #' @export
@@ -64,16 +67,15 @@ update_partition = function(rho,
     # c'e' un ricalcolo inutile dell'indice del gruppo da splittare o mergiare
     log_priorRatioNow = log_priorRatio(theta_prior, sigma_prior, rho_current, rho_proposed, choose_add)
     
-    # OK
     log_likelihood_ratioNow = log_likelihood_ratio(alpha_add,
-                                    weights_a,
-                                    weights_d,
-                                    G,
-                                    rho_current,
-                                    rho_proposed,
-                                    choose_add,
-                                    beta_params$alpha,
-                                    beta_params$beta) 
+                                                   weights_a,
+                                                   weights_d,
+                                                   G,
+                                                   rho_current,
+                                                   rho_proposed,
+                                                   choose_add,
+                                                   beta_params$alpha,
+                                                   beta_params$beta)
     
     alpha_accept <- min(1, exp(log_likelihood_ratioNow +
                                log_priorRatioNow +
@@ -81,14 +83,21 @@ update_partition = function(rho,
 
     if (runif(n = 1) < alpha_accept) {
         accepted = TRUE
-        log_print("Move accepted", console = FALSE) 
+        log_print("Move accepted", console = FALSE)
         rho_updated = rho_proposed
     } else {
         accepted = FALSE
         log_print("Move rejected", console = FALSE)
         rho_updated = rho_current
     }
-    return(list("rho_updated" = rho_updated, "accepted" = as.numeric(accepted), "choose_add" = choose_add, "candidate" = candidate))
+    return(
+        list(
+            "rho_updated" = rho_updated,
+            "accepted" = as.numeric(accepted),
+            "choose_add" = choose_add,
+            "candidate" = candidate
+        )
+    )
     
 }
 
@@ -97,9 +106,9 @@ update_partition = function(rho,
 #' Adaptation step to update the weights vectors a and d
 #'
 #' The function takes as an input the current weights and updates them as a function of
-#' the current iteration number t, the initial adaptation h 
+#' the current iteration number t, the initial adaptation h
 #' The function works in log scale
-#' 
+#'
 #' @param logweights Vector of the logarithm of the current weights
 #' @param alpha_target Scalar indicating the target acceptance probability (optimal range empirically observed around 0.10-0.15)
 #' @param t Number of the current iteration
@@ -110,7 +119,7 @@ update_partition = function(rho,
 #' @export
 #'
 #' @examples
-#' 
+#'
 update_weight = function(weights, index, h, t_over_p, alpha_add, alpha_target) {
     if (!h > 0)
         stop("Adaptation step h must be positive")
@@ -128,7 +137,7 @@ update_weight = function(weights, index, h, t_over_p, alpha_add, alpha_target) {
 
 #' Partition current data
 #' Given y (vector of data) and rho (vector of the partition), the function splits the observations and
-#' partitions them into the current groups 
+#' partitions them into the current groups
 #' partitions them into the partition rho
 #' @param y Vector of n ordered data
 #' @inheritParams update_partition
@@ -183,9 +192,6 @@ proposal_ratio = function(rho,
     
     n_elems = length(weights_a)
     
-    # select the element range which we will use to extract the useful indexes
-    elems_range <- 1:n_elems # same size of weights_a and weights_d
-    
     # indexes of the changepoints
     cp_indexes <- get_group_indexes(rho)
     
@@ -226,7 +232,6 @@ proposal_ratio = function(rho,
         ratio = (alpha_add / 1) * (weights_d_available_sum / weights_d[candidate])
         return(list("ratio" = ratio, "candidate" = candidate))
     }
-    
     
     # only the general cases remain
     if (choose_add) {
@@ -304,7 +309,7 @@ split_partition <- function(candidate_index, rho) {
 
 
 #' Merge Partition
-#' 
+#'
 #' @param candidate_index Index of the the point where to split the group (equivalent to adding a changepoint).
 #' @inheritParams update_partition
 #' @return A list whose first element is the updated partition and the second is the index of the group that has changed.
@@ -359,7 +364,7 @@ merge_partition <- function(candidate_index, rho) {
 
 
 #' Shuffle Partition
-#' 
+#'
 #' @param G Adjacency matrix of the Graph.
 #' @inheritParams update_partition
 #' @return The updated partition after a shuffle move, if accepted.
@@ -675,8 +680,8 @@ get_S_from_G_rho_oldrho_oldS = function(G,rho,oldrho,oldS){
 #' @inheritParams update_partition
 #'
 #' @return a positive scalar indicating the number of non-edges between two groups
-#' computed as the possible number of edges between two groups 
-#' (depending on group cardinality) minus the effective number of edges 
+#' computed as the possible number of edges between two groups
+#' (depending on group cardinality) minus the effective number of edges
 #' (depending on the edges actually present in the current Graph)
 #' @export
 #'
@@ -908,12 +913,12 @@ log_priorRatio = function(theta_prior,
 
 
 
-#' Compute weights of the full conditional of theta 
-#' as described on Martinez and Mena (page 14)
+#' Compute weights of the full conditional of theta
+#' as described on page 14 Martinez and Mena (2014)
 #'
 #' @param p     number of nodes
 #' @param sigma_prior other parameter used to compute the prior ratio
-#' @param k 
+#' @param k
 #' @param j     index of the iteration for which we are computing the weight
 #' @param f     value drawn from Exp(θ+1)
 #' @param z     value drawn from Be(θ+2,n)
@@ -941,7 +946,7 @@ compute_weights_theta <- function(c, d, p, sigma_prior, k, j, f, z) {
 #' Full-conditional for theta (for further details see Proposition 1 Martinez and Mena (2014))
 #' TODO COMPLETE DOCUMENTATION
 #'
-#' @param c First parameter of the shifted gamma prior 
+#' @param c First parameter of the shifted gamma prior
 #' @param d Second parameter of the shifted gamma prior
 #' @param candidate proposed value for theta
 #' @param k number of groups
@@ -955,7 +960,7 @@ full_conditional_theta <- function(prior_c, prior_d, candidate, k, p, sigma_prio
     weights_gamma <- rep(0,k+2)
     z <- rbeta(1,candidate + 2, p)
     f <- rexp (1,candidate + 1)
-    for (j in 0:(k+1)){ 
+    for (j in 0:(k+1)){
         # compute theta
         weight_j <- compute_weights_theta(prior_c, prior_d, p, sigma_prior, k, j, f, z)
         weights_gamma[j] <- weight_j
@@ -977,7 +982,7 @@ full_conditional_theta <- function(prior_c, prior_d, candidate, k, p, sigma_prio
 
 
 #' Full-conditional for sigma (for further details see Section 4 Martinez and Mena (2014))
-#' The formula is on page 13 
+#' The formula is on page 13
 #'
 #' @param sigma value of sigma to be updated
 #' @param theta value of theta
@@ -987,7 +992,7 @@ full_conditional_theta <- function(prior_c, prior_d, candidate, k, p, sigma_prio
 #' @param c Third parameter of the distribution
 #' @param d Fourth parameter of the distribution
 #'
-#' @return the value for sigma for the current iteration 
+#' @return the value for sigma for the current iteration
 #' @export
 #'
 #' @examples
@@ -1019,7 +1024,7 @@ full_conditional_sigma <- function(sigma, theta, rho, a, b, c, d){
 
 
 
-#TODO add the list of sigma and theta parameters 
+#TODO add the list of sigma and theta parameters
 #- understand whether a,b,c,d are dependent on other parameters
 
 set_options = function(sigma_prior_0,
@@ -1069,7 +1074,7 @@ set_options = function(sigma_prior_0,
 
 #' Estimate alpha and beta from a Beta function given mean and variance
 #' See https://stats.stackexchange.com/a/12239 for details.
-#' 
+#'
 #' @param mu Mean of the Beta.
 #' @param var Variance of the Beta.
 #'
@@ -1117,21 +1122,21 @@ Gibbs_sampler = function(data,
     sigma_prior            = options$sigma_prior_0 # initial parameter of the prior from Martinez and Mena (2014)
     theta_prior            = options$theta_prior_0 # initial parameter of the prior from Martinez and Mena (2014)
     rho                    = options$rho0 # initial partition (e.g. c(150,151))
-    weights_a              = options$weights_a0 # add weights
-    weights_d              = options$weights_d0 # delete weights
-    adaptation_step        = options$adaptation_step # adaptation step h
+    weights_a              = options$weights_a0
+    weights_d              = options$weights_d0
+    adaptation_step        = options$adaptation_step
     sigma_prior_parameters = options$sigma_prior_parameters
     theta_prior_parameters = options$theta_prior_parameters
     
     # constant parameters
-    alpha_add = options$alpha_add # probability of choosing add over delete
+    alpha_add    = options$alpha_add # probability of choosing add over delete
     alpha_target = options$alpha_target # target acceptance ratio MH
    
     # parameter for the Wishart
     d = options$d
     
     # parameters for the Beta
-    beta_mu = options$beta_mu
+    beta_mu   = options$beta_mu
     beta_sig2 = options$beta_sig2
     
 
@@ -1264,7 +1269,7 @@ Gibbs_sampler = function(data,
                                                sigma_prior_parameters$a,
                                                sigma_prior_parameters$b,
                                                sigma_prior_parameters$c,
-                                               sigma_prior_parameters$d) - 
+                                               sigma_prior_parameters$d) -
                         full_conditional_sigma(sigma_prior,
                                                theta_prior,
                                                rho,
@@ -1280,13 +1285,13 @@ Gibbs_sampler = function(data,
                 sigma_prior = sigma_prior
                 #accettato_sigma[step+1] = 0  
             }
-            # TODO check whether a,b,c,d are just for sigma or 
+            # TODO check whether a,b,c,d are just for sigma or
         }
 
         if(options$update_theta_prior){
           theta_prior = full_conditional_theta(
-              theta_prior_parameters$c, 
-              theta_prior_parameters$d, 
+              theta_prior_parameters$c,
+              theta_prior_parameters$d,
               theta_prior, length(rho), p, sigma_prior)
         }
         
