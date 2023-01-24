@@ -252,7 +252,7 @@ hist(
 legend(
     "topright",
     legend = c(paste('Last:', tail(num_clusters, n = 1)),
-    paste('MCMC mean:', round(mean(num_clusters),2))),
+    paste('Mean:', round(mean(num_clusters),2))),
     col=c(NA,NA),
      bty = "n",
     lty = 1,
