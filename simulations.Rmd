@@ -214,12 +214,12 @@ barplot(
     names = seq_along(bar_heights),
     border = "NA",
     space = 0,
-    yaxt = "n"
+    yaxt = "n",
+    main='Changepoint frequency distribution'
 )
 cp_true = which(r_true==1)
 abline(v=cp_true-0.5, col='red', lwd=2)
-legend("topright", legend=c("True CPs"),
-       col=c("red"), lty=1, cex=0.8)
+#legend("topright", legend=c("True CPs"), col=c("red"), lty=1, cex=0.8)
 ```
 
 ### Evolution of the number of clusters
