@@ -191,7 +191,7 @@ shifted_gamma <- function(alpha, beta, mu, n = 1) {
 #' @return a list of two elements: best_threshold, the best value of tol according to this analysis.
 #' best_truncated_graph, the proposed posterior graph according to the analysis.
 #' @export
-BFDR_selection = function (plinks, tol = seq(0.1, 1, by = 0.025), min_rate = 0.05, diag = F)
+BFDR_selection = function (plinks, tol = seq(0.1, 1, by = 0.025), min_rate = 0.05, diag = FALSE)
 {
     if(dim(plinks)[1] != dim(plinks)[2])
         stop("plinksinks matrix has to be squared")

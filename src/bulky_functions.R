@@ -26,7 +26,7 @@ update_partition = function(rho,
     M = length(rho)
     p = sum(rho)
     # preliminary check for extreme cases
-    if ((!choose_add & M == 1) | (choose_add & M == p)) {
+    if ((!choose_add && M == 1) || (choose_add && M == p)) {
         # incompatible to delete when only one group is present
         # or to add when every point is a group
         choose_add = !choose_add #Force opposite choice if merging/splitting is not feasible
@@ -78,29 +78,15 @@ update_partition = function(rho,
     alpha_accept <- min(1, exp(log_likelihood_ratioNow +
                                log_priorRatioNow +
                                log_proposal_ratioNow))
-    
 
     if (runif(n = 1) < alpha_accept) {
         accepted = TRUE
         log_print("Move accepted", console = FALSE) 
         rho_updated = rho_proposed
-
-        if (choose_add) {
-            # accepted move is a split
-            # TODO split_partition(candidate,rho)
-
-        }
-        else{
-            # accepted move is a merge
-            # TODO merge_partition
-        }
-        partition_data
     } else {
-        # don't do anything
         accepted = FALSE
         log_print("Move rejected", console = FALSE)
         rho_updated = rho_current
-        
     }
     return(list("rho_updated" = rho_updated, "accepted" = as.numeric(accepted), "choose_add" = choose_add, "candidate" = candidate))
     
@@ -227,14 +213,14 @@ proposal_ratio = function(rho,
     # draw the candidate among the first 1:(p-1)
     candidate = sample(1:n_elems, 1, prob = draw_weights)
     
-    if (choose_add & M == 1) {
+    if (choose_add && M == 1) {
         # case in which you choose to propose an add move
         # (with just 1 group) that may or may not be accepted
         ratio = (alpha_add / 1) * (weights_a_available_sum / weights_a[candidate])
         return(list("ratio" = ratio, "candidate" = candidate))
     }
     
-    if (!choose_add & M == n_elems) {
+    if (!choose_add && M == n_elems) {
         # case in which you choose to propose an delete move
         # (with every point being a group) that may or may not be accepted
         ratio = (alpha_add / 1) * (weights_d_available_sum / weights_d[candidate])
@@ -274,16 +260,16 @@ split_partition <- function(candidate_index, rho) {
     
     # number of changepoints = n_elems - 1
     # case: all groups with 1 element or index out of bound
-    # if (n_elems == M | candidate_index > n_elems - 1) {
+    # if (n_elems == M || candidate_index > n_elems - 1) {
     #     return(list("rho" = rho, "group_index" = -1))
     # }
     
     group_indexes = get_group_indexes(rho)
-    found = F
+    found = FALSE
     
     for (i in 1:M) {
         
-        # if (!found & group_indexes[i] == candidate_index) {
+        # if (!found && group_indexes[i] == candidate_index) {
         #     # candidate_index is already a changepoint, return the original rho
         #     return(list("rho" = rho, "group_index" = -1))
         # }
@@ -296,7 +282,7 @@ split_partition <- function(candidate_index, rho) {
             new_rho[i + 1] = rho[i]
         }
         
-        if (!found & group_indexes[i] > candidate_index) {
+        if (!found && group_indexes[i] > candidate_index) {
             # just passed the element index - I am in the group to be split
             
             # index of the element minus the cumulative
@@ -309,7 +295,7 @@ split_partition <- function(candidate_index, rho) {
             # save the index of the group that has changed
             j = i
             
-            found = T
+            found = TRUE
         }
     }
     return(list("rho" = new_rho, "group_index" = j))
@@ -333,15 +319,15 @@ merge_partition <- function(candidate_index, rho) {
     
     # number of changepoints = n_elems - 1
     # case: only 1 group or index out of bound
-    # if (M == 1 | candidate_index > n_elems - 1) {
+    # if (M == 1 || candidate_index > n_elems - 1) {
     #     return(list("rho" = rho, "group_index" = -1))
     # }
     
     group_indexes = get_group_indexes(rho)
-    found = F
+    found = FALSE
     
     for (i in 1:(M - 1)) {
-        # if (!found & group_indexes[i] != candidate_index) {
+        # if (!found && group_indexes[i] != candidate_index) {
         #    # candidate_index is already a changepoint, return the original rho
         #    return(list("rho" = rho, "group_index" = -1))
         # }
@@ -354,7 +340,7 @@ merge_partition <- function(candidate_index, rho) {
             new_rho[i] = rho[i + 1]
         }
         
-        if (!found & group_indexes[i] == candidate_index) {
+        if (!found && group_indexes[i] == candidate_index) {
             # I am at the changepoint between the two groups to be merged
             
             # index of the element minus the cumulative
@@ -364,7 +350,7 @@ merge_partition <- function(candidate_index, rho) {
             # save the index of the group that has changed
             j = i
             
-            found = T
+            found = TRUE
         }
     }
     return(list("rho" = new_rho, "group_index" = j))
@@ -395,9 +381,9 @@ shuffle_partition <- function(rho_current, G, sigma_prior, alpha, beta) {
     # going to shuffle group K with group K+1
     K <- sample(1:(M - 1), 1)
     
-    if (rho_current[K] == 1 & rho_current[K+1] == 1){
+    if (rho_current[K] == 1 && rho_current[K+1] == 1){
         # can't shuffle anything without reproposing the same partition
-        log_print("can't shuffle anything without reproposing the same partition", console = F)
+        log_print("can't shuffle anything without reproposing the same partition", console = FALSE)
         return(rho_current)
     }
     
@@ -580,7 +566,7 @@ get_S_from_G_rho_oldrho_oldS = function(G,rho,oldrho,oldS){
         # find the group that has changed
         K = min(which(rho != c(oldrho,NA)))
         
-        if(K > 1 & K < oldM){ # in the standard case perform all four
+        if(K > 1 && K < oldM){ # in the standard case perform all four
             
             # upper left block
             S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)]
@@ -616,7 +602,7 @@ get_S_from_G_rho_oldrho_oldS = function(G,rho,oldrho,oldS){
         # find the group that has changed
         K = min(which(oldrho != c(rho,NA)))
         
-        if(K > 1 & K+1 < oldM){ # in the standard case perform all four
+        if(K > 1 && K+1 < oldM){ # in the standard case perform all four
             
             # upper left block
             S[1:(K-1),1:(K-1)] = oldS[1:(K-1),1:(K-1)]
@@ -990,7 +976,7 @@ full_conditional_theta <- function(prior_c, prior_d, candidate, k, p, sigma_prio
 
 
 
-#' Full-conditional for sigma (for further details see Section 4 Martinez & Mena (2014))
+#' Full-conditional for sigma (for further details see Section 4 Martinez and Mena (2014))
 #' The formula is on page 13 
 #'
 #' @param sigma value of sigma to be updated
@@ -1058,9 +1044,9 @@ set_options = function(sigma_prior_0,
                        ) {
   
     options = list(
-        "sigma_prior_0"         = sigma_prior_0,
+        "sigma_prior_0"           = sigma_prior_0,
         "sigma_prior_parameters"  = sigma_prior_parameters,
-        "theta_prior_0"         = theta_prior_0,
+        "theta_prior_0"           = theta_prior_0,
         "theta_prior_parameters"  = theta_prior_parameters,
         "rho0"                    = rho0,
         "weights_a0"              = weights_a0,
@@ -1128,12 +1114,12 @@ Gibbs_sampler = function(data,
     n_total_iter = nburn + niter * thin # total iterations to be made
     
     # dynamic parameters
-    sigma_prior     = options$sigma_prior_0 # initial parameter of the prior from Martinez and Mena (2014)
-    theta_prior     = options$theta_prior_0 # initial parameter of the prior from Martinez and Mena (2014)
-    rho             = options$rho0 # initial partition (e.g. c(150,151))
-    weights_a       = options$weights_a0 # add weights
-    weights_d       = options$weights_d0 # delete weights
-    adaptation_step = options$adaptation_step # adaptation step h
+    sigma_prior            = options$sigma_prior_0 # initial parameter of the prior from Martinez and Mena (2014)
+    theta_prior            = options$theta_prior_0 # initial parameter of the prior from Martinez and Mena (2014)
+    rho                    = options$rho0 # initial partition (e.g. c(150,151))
+    weights_a              = options$weights_a0 # add weights
+    weights_d              = options$weights_d0 # delete weights
+    adaptation_step        = options$adaptation_step # adaptation step h
     sigma_prior_parameters = options$sigma_prior_parameters
     theta_prior_parameters = options$theta_prior_parameters
     
@@ -1154,17 +1140,17 @@ Gibbs_sampler = function(data,
         stop("The partition rho must sum to the number of variables p")
     if(d < 3)
         stop("The Wishart's d parameter must be greater or equal than 3")
-    if(!(beta_mu > 0 & beta_mu < 1))
+    if(!(beta_mu > 0 && beta_mu < 1))
         stop("The mean of the Beta must be between 0 and 1")
-    if(!(beta_sig2 > 0 & beta_sig2 < 0.25))
+    if(!(beta_sig2 > 0 && beta_sig2 < 0.25))
         stop("The variance of the Beta must be between 0 and 0.25")
-    if(length(weights_a) != (p-1) | length(weights_d) != (p-1))
+    if(length(weights_a) != (p-1) || length(weights_d) != (p-1))
         stop("The number of elements in the weights vectors must be equal to p-1")
     if(!(adaptation_step > 0))
         stop("The adapation step h must be positive")
-    if(!(alpha_add > 0 & alpha_add < 1))
+    if(!(alpha_add > 0 && alpha_add < 1))
         stop("The probability of choosing an add move alpha_add must be between 0 and 1")
-    if(!(alpha_target > 0 & alpha_target < 1))
+    if(!(alpha_target > 0 && alpha_target < 1))
         stop("The target acceptance rate of the Metropolis-Hastings alpha_target must be between 0 and 1")
 
     # TODO sistemare questo non ho capito cosa intende con "iterations (t) per number of datapoints (n)"
@@ -1243,7 +1229,7 @@ Gibbs_sampler = function(data,
 
             # it makes sense to perform the adaptive step only if we're updating the partition
             # update the single weight at the point only if the move has been accepted
-            if(options$update_weights & list_output_update_partition$accepted){
+            if(options$update_weights && list_output_update_partition$accepted){
                 if(list_output_update_partition$choose_add){
                     weights_a = update_weight(
                         weights_a,
@@ -1310,7 +1296,7 @@ Gibbs_sampler = function(data,
         
         # save results only on thin iterations
         # (i.e. only save multiples of thin)
-        if(iter > nburn & (iter - nburn) %% thin == 0) {
+        if(iter > nburn && (iter - nburn) %% thin == 0) {
             it_saved = it_saved + 1
             if(options$update_graph){
                 # cumulative K and G
