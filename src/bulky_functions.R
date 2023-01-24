@@ -275,7 +275,7 @@ split_partition <- function(candidate_index, rho) {
     # number of changepoints = n_elems - 1
     # case: all groups with 1 element or index out of bound
     # if (n_elems == M | candidate_index > n_elems - 1) {
-    #     return(list('rho' = rho, 'group_index' = -1))
+    #     return(list("rho" = rho, "group_index" = -1))
     # }
     
     group_indexes = get_group_indexes(rho)
@@ -285,7 +285,7 @@ split_partition <- function(candidate_index, rho) {
         
         # if (!found & group_indexes[i] == candidate_index) {
         #     # candidate_index is already a changepoint, return the original rho
-        #     return(list('rho' = rho, 'group_index' = -1))
+        #     return(list("rho" = rho, "group_index" = -1))
         # }
         
         # update the partition in the general case
@@ -312,7 +312,7 @@ split_partition <- function(candidate_index, rho) {
             found = T
         }
     }
-    return(list('rho' = new_rho, 'group_index' = j))
+    return(list("rho" = new_rho, "group_index" = j))
 }
 
 
@@ -334,7 +334,7 @@ merge_partition <- function(candidate_index, rho) {
     # number of changepoints = n_elems - 1
     # case: only 1 group or index out of bound
     # if (M == 1 | candidate_index > n_elems - 1) {
-    #     return(list('rho' = rho, 'group_index' = -1))
+    #     return(list("rho" = rho, "group_index" = -1))
     # }
     
     group_indexes = get_group_indexes(rho)
@@ -343,7 +343,7 @@ merge_partition <- function(candidate_index, rho) {
     for (i in 1:(M - 1)) {
         # if (!found & group_indexes[i] != candidate_index) {
         #    # candidate_index is already a changepoint, return the original rho
-        #    return(list('rho' = rho, 'group_index' = -1))
+        #    return(list("rho" = rho, "group_index" = -1))
         # }
         
         # update the partition in the general case
@@ -367,7 +367,7 @@ merge_partition <- function(candidate_index, rho) {
             found = T
         }
     }
-    return(list('rho' = new_rho, 'group_index' = j))
+    return(list("rho" = new_rho, "group_index" = j))
 }
 
 
@@ -1336,7 +1336,7 @@ Gibbs_sampler = function(data,
         log_print(last_S, console = FALSE)
     }
     
-    #output = list( sample_graphs = sample_graphs, graph_weights = graph_weights, K_hat = 'empty',
+    #output = list( sample_graphs = sample_graphs, graph_weights = graph_weights, K_hat = "empty",
     #                   all_graphs = niter-nburn, all_weights = all_weights, last_graph = last_G,
     #                   last_K = last_K, last_Theta = last_Theta )
     #

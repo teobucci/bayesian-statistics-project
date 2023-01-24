@@ -10,8 +10,8 @@ output:
         toc_depth: 3
         number_section: true
 date: "2023-01-17"
-editor_options: 
-  chunk_output_type: console
+editor_options:
+    chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -48,7 +48,7 @@ for(p in paths){
     if(file.exists(path)){
         source(path)
     } else {
-        cat("File",path,"wasn't found in directory, please check.")
+        cat("File",path,"was not found in directory, please check.")
     }
 }
 ```
@@ -150,14 +150,14 @@ options = set_options(sigma_prior_0=0.5,
 Create output directory if needed
 
 ```{r}
-dir.create(file.path('output', 'data'), showWarnings = FALSE, recursive = TRUE)
-dir.create(file.path('output', 'log'), showWarnings = FALSE, recursive = TRUE)
+dir.create(file.path("output", "data"), showWarnings = FALSE, recursive = TRUE)
+dir.create(file.path("output", "log"), showWarnings = FALSE, recursive = TRUE)
 ```
 
 ```{r}
 unique_ID = uuid::UUIDgenerate(use.time = TRUE, n = 1, output = c("string"))
 unique_ID = dittodb::hash(unique_ID, n = 8)
-cat('This simulation has been assigned ID:', unique_ID)
+cat("This simulation has been assigned ID:", unique_ID)
 
 #filename = paste("simulation_",gsub(":", "-", Sys.time()),"_file.txt",sep="")
 filename_data = paste("output/data/simulation_", unique_ID, ".rds", sep = "")
@@ -191,7 +191,6 @@ Restore the object
 res = readRDS(file = filename_data)
 ```
 
-
 ## Partition
 
 Recomputing the partition in other forms and the number of groups
@@ -215,10 +214,10 @@ barplot(
     border = "NA",
     space = 0,
     yaxt = "n",
-    main='Changepoint frequency distribution'
+    main="Changepoint frequency distribution"
 )
 cp_true = which(r_true==1)
-abline(v=cp_true-0.5, col='red', lwd=2)
+abline(v=cp_true-0.5, col="red", lwd=2)
 #legend("topright", legend=c("True CPs"), col=c("red"), lty=1, cex=0.8)
 ```
 
@@ -226,35 +225,34 @@ abline(v=cp_true-0.5, col='red', lwd=2)
 
 ```{r}
 plot(
-    x =  1:length(num_clusters),
+    x = 1:length(num_clusters),
     y = num_clusters,
     type = "n",
-    xlab = 'Iterations',
-    ylab = 'Number of groups',
-    main = 'Number of groups - Traceplot'
+    xlab = "Iterations",
+    ylab = "Number of groups",
+    main = "Number of groups - Traceplot"
 )
-lines(x =  1:length(num_clusters), y = num_clusters)
-
+lines(x = 1:length(num_clusters), y = num_clusters)
 abline(h = length(z_to_rho(z_true)),
-       col = 'red',
+       col = "red",
        lwd = 4)
 ```
 
 ```{r}
 hist(
     num_clusters,
-    xlab = 'Number of groups',
-    ylab = 'Frequency',
-    #border = 'NA',
-    main = 'Number of groups - Frequency'
+    xlab = "Number of groups",
+    ylab = "Frequency",
+    #border = "NA",
+    main = "Number of groups - Frequency"
 )
 
 legend(
     "topright",
-    legend = c(paste('Last:', tail(num_clusters, n = 1)),
-    paste('Mean:', round(mean(num_clusters),2))),
+    legend = c(paste("Last:", tail(num_clusters, n = 1)),
+    paste("Mean:", round(mean(num_clusters),2))),
     col=c(NA,NA),
-     bty = "n",
+    bty = "n",
     lty = 1,
     cex = 0.8
 )
@@ -272,13 +270,13 @@ last = round(tail(rand_index, n=1), 3)
 plot(
     x = 1:length(rand_index),
     y = rand_index,
-    type = 'n',
-    xlab = 'Iterations',
-    ylab = 'Rand Index',
-    main = paste('Rand Index - Traceplot - Last:', last)
+    type = "n",
+    xlab = "Iterations",
+    ylab = "Rand Index",
+    main = paste("Rand Index - Traceplot - Last:", last)
 )
-lines(x =  1:length(rand_index), y = rand_index)
-abline(h = 1, col = 'red', lwd = 4)
+lines(x = 1:length(rand_index), y = rand_index)
+abline(h = 1, col = "red", lwd = 4)
 ```
 
 ### Compute similarity matrix
@@ -305,21 +303,21 @@ VI     = mcclust.ext::minVI(sim_matrix)
 
 # compare partitions just in terms of number of clusters and cluster cardinalities
 
-cat('Binder loss')
+cat("Binder loss")
 table(binder$cl)
 
-cat('Variance of Information')
+cat("Variance of Information")
 table(VI$cl)
 
-cat('True')
+cat("True")
 table(z_true)
 
 # compute Rand Index
 
-cat('Binder loss')
+cat("Binder loss")
 mcclust::arandi(binder$cl, z_true, adjust = F)
 
-cat('Variance of Information')
+cat("Variance of Information")
 mcclust::arandi(VI$cl, z_true, adjust = T)
 ```
 
@@ -353,14 +351,14 @@ kl_dist = do.call(rbind, lapply(res$K, function(k) {
 
 last = round(tail(kl_dist, n=1), 3)
 plot(
-    x =  1:length(kl_dist),
+    x = 1:length(kl_dist),
     y = kl_dist,
     type = "n",
-    xlab = 'Iterations',
-    ylab = 'K-L distance',
-    main = paste('Kullback–Leibler distance - Last value:', last)
+    xlab = "Iterations",
+    ylab = "K-L distance",
+    main = paste("Kullback–Leibler distance - Last value:", last)
 )
-lines(x =  1:length(kl_dist), y = kl_dist)
+lines(x = 1:length(kl_dist), y = kl_dist)
 ```
 
 ### Graph visualization
@@ -381,7 +379,7 @@ Extract last plinks
 last_G = res$G[[length(res$G)]]
 ```
 
-Criterion 1 to select the threshold (shouldn't work very well) and assign final graph
+Criterion 1 to select the threshold (should not work very well) and assign final graph
 
 ```{r}
 threshold = 0.5
@@ -406,8 +404,8 @@ Select the graph and plot it against the original
 
 ```{r}
 par(mfrow=c(2,1))
-plot_graph(final_graph, 'Estimated')
-plot_graph(Graph_true, 'True')
+plot_graph(final_graph, "Estimated")
+plot_graph(Graph_true, "True")
 par(mfrow=c(1,1))
 ```
 
@@ -418,7 +416,7 @@ library(tidygraph)
 library(ggraph)
 g <- as_tbl_graph(final_graph, directed = F)
 # Plot the graph
-ggraph(g, layout='stress') + geom_edge_link() + geom_node_point()
+ggraph(g, layout="stress") + geom_edge_link() + geom_node_point()
 ```
 
 
