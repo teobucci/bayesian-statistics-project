@@ -31,11 +31,8 @@ get_group_indexes = function(rho){
 #' @examples
 rho_to_r = function(rho){
     group_indexes = get_group_indexes(rho)
-    total_n = sum(rho)
-    r <- numeric(total_n)
-    for(i in group_indexes){
-        r[i]=1
-    }
+    r <- numeric(sum(rho))
+    r[group_indexes] = 1
     return(r)
 }
 
