@@ -168,6 +168,7 @@ Run the simulation
 
 ```{r}
 log_open(file_name = filename_log, show_notes=FALSE, logdir = FALSE)
+start_time <- Sys.time()
 res <- Gibbs_sampler(
     data = sim$data,
     niter = 1500,
@@ -177,6 +178,7 @@ res <- Gibbs_sampler(
     seed = 123456,
     print = TRUE
 )
+cat("Execution time:", Sys.time() - start_time)
 log_close()
 
 # save an object to a file
