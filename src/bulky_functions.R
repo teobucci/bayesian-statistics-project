@@ -51,10 +51,10 @@ update_partition = function(rho,
     } else {
         list_output_modify_partition = merge_partition(candidate, rho)
     }
-    rho_proposed = list_output_modify_partition$rho
+    rho_proposed = list_output_modify_partition$new_rho
     
     # TODO cambiare questo nome per renderlo coerente con ciÃ² che c'Ã¨ sotto
-    THE_GROUP = list_output_modify_partition$group_index
+    changed_group_index = list_output_modify_partition$changed_group_index
     
     # OK
     rho_current = rho
@@ -302,7 +302,7 @@ split_partition <- function(candidate_index, rho) {
             found = TRUE
         }
     }
-    return(list("rho" = new_rho, "group_index" = j))
+    return(list("new_rho" = new_rho, "changed_group_index" = j))
 }
 
 
@@ -357,7 +357,7 @@ merge_partition <- function(candidate_index, rho) {
             found = TRUE
         }
     }
-    return(list("rho" = new_rho, "group_index" = j))
+    return(list("new_rho" = new_rho, "changed_group_index" = j))
 }
 
 
