@@ -6,10 +6,9 @@
 #' the increasing indexes of the elements where each group starts
 #' e.g. if rho=c(1,3,3), the output will be c(1,4,6),
 #' meaning that 1 is the index of the first element of the first group,
-#' 4 is the index of the first element of the second group, 
-#' 6 is the index of the first element of the third group 
-#' 
-#' 
+#' 4 is the index of the first element of the second group,
+#' 6 is the index of the first element of the third group
+#'
 #' @export
 #'
 #' @examples
@@ -17,25 +16,16 @@ get_group_indexes = function(rho){
     return(cumsum(rho))
 }
 
+# =============================================================================
+# =           FUNCIONS FOR MOVING BETWEEN PARTITION REPRESENTATIONS           =
+# =============================================================================
 
-
-
-#' Rho to changepoint function
-#' #TODO Add checks
-#'
-#' @param rho 
-#'
-#' @return
-#' @export
-#'
-#' @examples
 rho_to_r = function(rho){
     group_indexes = get_group_indexes(rho)
     r <- numeric(sum(rho))
     r[group_indexes] = 1
     return(r)
 }
-
 
 z_to_rho = function(z){
     return(as.vector(table(z)))
@@ -45,20 +35,6 @@ z_to_r = function(z){
     return(diff(z))
 }
 
-
-
-
-
-
-#' Rho to z function - groups start from 0!
-#' 
-#'
-#' @param rho vector of integer representing an ordered partition. Each element represents the group cardinality. E.g. c(1,3) means a partition with 2 groups where the first has 1 element and the second has 3 elements.
-#'
-#' @return vector of group memberships, c(1,3) would return c(1,2,2,2).
-#' @export
-#'
-#' @examples
 rho_to_z = function(rho){
     z = numeric()
     
@@ -72,11 +48,11 @@ rho_to_z = function(rho){
 
 
 #' Compute the rising factorial (also called Pochhammer symbol)
-#' 
+#'
 #' Peturns the value of Pochhammer's symbol calculated as
 #' \deqn{(x)_n = x (x+1) \cdots (x+n-1)}
-#' 
-#' 
+#'
+#'
 #' @param x numeric value for the argument of the symbol
 #' @param n integer value for the number of terms in the symbol
 #' @param log boolean value, if TRUE the rising factorial is returned in log. Default is TRUE.
@@ -122,11 +98,11 @@ lpochhammer <- function(x, n, log = TRUE) {
 #' Absolute value of Stirling number of the first kind (adapted)
 #' Computes an adapted version of the Stirling number of the first kind
 #'
-#' The Stirling number represents the number of ways that we can arrange 
+#' The Stirling number represents the number of ways that we can arrange
 #' k objects around indistinguishable circles of length j
-#' 
+#'
 #' NOTE: Requires gmp package.
-#' 
+#'
 #' @param k First parameter - indicates the overall number of objects
 #' @param j Second parameter - indicates the length of the circles (see above)
 #'
@@ -141,7 +117,7 @@ abs_stirling_number_1st <- function(k,j){
     }
     
     if (k < 0) {
-        stop("In computing the Stirling number of the first kind, must have k greater or equal than 0.")
+        stop("In computing the Stirling number of the first kind, k must be greater or equal than 0.")
     }
     if (j <= 0 || j > k) {
         abs_stir_num_first_kind = 0
@@ -187,7 +163,7 @@ shifted_gamma <- function(alpha, beta, mu, n = 1) {
 BFDR_selection = function (plinks, tol = seq(0.1, 1, by = 0.025), min_rate = 0.05, diag = FALSE)
 {
     if(dim(plinks)[1] != dim(plinks)[2])
-        stop("plinksinks matrix has to be squared")
+        stop("plinks matrix must to be squared")
     p = dim(plinks)[1]
     plinks_vet = plinks[upper.tri(plinks, diag = diag)]
     if (any(tol > max(plinks_vet)))

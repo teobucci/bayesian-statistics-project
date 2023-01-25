@@ -494,7 +494,6 @@ shuffle_partition <- function(rho_current, G, sigma_prior, alpha, beta) {
 # symmetric. You need to know just G and the partition rho
 get_S_from_G_rho = function(G, rho) {
     
-    # check on G
     if (!all(t(G) == G))
         stop("G is not symmetric")
     
@@ -536,7 +535,6 @@ get_S_from_G_rho = function(G, rho) {
 # elements".
 get_S_from_G_rho_oldrho_oldS = function(G,rho,oldrho,oldS){
     
-    # check on G
     if (!all(t(G) == G))
         stop("G is not symmetric")
     
@@ -817,8 +815,8 @@ log_likelihood_ratio = function(alpha_add,
     # third denominator term
     log_ratio = log_ratio - fB(K, K, S_current, S_star_current)
     
+    # in the delete/merge case we have to invert everything
     if (!choose_add) {
-        # in the delete/merge case we have to invert everything
         log_ratio = -log_ratio
     }
     
@@ -868,7 +866,7 @@ get_index_changed_group = function(rho_current, rho_proposed) {
 }
 
 
-#TODO add documentation here!!
+# TODO Add documentation
 log_priorRatio = function(theta_prior,
                           sigma_prior,
                           rho_current,
@@ -953,7 +951,6 @@ compute_weights_theta <- function(c, d, p, sigma_prior, k, j, f, z) {
 #' @export
 #'
 #' @examples
-#' #TODO  check that all the parameters make sense
 full_conditional_theta <- function(prior_c, prior_d, candidate, k, p, sigma_prior){
     weights_gamma <- rep(0,k+2)
     z = rbeta(1,candidate + 2, p)
@@ -1017,11 +1014,6 @@ full_conditional_sigma <- function(sigma, theta, rho, a, b, c, d){
 
     return(output)
 }
-
-
-
-#TODO add the list of sigma and theta parameters
-#- understand whether a,b,c,d are dependent on other parameters
 
 set_options = function(sigma_prior_0,
                        sigma_prior_parameters,
@@ -1258,8 +1250,8 @@ Gibbs_sampler = function(data,
         }
         
         if(options$update_sigma_prior){
-            candidato <- runif(1,max(0,-theta_prior),1)
-            alpha_MH <- full_conditional_sigma(candidato,
+            candidate <- runif(1,max(0,-theta_prior),1)
+            alpha_MH <- full_conditional_sigma(candidate,
                                                theta_prior,
                                                rho,
                                                sigma_prior_parameters$a,
@@ -1275,20 +1267,21 @@ Gibbs_sampler = function(data,
                                                sigma_prior_parameters$d)
             
             if(log(runif(1)) <= min(alpha_MH,log(1))){
-                sigma_prior = candidato
-                #accettato_sigma[step+1] = 1
+                sigma_prior = candidate
             }else{
                 sigma_prior = sigma_prior
-                #accettato_sigma[step+1] = 0  
             }
-            # TODO check whether a,b,c,d are just for sigma or
         }
 
-        if(options$update_theta_prior){
-          theta_prior = full_conditional_theta(
-              theta_prior_parameters$c,
-              theta_prior_parameters$d,
-              theta_prior, length(rho), p, sigma_prior)
+        if(options$update_theta_prior) {
+            theta_prior = full_conditional_theta(
+                theta_prior_parameters$c,
+                theta_prior_parameters$d,
+                theta_prior,
+                length(rho),
+                p,
+                sigma_prior
+            )
         }
         
         if (options$update_graph){
@@ -1300,7 +1293,7 @@ Gibbs_sampler = function(data,
         if(iter > nburn && (iter - nburn) %% thin == 0) {
             it_saved = it_saved + 1
             if(options$update_graph){
-                # cumulative K and G
+                # cumulative precision matrix K and probability of inclusion links
                 save_res$K[[it_saved]] = total_K / total_weights
                 save_res$G[[it_saved]] = total_graphs / total_weights
             }
