@@ -118,7 +118,6 @@ lpochhammer <- function(x, n, log = TRUE) {
 
 
 
-# Utils for the theta parameter---------
 
 #' Absolute value of Stirling number of the first kind (adapted)
 #' Computes an adapted version of the Stirling number of the first kind
@@ -126,7 +125,7 @@ lpochhammer <- function(x, n, log = TRUE) {
 #' The Stirling number represents the number of ways that we can arrange 
 #' k objects around indistinguishable circles of length j
 #' 
-#' NOTE: Requires gmp package!
+#' NOTE: Requires gmp package.
 #' 
 #' @param k First parameter - indicates the overall number of objects
 #' @param j Second parameter - indicates the length of the circles (see above)
@@ -137,18 +136,18 @@ lpochhammer <- function(x, n, log = TRUE) {
 #'
 #' @examples
 abs_stirling_number_1st <- function(k,j){
-    if(j == 0 && k == 0){
+    if (j == 0 && k == 0) {
         return(1)
     }
-
-    if(k<0){
-        stop("Only positive integers allowed for k!")
+    
+    if (k < 0) {
+        stop("In computing the Stirling number of the first kind, must have k greater or equal than 0.")
     }
-    if(j <= 0 || j > k){
-        abs_stir_num_first_kind=0
+    if (j <= 0 || j > k) {
+        abs_stir_num_first_kind = 0
     }
     else{
-        abs_stir_num_first_kind=(as.numeric(abs(gmp::Stirling1(k,j))))
+        abs_stir_num_first_kind = (as.numeric(abs(gmp::Stirling1(k, j))))
     }
     return(abs_stir_num_first_kind)
 }
@@ -211,10 +210,10 @@ BFDR_selection = function (plinks, tol = seq(0.1, 1, by = 0.025), min_rate = 0.0
     best_soglia_fdr = tol[i]
     best_graph_fdr = matrix(0, p, p)
     best_graph_fdr[plinks >= best_soglia_fdr] = 1
-    result = list()
-    result[[1]] = best_soglia_fdr
-    result[[2]] = best_graph_fdr
-    names(result) = c("best_treshold", "best_truncated_graph")
+    result = list(
+        "best_treshold"=best_soglia_fdr,
+        "best_truncated_graph"=best_graph_fdr
+    )
     return(result)
 }
 
