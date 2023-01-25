@@ -53,24 +53,17 @@ z_to_r = function(z){
 #' Rho to z function - groups start from 0!
 #' 
 #'
-#' @param rho 
+#' @param rho vector of integer representing an ordered partition. Each element represents the group cardinality. E.g. c(1,3) means a partition with 2 groups where the first has 1 element and the second has 3 elements.
 #'
-#' @return
+#' @return vector of group memberships, c(1,3) would return c(1,2,2,2).
 #' @export
 #'
 #' @examples
 rho_to_z = function(rho){
-    total_n = sum(rho)
-    n_groups <- length(rho)
-    z <- vector(length=total_n)
-    loop_index=1
-    group_index=0
-    for(i in 1:n_groups){
-        for(j in 1:rho[i]){
-            z[loop_index]=group_index
-            loop_index=loop_index+1
-        }
-        group_index=group_index+1
+    z = numeric()
+    
+    for(i in seq_along(rho)){
+        z = c(z, rep(i, rho[i]))
     }
     return(z)
 }
