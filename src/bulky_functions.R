@@ -967,7 +967,7 @@ full_conditional_theta <- function(prior_c, prior_d, candidate, k, p, sigma_prio
         weights_gamma = weights_gamma / sum(weights_gamma)
     }
     
-    component = min(which(cumsum(weights_gamma) > runif(1)))
+    component = min(which(cumsum(weights_gamma) > runif(n = 1)))
     
     theta = shifted_gamma(prior_c + (component - 1), prior_d + f - log(z), -sigma_prior)
     return(theta)
