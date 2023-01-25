@@ -71,6 +71,7 @@ Generate_Block = function(n,z_true,
                           seed=25254){
   set.seed(seed)
   p = length(z_true) #set p
+  counts_true = as.vector(table(z_true))
   Nclust_true  = length(counts_true)
   
   # Generate which block should be connected
