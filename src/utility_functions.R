@@ -77,18 +77,22 @@ rho_to_z = function(rho){
 
 
 
-#' Computes the rising factorial (also called Pochhammer symbol), eventually in logarithmic form.
+
+#' Compute the rising factorial (also called Pochhammer symbol)
 #' 
-#' @param x the value for which the rising factorial is to be calculated
-#' @param n the power x is to be raised to
-#' @param log if true, the rising factorial is calculated in logarithmic form
+#' Peturns the value of Pochhammer's symbol calculated as
+#' \deqn{(x)_n = x (x+1) \cdots (x+n-1)}
+#' 
+#' 
+#' @param x numeric value for the argument of the symbol
+#' @param n integer value for the number of terms in the symbol
+#' @param log boolean value, if TRUE the rising factorial is returned in log. Default is TRUE.
 #'
-#' @return the rising factorial of x to the n power
+#' @return the rising factorial of x with n terms.
 #' @export
 #'
 #' @examples
-lpochhammer <- function(x, n, log = T) {
-    #TODO finishing touch: scriverla in C
+lpochhammer <- function(x, n, log = TRUE) {
     if (n < 0)
         stop("The pochhammer operator doesn't allow n < 0")
     if (x < 0)
