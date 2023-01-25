@@ -402,14 +402,14 @@ shuffle_partition <- function(rho_current, G, sigma_prior, alpha, beta) {
     rho_proposed[K] <- l
     
     # compute log_prior_ratio
-    log_prior_ratio = lpochhammer(1 - sigma_prior, l)
-                    + lpochhammer(1 - sigma_prior, rho_current[K] + rho_current[K + 1] - l)
+    log_prior_ratio = lpochhammer(1 - sigma_prior, rho_proposed[K])
+                    + lpochhammer(1 - sigma_prior, rho_proposed[K + 1])
                     - lpochhammer(1 - sigma_prior, rho_current[K] - 1)
                     - lpochhammer(1 - sigma_prior, rho_current[K + 1] - 1)
                     + lfactorial(rho_current[K])
                     + lfactorial(rho_current[K + 1])
-                    - lfactorial(l)
-                    - lfactorial(rho_current[K] + rho_current[K + 1] - l)
+                    - lfactorial(rho_proposed[K])
+                    - lfactorial(rho_proposed[K + 1])
     
     # to compute log_likelihood_ratio I need S
 
