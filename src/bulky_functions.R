@@ -28,11 +28,10 @@ update_partition = function(rho,
     
     M = length(rho)
     p = sum(rho)
-    # preliminary check for extreme cases
+    
+    # force opposite choice if merging/splitting is not feasible
     if ((!choose_add && M == 1) || (choose_add && M == p)) {
-        # incompatible to delete when only one group is present
-        # or to add when every point is a group
-        choose_add = !choose_add #Force opposite choice if merging/splitting is not feasible
+        choose_add = !choose_add
     }
     
     if (choose_add){
@@ -338,7 +337,7 @@ merge_partition <- function(candidate_index, rho) {
         # }
         
         # update the partition in the general case
-        # (either I have already merged the group or not, just the index changes)
+        # either I have already merged the group or not, just the index changes
         if (!found) {
             new_rho[i] = rho[i]
         } else {
@@ -397,8 +396,7 @@ shuffle_partition <- function(rho_current, G, sigma_prior, alpha, beta) {
     # avoid proposing the same partition (shuffling nothing)
     sample_vector <- sample_vector[-c(rho_current[K])]
     l <- sample(sample_vector, 1)
-    log_print("sample vector", console = FALSE)
-    log_print(sample_vector, console = FALSE)
+
     # move the elements
     rho_proposed[K + 1] <- rho_current[K + 1] + rho_current[K] - l
     rho_proposed[K] <- l
@@ -485,7 +483,6 @@ shuffle_partition <- function(rho_current, G, sigma_prior, alpha, beta) {
         log_print("SHUFFLE rejected", console = FALSE)
         return(rho_current)
     }
-    
 }
 
 
@@ -531,14 +528,6 @@ get_S_from_G_rho = function(G, rho) {
             }
         }
     }
-    
-    # alternative correction for the diagonal
-    # diagonal = col(S) == row(S)
-    # S[diagonal] = S[diagonal] / 2
-    
-    # alternative for making the matrix symmetric
-    # S = makeSymm(S)
-    
     return(S)
 }
 
@@ -752,14 +741,14 @@ fB_zero = function(alpha,
 #'
 #' @examples
 log_likelihood_ratio = function(alpha_add,
-                               weights_a,
-                               weights_d,
-                               G,
-                               rho_current,
-                               rho_proposed,
-                               choose_add,
-                               alpha,
-                               beta) {
+                                weights_a,
+                                weights_d,
+                                G,
+                                rho_current,
+                                rho_proposed,
+                                choose_add,
+                                alpha,
+                                beta) {
     # differentiate delete/merge case
     if (!choose_add) {
         # swap rhos 'cause we're lazy
@@ -781,7 +770,7 @@ log_likelihood_ratio = function(alpha_add,
             S_star,
             alpha = alpha,
             beta = beta,
-            log = T
+            log = TRUE
         ))
     }
         
@@ -899,7 +888,6 @@ log_priorRatio = function(theta_prior,
     
     K = get_index_changed_group(rho_current,rho_proposed)
     
-    #print(sigma_prior)
     # compute the prior ratio
     log_ratio = - log(M) + log(theta_prior + M * sigma_prior)
                 + lpochhammer(1 - sigma_prior, rho_proposed[K] - 1)
@@ -966,24 +954,22 @@ compute_weights_theta <- function(c, d, p, sigma_prior, k, j, f, z) {
 #' #TODO  check that all the parameters make sense
 full_conditional_theta <- function(prior_c, prior_d, candidate, k, p, sigma_prior){
     weights_gamma <- rep(0,k+2)
-    z <- rbeta(1,candidate + 2, p)
-    f <- rexp (1,candidate + 1)
+    z = rbeta(1,candidate + 2, p)
+    f = rexp (1,candidate + 1)
+    
     for (j in 0:(k+1)){
-        # compute theta
-        weight_j <- compute_weights_theta(prior_c, prior_d, p, sigma_prior, k, j, f, z)
-        weights_gamma[j] <- weight_j
+        weight_j = compute_weights_theta(prior_c, prior_d, p, sigma_prior, k, j, f, z)
+        weights_gamma[j] = weight_j
     }
 
     # normalizing the weights
-    if(sum(weights_gamma)!=0) {
-        weights_gamma = weights_gamma/sum(weights_gamma)
+    if(sum(weights_gamma) != 0) {
+        weights_gamma = weights_gamma / sum(weights_gamma)
     }
     
-    u = runif(1)
+    component = min(which(cumsum(weights_gamma) > runif(1)))
     
-    component <- min(which(cumsum(weights_gamma) > u))
-    
-    theta <- shifted_gamma(prior_c + (component-1), prior_d + f - log(z), -sigma_prior)
+    theta = shifted_gamma(prior_c + (component - 1), prior_d + f - log(z), -sigma_prior)
     return(theta)
 }
 
@@ -1012,7 +998,7 @@ full_conditional_sigma <- function(sigma, theta, rho, a, b, c, d){
     log_prod_1 <- 0
 
     for (i in 1:(n_groups - 1)) {
-        if (i > (n_groups-1)) break; # needed because R for-loops suck
+        if (i > (n_groups - 1)) break; # needed because R for-loops suck
         log_prod_1 <- log_prod_1 + log(theta + i * sigma)
     }
 
