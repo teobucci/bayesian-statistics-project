@@ -838,9 +838,17 @@ log_likelihood_ratio = function(alpha_add,
 }
 
 
-#TODO add documentation here!!
-get_index_changed_group = function(rho_current,rho_proposed){
-
+#' Get index of the changed group between two partitions
+#'
+#' @param rho_current Current partition in the form of group cardinalities.
+#' @param rho_proposed Proposed partition in the form of group cardinalities.
+#'
+#' @return Index of the group that has been affected by a change (split/merge/shuffle) from the current patition to the proposed one.
+#' @export
+#'
+#' @examples
+get_index_changed_group = function(rho_current, rho_proposed) {
+    
     # indexes of the changepoints in the current partition
     cp_idxs_current = get_group_indexes(rho_current)
     
