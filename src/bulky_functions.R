@@ -40,7 +40,6 @@ update_partition = function(rho,
         log_print("You chose a DELETE/MERGE move", console = FALSE)
     }
     
-    # OK
     proposal_list = proposal_ratio(rho, alpha_add, weights_a, weights_d, choose_add)
     log_proposal_ratioNow = log(proposal_list$ratio)
     candidate = proposal_list$candidate
@@ -51,9 +50,7 @@ update_partition = function(rho,
     } else {
         list_output_modify_partition = merge_partition(candidate, rho)
     }
-    rho_proposed = list_output_modify_partition$new_rho
-    
-    # TODO cambiare questo nome per renderlo coerente con ciÃ² che c'Ã¨ sotto
+    rho_proposed        = list_output_modify_partition$new_rho
     changed_group_index = list_output_modify_partition$changed_group_index
     
     # OK
@@ -64,7 +61,7 @@ update_partition = function(rho,
     log_print(rho_proposed, console = FALSE)
 
     # c'e' un ricalcolo inutile dell'indice del gruppo da splittare o mergiare
-    log_priorRatioNow = log_priorRatio(theta_prior, sigma_prior, rho_current, rho_proposed, choose_add)
+    log_priorRatioNow = log_priorRatio(theta_prior, sigma_prior, rho_current, rho_proposed, choose_add, changed_group_index)
     
     log_likelihood_ratioNow = log_likelihood_ratio(alpha_add,
                                                    weights_a,
@@ -74,7 +71,8 @@ update_partition = function(rho,
                                                    rho_proposed,
                                                    choose_add,
                                                    beta_params$alpha,
-                                                   beta_params$beta)
+                                                   beta_params$beta,
+                                                   changed_group_index)
     
     alpha_accept <- min(1, exp(log_likelihood_ratioNow +
                                log_priorRatioNow +
@@ -748,7 +746,8 @@ log_likelihood_ratio = function(alpha_add,
                                 rho_proposed,
                                 choose_add,
                                 alpha,
-                                beta) {
+                                beta,
+                                changed_group_index) {
     # differentiate delete/merge case
     if (!choose_add) {
         # swap rhos 'cause we're lazy
@@ -781,7 +780,8 @@ log_likelihood_ratio = function(alpha_add,
     S_proposed = get_S_from_G_rho(G, rho_proposed)
     S_star_proposed = get_S_star_from_S_and_rho(S_proposed, rho_proposed)
     
-    K = get_index_changed_group(rho_current, rho_proposed)
+    K = changed_group_index
+    #K = get_index_changed_group(rho_current, rho_proposed)
     
     log_ratio = -(M + 1) * fB_zero(alpha, beta)
     # TODO mettere questo in tutti quelli sotto per
@@ -873,7 +873,8 @@ log_priorRatio = function(theta_prior,
                           sigma_prior,
                           rho_current,
                           rho_proposed,
-                          choose_add)
+                          choose_add,
+                          changed_group_index)
 {
     # differentiate delete/merge case
     if (!choose_add) {
@@ -886,7 +887,8 @@ log_priorRatio = function(theta_prior,
     # number of groups in the current partition
     M = length(rho_current)
     
-    K = get_index_changed_group(rho_current,rho_proposed)
+    K = changed_group_index
+    #K = get_index_changed_group(rho_current,rho_proposed)
     
     # compute the prior ratio
     log_ratio = - log(M) + log(theta_prior + M * sigma_prior)
