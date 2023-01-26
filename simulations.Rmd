@@ -66,34 +66,36 @@ for(p in paths){
 
 ```{r}
 # Define true clustering
-#z_true = c(1,1,1,1,1,1,1, # cluster 1
-#           2,2,2,2,2,2,2, # cluster 2
-#           3,3,3,3,3,3,3, # cluster 3
-#           4,4,4,4,4,4,4, # cluster 4
-#           5,5,5,5,
-#           6,6,6,6,6,
-#           7,7,7,
-#           8,8,8,8,8,8,
-#           9,
-#           10,
-#           11) # cluster 
+rho_true = c(7,8,2,3,6)
 
-rho_true = c(7,8,7,4,6)
+# Define number of observations
+n = 500
+```
+
+
+```{r}
 z_true = rho_to_z(rho_true)
 r_true = z_to_r(z_true)
-# Define data dimension
 p = length(z_true)
-n = 500
-
-# z_to_rho(z_true)
-# z_to_r(z_true)
 
 # Generate data
-sim = Generate_BlockDiagonal(n = n, z_true = z_true)
-#sim = Generate_Block(n = n, z_true = z_true)
+#sim = Generate_BlockDiagonal(n = n, z_true = z_true)
+sim = Generate_Block(
+    n=n,
+    z_true=z_true,
+    p_block_diag = 0.9,
+    p_block_extra_diag = 0.2,
+    p_inside_block = 1,
+    p_outside_block = 0,
+    elem_out = 5,
+    min_eigenval_correction = 3,
+    seed = 1
+)
+```
 
+```{r}
 ACutils::ACheatmap(
-    sim$G,
+    sim$Graph,
     use_x11_device = F,
     horizontal = F,
     main = "Graph",
@@ -102,8 +104,18 @@ ACutils::ACheatmap(
     col.center = "grey50",
     col.lower = "white"
 )
-                  
-# Plot Cov
+
+ACutils::ACheatmap(
+    sim$Prec,
+    use_x11_device = F,
+    horizontal = F,
+    main = "Precision matrix K",
+    center_value = NULL,
+    col.upper = "black",
+    col.center = "grey50",
+    col.lower = "white"
+)
+
 ACutils::ACheatmap(
     sim$Cov,
     use_x11_device = F,
@@ -114,7 +126,6 @@ ACutils::ACheatmap(
     col.center = "grey50",
     col.lower = "white"
 )
-
 ```
 
 ```{r}
