@@ -15,7 +15,7 @@ library(logr)
 #' @export
 #'
 #' @examples
-update_partition = function(rho,
+update_partition = function(rho_current,
                             alpha_add,
                             weights_a,
                             weights_d,
@@ -26,8 +26,8 @@ update_partition = function(rho,
     unifsample = runif(n = 1)
     choose_add = unifsample < alpha_add
     
-    M = length(rho)
-    p = sum(rho)
+    M = length(rho_current)
+    p = sum(rho_current)
     
     # force opposite choice if merging/splitting is not feasible
     if ((!choose_add && M == 1) || (choose_add && M == p)) {
@@ -40,20 +40,19 @@ update_partition = function(rho,
         log_print("You chose a DELETE/MERGE move", console = FALSE)
     }
     
-    proposal_list = proposal_ratio(rho, alpha_add, weights_a, weights_d, choose_add)
+    proposal_list = proposal_ratio(rho_current, alpha_add, weights_a, weights_d, choose_add)
     log_proposal_ratioNow = log(proposal_list$ratio)
     candidate = proposal_list$candidate
     
     # compute proposed partition based on candidate and index of the group
     if (choose_add) {
-        list_output_modify_partition = split_partition(candidate, rho)
+        list_output_modify_partition = split_partition(candidate, rho_current)
     } else {
-        list_output_modify_partition = merge_partition(candidate, rho)
+        list_output_modify_partition = merge_partition(candidate, rho_current)
     }
     rho_proposed        = list_output_modify_partition$new_rho
     changed_group_index = list_output_modify_partition$changed_group_index
     
-    rho_current = rho
     log_print("rho_current", console = FALSE)
     log_print(rho_current, console = FALSE)
     log_print("rho_proposed", console = FALSE)
