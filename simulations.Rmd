@@ -273,19 +273,24 @@ abline(h = length(z_to_rho(z_true)),
 ```
 
 ```{r}
+num_clusters_true = length(rho_true)
+color <- ifelse(sort(unique(num_clusters)) %in% c(num_clusters_true), "red", "gray")
+
 hist(
     num_clusters,
     xlab = "Number of groups",
     ylab = "Frequency",
-    #border = "NA",
-    main = "Number of groups - Frequency"
+    border = "NA",
+    main = "Number of groups - Frequency",
+    col = color
 )
 
 legend(
     "topright",
     legend = c(paste("Last:", tail(num_clusters, n = 1)),
-    paste("Mean:", round(mean(num_clusters),2))),
-    col=c(NA,NA),
+               paste("Mean:", round(mean(num_clusters),2)),
+               paste("True:", num_clusters_true)),
+    col=c(NA,NA,NA),
     bty = "n",
     lty = 1,
     cex = 0.8
