@@ -35,9 +35,9 @@ update_partition = function(rho_current,
     }
     
     if (choose_add){
-        log_print("You chose an ADD/SPLIT move", console = FALSE)
+        log_print("Chosen move: ADD/SPLIT", console = FALSE)
     }else{
-        log_print("You chose a DELETE/MERGE move", console = FALSE)
+        log_print("Chosen move: DELETE/MERGE", console = FALSE)
     }
     
     proposal_list = proposal_ratio(rho_current, alpha_add, weights_a, weights_d, choose_add)
@@ -86,11 +86,11 @@ update_partition = function(rho_current,
 
     if (runif(n = 1) < alpha_accept) {
         accepted = TRUE
-        log_print("Move accepted", console = FALSE)
+        log_print("Move ACCEPTED", console = FALSE)
         rho_updated = rho_proposed
     } else {
         accepted = FALSE
-        log_print("Move rejected", console = FALSE)
+        log_print("Move REJECTED", console = FALSE)
         rho_updated = rho_current
     }
     return(
@@ -390,8 +390,7 @@ shuffle_partition <- function(rho_current, G, sigma_prior, alpha, beta) {
     K <- sample(1:(M - 1), 1)
     
     if (rho_current[K] == 1 && rho_current[K+1] == 1){
-        # can't shuffle anything without reproposing the same partition
-        log_print("can't shuffle anything without reproposing the same partition", console = FALSE)
+        log_print("SHUFFLE: cannot shuffle anything without reproposing the same partition", console = FALSE)
         return(rho_current)
     }
     
@@ -473,18 +472,19 @@ shuffle_partition <- function(rho_current, G, sigma_prior, alpha, beta) {
     # compute alpha_shuffle
     alpha_shuffle = min(1, exp(log_likelihood_ratio + log_prior_ratio))
     
-    
+    log_print("SHUFFLE proposal", console = FALSE)
+    log_print("rho_current", console = FALSE)
+    log_print(rho_current, console = FALSE)
+    log_print("rho_proposed", console = FALSE)
+    log_print(rho_proposed, console = FALSE)
+
     if (runif(n = 1) < alpha_shuffle) {
         # accept the shuffle
-        log_print("Proposed shuffling", console = FALSE)
-        log_print(rho_proposed, console = FALSE)
-        log_print("SHUFFLE accepted", console = FALSE)
+        log_print("Shuffle ACCEPTED", console = FALSE)
         return(rho_proposed)
     } else {
         # reject the shuffle
-        log_print("Proposed shuffling", console = FALSE)
-        log_print(rho_proposed, console = FALSE)
-        log_print("SHUFFLE rejected", console = FALSE)
+        log_print("Shuffle REJECTED", console = FALSE)
         return(rho_current)
     }
 }
@@ -1186,7 +1186,7 @@ Gibbs_sampler = function(data,
     # start the simulation
     for(iter in 1:n_total_iter){
 
-        log_print("Iter: ", console = FALSE)
+        log_print("Iter:", console = FALSE)
         log_print(iter, console = FALSE)
 
         # update graph
@@ -1314,12 +1314,11 @@ Gibbs_sampler = function(data,
             setTxtProgressBar(pb, iter)
         }
         
-        log_print("iter:", console = FALSE)
-        log_print(iter, console = FALSE)
         log_print("last_G:", console = FALSE)
         log_print(last_G, console = FALSE)
         log_print("last_S:", console = FALSE)
         log_print(last_S, console = FALSE)
+        log_print("---------------------------------------------------------------------", console = FALSE)
     }
     
     #output = list( sample_graphs = sample_graphs, graph_weights = graph_weights, K_hat = "empty",
