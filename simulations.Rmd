@@ -307,7 +307,7 @@ plot(
     type = "n",
     xlab = "Iterations",
     ylab = "Rand Index",
-    main = paste("Rand Index - Traceplot - Last:", last)
+    main = paste("Rand Index - Traceplot\nLast value:", last)
 )
 lines(x = 1:length(rand_index), y = rand_index)
 abline(h = 1, col = "red", lwd = 4)
@@ -416,7 +416,7 @@ plot(
     type = "n",
     xlab = "Iterations",
     ylab = "K-L distance",
-    main = paste("Kullback–Leibler distance - Last value:", last)
+    main = paste("Kullback–Leibler distance\nLast value:", last)
 )
 lines(x = 1:length(kl_dist), y = kl_dist)
 ```
