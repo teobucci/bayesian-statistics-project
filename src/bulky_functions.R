@@ -53,7 +53,6 @@ update_partition = function(rho,
     rho_proposed        = list_output_modify_partition$new_rho
     changed_group_index = list_output_modify_partition$changed_group_index
     
-    # OK
     rho_current = rho
     log_print("rho_current", console = FALSE)
     log_print(rho_current, console = FALSE)
@@ -61,7 +60,7 @@ update_partition = function(rho,
     log_print(rho_proposed, console = FALSE)
 
     # c'e' un ricalcolo inutile dell'indice del gruppo da splittare o mergiare
-    log_priorRatioNow = log_priorRatio(theta_prior, sigma_prior, rho_current, rho_proposed, choose_add, changed_group_index)
+    log_prior_ratioNow = log_prior_ratio(theta_prior, sigma_prior, rho_current, rho_proposed, choose_add, changed_group_index)
     
     log_likelihood_ratioNow = log_likelihood_ratio(alpha_add,
                                                    weights_a,
@@ -75,7 +74,7 @@ update_partition = function(rho,
                                                    changed_group_index)
     
     alpha_accept <- min(1, exp(log_likelihood_ratioNow +
-                               log_priorRatioNow +
+                               log_prior_ratioNow +
                                log_proposal_ratioNow))
 
     if (runif(n = 1) < alpha_accept) {
@@ -867,7 +866,7 @@ get_index_changed_group = function(rho_current, rho_proposed) {
 
 
 # TODO Add documentation
-log_priorRatio = function(theta_prior,
+log_prior_ratio = function(theta_prior,
                           sigma_prior,
                           rho_current,
                           rho_proposed,
