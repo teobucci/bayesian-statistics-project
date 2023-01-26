@@ -223,6 +223,13 @@ num_clusters = do.call(rbind, lapply(res$rho, length))
 num_clusters = as.vector(num_clusters)
 ```
 
+### Acceptance frequency
+
+```{r}
+mean(res$accepted)
+```
+
+
 ### Barplot of changepoints
 
 ```{r}
