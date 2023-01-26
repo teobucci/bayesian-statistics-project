@@ -15,7 +15,14 @@
 #' @param seed [integer] random seed
 #'
 #' @export
-Generate_BlockDiagonal = function(n,z_true,p_in=1,p_out=0,elem_out=5,min_eigenval_correction= 3,seed=25254){
+Generate_BlockDiagonal = function(n,
+                                  z_true,
+                                  p_in = 1,
+                                  p_out = 0,
+                                  elem_out = 5,
+                                  min_eigenval_correction = 3,
+                                  seed = 25254) {
+    
   set.seed(seed)
   p = length(z_true) #set p
   # Generate precision and covariance matrices
@@ -64,11 +71,16 @@ Generate_BlockDiagonal = function(n,z_true,p_in=1,p_out=0,elem_out=5,min_eigenva
 #' @param p_inside_block [scalar] probability of having an edge between variables in the same cluster
 #' @param p_outside_block [scalar] probability of having an edge between variables in the different cluster
 #' @export
-Generate_Block = function(n,z_true,
-                          p_block_diag = 1, p_block_extra_diag = 0.5,
-                          p_inside_block=1, p_outside_block=0,
-                          elem_out=5,min_eigenval_correction= 3,
-                          seed=25254){
+Generate_Block = function(n,
+                          z_true,
+                          p_block_diag = 1,
+                          p_block_extra_diag = 0.5,
+                          p_inside_block = 1,
+                          p_outside_block = 0,
+                          elem_out = 5,
+                          min_eigenval_correction = 3,
+                          seed = 25254) {
+    
   set.seed(seed)
   p = length(z_true) #set p
   counts_true = as.vector(table(z_true))
