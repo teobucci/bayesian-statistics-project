@@ -190,9 +190,9 @@ log_open(file_name = filename_log, show_notes=FALSE, logdir = FALSE)
 start_time <- Sys.time()
 res <- Gibbs_sampler(
     data = sim$data,
-    niter = 1500,
-    nburn = 300,
-    thin = 2,
+    niter = 8000,
+    nburn = 2000,
+    thin = 1,
     options = options,
     seed = 123456,
     print = TRUE
