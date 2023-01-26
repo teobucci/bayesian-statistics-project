@@ -241,18 +241,23 @@ mean(res$accepted)
 ```{r}
 # https://stackoverflow.com/questions/62061859/abline-not-fitting-to-barplot
 bar_heights = colSums(r)
-bar_heights = bar_heights[-c(length(bar_heights))]
+bar_heights = bar_heights[-c(length(bar_heights))] # remove last
+color <- ifelse(seq_along(bar_heights) %in% c(cp_true), "red", "gray")
 barplot(
     bar_heights,
     names = seq_along(bar_heights),
     border = "NA",
     space = 0,
     yaxt = "n",
-    main="Changepoint frequency distribution"
+    main="Changepoint frequency distribution",
+    col = color
 )
-cp_true = which(r_true==1)
-abline(v=cp_true-0.5, col="red", lwd=2)
-#legend("topright", legend=c("True CPs"), col=c("red"), lty=1, cex=0.8)
+# cp_true = which(r_true==1)
+# abline(v=cp_true-0.5, col="red", lwd=2)
+legend("topright", legend=c("True"), col=c("red"),
+    bty = "n",
+    lty = 1,
+    cex = 0.6)
 ```
 
 ### Evolution of the number of clusters
