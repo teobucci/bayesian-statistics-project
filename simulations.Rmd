@@ -138,6 +138,12 @@ graph_density = sum(sim$Graph) / (p*(p-1))
 
 ## Set options for the simulation
 
+Grid for the variance of the Beta
+
+```{r}
+(grid_beta_sig2 = seq(from=1/16, to=1/4, length.out = 10))
+```
+
 ```{r}
 # https://stackoverflow.com/a/57571028/16222204
 # Use TRUE/FALSE instead of T/F
