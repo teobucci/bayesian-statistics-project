@@ -1,5 +1,13 @@
 ---
 title: "Stochastic Block Model Prior with Ordering Constraints for Gaussian Graphical Models"
+author:
+    - Alessandro Colombi (Supervisor)^[a.colombi10@campus.unimib.it]
+    - Teo Bucci^[teo.bucci@mail.polimi.it]
+    - Filippo Cipriani^[filippo.cipriani@mail.polimi.it]
+    - Filippo Pagella^[filippo.pagella@mail.polimi.it]
+    - Flavia Petruso^[flavia.petruso@mail.polimi.it]
+    - Andrea Puricelli^[andrea3.puricelli@mail.polimi.it]
+    - Giulio Venturini^[giulio.venturini@mail.polimi.it]
 output:
     html_document:
         toc: true
