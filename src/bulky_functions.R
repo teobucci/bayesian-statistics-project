@@ -896,7 +896,7 @@ log_prior_ratio = function(theta_prior,
 
 
 #' Compute weights of the full conditional of theta
-#' as described on page 14 Martinez and Mena (2014)
+#' as described in Proposition 1 Martinez and Mena (2014)
 #'
 #' @param p     number of nodes
 #' @param sigma_prior other parameter used to compute the prior ratio
@@ -1002,6 +1002,32 @@ full_conditional_sigma <- function(sigma, theta, rho, a, b, c, d){
     return(output)
 }
 
+#' Set options for the Gibbs sampler
+#'
+#' @param sigma_prior_0 initial parameter of the prior (5) from Martinez and Mena (2014).
+#' @param sigma_prior_parameters list of 4 parameters for updating sigma_prior, e.g. list("a"=1,"b"=1,"c"=1,"d"=1). For further details see Section 4 in Martinez and Mena (2014).
+#' @param theta_prior_0 initial parameter of the prior (5) from Martinez and Mena (2014).
+#' @param theta_prior_parameters list of 2 parameters for updating theta_prior, e.g. list("c"=1,"d"=1). For further details see Proposition 1 in Martinez and Mena (2014).
+#' @param rho0 initial partition (e.g. c(150,151))
+#' @param weights_a0 weights for choosing the candidate node in an add/split move.
+#' @param weights_d0 weights for choosing the candidate node in a delete/merge move.
+#' @param alpha_target target acceptance rate of the split and merge Metropolis-Hastings.
+#' @param beta_mu expected value for the Beta prior of the graph.
+#' @param beta_sig2 variance for the Beta prior of the graph. Must be between 0 and 0.25.
+#' @param d parameter of the G-Wishart. Default is 3.
+#' @param alpha_add probability of choosing an add/split move over a delete/merge move. Default is 0.5.
+#' @param adaptation_step adaptation step for tweaking how much the weights are updated each time. Fur further details see Section 4.2 in Benson and Friel (2018).
+#' @param update_sigma_prior boolean for choosing whether to update sigma_prior or not. Default is TRUE.
+#' @param update_theta_prior boolean for choosing whether to update theta_prior or not. Default is TRUE.
+#' @param update_weights boolean for choosing whether to update weights or not. Default is TRUE.
+#' @param update_partition boolean for choosing whether to update the partition or not. Default is TRUE.
+#' @param update_graph boolean for choosing whether to update the graph or not. Default is TRUE.
+#' @param perform_shuffle boolean for choosing whether to perform shuffle or not. Default is TRUE.
+#'
+#' @return a list with all options correctly set for working with the Gibbs sampler.
+#' @export
+#'
+#' @examples
 set_options = function(sigma_prior_0,
                        sigma_prior_parameters,
                        theta_prior_0,
@@ -1010,8 +1036,8 @@ set_options = function(sigma_prior_0,
                        weights_a0,
                        weights_d0,
                        alpha_target,
-                       beta_mu=0.5, # mu of the Beta
-                       beta_sig2=0.2, # variance of the Beta
+                       beta_mu,
+                       beta_sig2,
                        d=3,
                        alpha_add=0.5,
                        adaptation_step,
@@ -1094,9 +1120,9 @@ Gibbs_sampler = function(data,
     n_total_iter = nburn + niter * thin # total iterations to be made
     
     # dynamic parameters
-    sigma_prior            = options$sigma_prior_0 # initial parameter of the prior from Martinez and Mena (2014)
-    theta_prior            = options$theta_prior_0 # initial parameter of the prior from Martinez and Mena (2014)
-    rho                    = options$rho0 # initial partition (e.g. c(150,151))
+    sigma_prior            = options$sigma_prior_0
+    theta_prior            = options$theta_prior_0
+    rho                    = options$rho0
     weights_a              = options$weights_a0
     weights_d              = options$weights_d0
     adaptation_step        = options$adaptation_step
@@ -1104,8 +1130,8 @@ Gibbs_sampler = function(data,
     theta_prior_parameters = options$theta_prior_parameters
     
     # constant parameters
-    alpha_add    = options$alpha_add # probability of choosing add over delete
-    alpha_target = options$alpha_target # target acceptance ratio MH
+    alpha_add    = options$alpha_add
+    alpha_target = options$alpha_target
    
     # parameter for the Wishart
     d = options$d
