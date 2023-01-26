@@ -680,8 +680,6 @@ get_S_star_from_S_and_rho = function(S, rho){
 }
 
 
-
-
 # auxiliary function to evaluate the beta function for the likelihood ratio
 fB_general = function(group1,
                       group2,
@@ -697,10 +695,10 @@ fB_general = function(group1,
     }
 }
 
-
+# auxiliary function to evaluate the beta function for the likelihood ratio
 fB_zero = function(alpha,
-                        beta,
-                        log = TRUE) {
+                   beta,
+                   log = TRUE) {
     if (log) {
         return(lbeta(alpha, beta))
     } else{
@@ -756,7 +754,6 @@ log_likelihood_ratio = function(alpha_add,
             log = TRUE
         ))
     }
-        
     
     S_current = get_S_from_G_rho(G, rho_current)
     S_star_current = get_S_star_from_S_and_rho(S_current, rho_current)
@@ -767,9 +764,10 @@ log_likelihood_ratio = function(alpha_add,
     K = changed_group_index
     #K = get_index_changed_group(rho_current, rho_proposed)
     
+    # TODO
+    # anziché tenere questo termine, metterlo in ognuno di quelli sotto.
+    # Inefficiente, ma serve per consentire l'aggiornamento di alpha e beta
     log_ratio = -(M + 1) * fB_zero(alpha, beta)
-    # TODO mettere questo in tutti quelli sotto per
-    # consentire l'aggiornamento di alpha e beta
     
     for (l in 1:(K - 1)) {
         if (l > (K - 1)) break; # needed because R for-loops suck
@@ -896,16 +894,17 @@ log_prior_ratio = function(theta_prior,
 
 
 #' Compute weights of the full conditional of theta
-#' as described in Proposition 1 Martinez and Mena (2014)
+#' 
+#' For further details see Proposition 1 Martinez and Mena (2014).
 #'
-#' @param p     number of nodes
+#' @param p number of nodes
 #' @param sigma_prior other parameter used to compute the prior ratio
-#' @param k
-#' @param j     index of the iteration for which we are computing the weight
-#' @param f     value drawn from Exp(θ+1)
-#' @param z     value drawn from Be(θ+2,n)
-#' @param c     prior first parameter of the shifted gamma
-#' @param d     prior second parameter of the shifted gamma
+#' @param k number of groups
+#' @param j index of the iteration for which we are computing the weight
+#' @param f value drawn from Exp(theta+1)
+#' @param z value drawn from Be(theta+2,n)
+#' @param c prior first parameter of the shifted gamma
+#' @param d prior second parameter of the shifted gamma
 #'
 #' @return
 #' @export
@@ -916,7 +915,7 @@ compute_weights_theta <- function(c, d, p, sigma_prior, k, j, f, z) {
     num <- (
         (p - sigma_prior) * (p + 1 - sigma_prior) * abs_stirling_number_1st(k - 1, j) +
             (2 * p + 1 - 2 * sigma_prior) * sigma_prior * abs_stirling_number_1st(k - 1, j - 1) +
-            (sigma_prior^2) * abs_stirling_number_1st(k - 1, j - 2)
+            (sigma_prior ^ 2) * abs_stirling_number_1st(k - 1, j - 2)
     ) * gamma(c + j)
 
     denom <- (sigma_prior * (d + f - log(z)))^j
@@ -925,7 +924,10 @@ compute_weights_theta <- function(c, d, p, sigma_prior, k, j, f, z) {
 
 
 
-#' Full-conditional for theta (for further details see Proposition 1 Martinez and Mena (2014))
+#' Full-conditional for theta
+#' 
+#' For further details see Proposition 1 Martinez and Mena (2014).
+#' 
 #' TODO COMPLETE DOCUMENTATION
 #'
 #' @param c First parameter of the shifted gamma prior
@@ -960,8 +962,9 @@ full_conditional_theta <- function(prior_c, prior_d, candidate, k, p, sigma_prio
 
 
 
-#' Full-conditional for sigma (for further details see Section 4 Martinez and Mena (2014))
-#' The formula is on page 13
+#' Full-conditional for sigma
+#' 
+#' For further details see Section 4 Martinez and Mena (2014).
 #'
 #' @param sigma value of sigma to be updated
 #' @param theta value of theta
@@ -1050,25 +1053,25 @@ set_options = function(sigma_prior_0,
                        ) {
   
     options = list(
-        "sigma_prior_0"           = sigma_prior_0,
-        "sigma_prior_parameters"  = sigma_prior_parameters,
-        "theta_prior_0"           = theta_prior_0,
-        "theta_prior_parameters"  = theta_prior_parameters,
-        "rho0"                    = rho0,
-        "weights_a0"              = weights_a0,
-        "weights_d0"              = weights_d0,
-        "alpha_target"            = alpha_target,
-        "beta_mu"                 = beta_mu,
-        "beta_sig2"               = beta_sig2,
-        "d"                       = d,
-        "alpha_add"               = alpha_add,
-        "adaptation_step"         = adaptation_step,
-        "update_sigma_prior"      = update_sigma_prior,
-        "update_theta_prior"      = update_theta_prior,
-        "update_weights"          = update_weights,
-        "update_partition"        = update_partition,
-        "update_graph"            = update_graph,
-        "perform_shuffle"         = perform_shuffle
+        "sigma_prior_0"          = sigma_prior_0,
+        "sigma_prior_parameters" = sigma_prior_parameters,
+        "theta_prior_0"          = theta_prior_0,
+        "theta_prior_parameters" = theta_prior_parameters,
+        "rho0"                   = rho0,
+        "weights_a0"             = weights_a0,
+        "weights_d0"             = weights_d0,
+        "alpha_target"           = alpha_target,
+        "beta_mu"                = beta_mu,
+        "beta_sig2"              = beta_sig2,
+        "d"                      = d,
+        "alpha_add"              = alpha_add,
+        "adaptation_step"        = adaptation_step,
+        "update_sigma_prior"     = update_sigma_prior,
+        "update_theta_prior"     = update_theta_prior,
+        "update_weights"         = update_weights,
+        "update_partition"       = update_partition,
+        "update_graph"           = update_graph,
+        "perform_shuffle"        = perform_shuffle
     )
     return(options)
 }
@@ -1198,11 +1201,27 @@ Gibbs_sampler = function(data,
 
         # update graph
         if (options$update_graph){
+            
             # we run a single iteration of BDgraph with iter = 1 and burnin = 0
-            output = bdgraph(data, rho, n, method = "ggm", algorithm = "bdmcmc", iter = 1,
-                             burnin = 0, not.cont = NULL, g.prior = 0.5, df.prior = d,
-                             CCG_D = NULL, g.start = g.start, jump = NULL, save = TRUE, print = 1000,
-                             cores = NULL, threshold = 1e-8)
+            output = bdgraph(
+                data,
+                rho,
+                n,
+                method = "ggm",
+                algorithm = "bdmcmc",
+                iter = 1,
+                burnin = 0,
+                not.cont = NULL,
+                g.prior = 0.5,
+                df.prior = d,
+                CCG_D = NULL,
+                g.start = g.start,
+                jump = NULL,
+                save = TRUE,
+                print = 1000,
+                cores = NULL,
+                threshold = 1e-8
+            )
 
 
             # extract adjacency matrix G
@@ -1212,7 +1231,7 @@ Gibbs_sampler = function(data,
             # extract precision matrix K
             last_K = output$last_K
 
-            if(niter > nburn){ # only if niter > nburn right?
+            if(niter > nburn){ # only if niter > nburn right? TODO what about burnin? Siamo 'sgor?
                 # update total_weights
                 total_weights = total_weights + output$all_weights
                 # update total_graphs taking into consideration the weights
@@ -1222,14 +1241,14 @@ Gibbs_sampler = function(data,
         }
         
         if(options$update_partition){
-            list_output_update_partition <- update_partition(rho,
-                                                             alpha_add,
-                                                             weights_a,
-                                                             weights_d,
-                                                             theta_prior,
-                                                             sigma_prior,
-                                                             last_G,
-                                                             beta_params)
+            list_output_update_partition = update_partition(rho,
+                                                            alpha_add,
+                                                            weights_a,
+                                                            weights_d,
+                                                            theta_prior,
+                                                            sigma_prior,
+                                                            last_G,
+                                                            beta_params)
             
             rho = list_output_update_partition$rho_updated
 
