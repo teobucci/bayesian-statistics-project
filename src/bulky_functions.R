@@ -26,6 +26,7 @@ update_partition = function(rho_current,
     unifsample = runif(n = 1)
     choose_add = unifsample < alpha_add
     
+    # number of groups
     M = length(rho_current)
     p = sum(rho_current)
     
@@ -261,26 +262,15 @@ proposal_ratio = function(rho,
 #'
 #' @examples
 split_partition <- function(candidate_index, rho) {
-    n_elems = sum(rho)
+
     # number of groups
     M = length(rho)
     new_rho = rep(NA, M + 1)
-    
-    # number of changepoints = n_elems - 1
-    # case: all groups with 1 element or index out of bound
-    # if (n_elems == M || candidate_index > n_elems - 1) {
-    #     return(list("rho" = rho, "group_index" = -1))
-    # }
     
     group_indexes = get_group_indexes(rho)
     found = FALSE
     
     for (i in 1:M) {
-        
-        # if (!found && group_indexes[i] == candidate_index) {
-        #     # candidate_index is already a changepoint, return the original rho
-        #     return(list("rho" = rho, "group_index" = -1))
-        # }
         
         # update the partition in the general case
         # (either I have already split the group or not, just the index changes)
@@ -320,25 +310,15 @@ split_partition <- function(candidate_index, rho) {
 #'
 #' @examples
 merge_partition <- function(candidate_index, rho) {
-    n_elems = sum(rho)
+
     # number of groups
     M = length(rho)
     new_rho = rep(NA, M - 1)
-    
-    # number of changepoints = n_elems - 1
-    # case: only 1 group or index out of bound
-    # if (M == 1 || candidate_index > n_elems - 1) {
-    #     return(list("rho" = rho, "group_index" = -1))
-    # }
     
     group_indexes = get_group_indexes(rho)
     found = FALSE
     
     for (i in 1:(M - 1)) {
-        # if (!found && group_indexes[i] != candidate_index) {
-        #    # candidate_index is already a changepoint, return the original rho
-        #    return(list("rho" = rho, "group_index" = -1))
-        # }
         
         # update the partition in the general case
         # either I have already merged the group or not, just the index changes
@@ -997,19 +977,20 @@ full_conditional_theta <- function(prior_c, prior_d, candidate, k, p, sigma_prio
 #' @examples
 full_conditional_sigma <- function(sigma, theta, rho, a, b, c, d){
     
-    n_groups <- length(rho)
+    # number of groups
+    M <- length(rho)
 
     # first product term
     log_prod_1 <- 0
 
-    for (i in 1:(n_groups - 1)) {
-        if (i > (n_groups - 1)) break; # needed because R for-loops suck
+    for (i in 1:(M - 1)) {
+        if (i > (M - 1)) break; # needed because R for-loops suck
         log_prod_1 <- log_prod_1 + log(theta + i * sigma)
     }
 
     # second product term
     log_prod_2 <- 0
-    for (i in 1:n_groups) {
+    for (i in 1:M) {
         log_prod_2 <- log_prod_2 + lpochhammer((1 - sigma), (rho[i] - 1))
     }
 
