@@ -66,12 +66,17 @@ for(p in paths){
 
 ```{r}
 # Define true clustering
-rho_true = c(7,8,2,3,6)
+rho_true = c(8,4,8,5)
+
+# Set seed for data generation
+seed_data_gen = 22111996
 
 # Define number of observations
 n = 500
-```
 
+# Define variance of the Beta
+beta_sig2 = 1/16
+```
 
 ```{r}
 z_true = rho_to_z(rho_true)
@@ -79,18 +84,18 @@ r_true = z_to_r(z_true)
 p = length(z_true)
 
 # Generate data
-#sim = Generate_BlockDiagonal(n = n, z_true = z_true)
-sim = Generate_Block(
-    n=n,
-    z_true=z_true,
-    p_block_diag = 0.9,
-    p_block_extra_diag = 0.2,
-    p_inside_block = 1,
-    p_outside_block = 0,
-    elem_out = 5,
-    min_eigenval_correction = 3,
-    seed = 1
-)
+sim = Generate_BlockDiagonal(n = n, z_true = z_true)
+# sim = Generate_Block(
+#     n=n,
+#     z_true=z_true,
+#     p_block_diag = 1,
+#     p_block_extra_diag = 0,
+#     p_inside_block = 0.95,
+#     p_outside_block = 0.1,
+#     elem_out = 5,
+#     min_eigenval_correction = 3,
+#     seed = 1
+# )
 ```
 
 ```{r}
@@ -157,10 +162,10 @@ options = set_options(sigma_prior_0=0.5,
                       weights_d0=rep(1,p-1),
                       alpha_target=0.234,
                       beta_mu=graph_density,
-                      beta_sig2=1/16,
+                      beta_sig2=beta_sig2,
                       d=3,
                       alpha_add=0.5,
-                      adaptation_step=1/(p*1000), # as suggested in Benson
+                      adaptation_step=1/(p*1000),
                       update_sigma_prior=TRUE,
                       update_theta_prior=TRUE,
                       update_weights=TRUE,
