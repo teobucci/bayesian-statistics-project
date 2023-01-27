@@ -1087,6 +1087,9 @@ set_options = function(sigma_prior_0,
 #'
 #' @examples
 estimate_Beta_params <- function(mu, var) {
+    if(!(var > 0 && var < mu*(1-mu)))
+        stop("The variance of the Beta must be between 0 and beta_mu*(1-beta_mu)")
+
     alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
     beta <- alpha * (1 / mu - 1)
     return(list(alpha = alpha, beta = beta))
@@ -1151,8 +1154,8 @@ Gibbs_sampler = function(data,
         stop("The Wishart's d parameter must be greater or equal than 3")
     if(!(beta_mu > 0 && beta_mu < 1))
         stop("The mean of the Beta must be between 0 and 1")
-    if(!(beta_sig2 > 0 && beta_sig2 < 0.25))
-        stop("The variance of the Beta must be between 0 and 0.25")
+    if(!(beta_sig2 > 0 && beta_sig2 < beta_mu*(1-beta_mu)))
+        stop("The variance of the Beta must be between 0 and beta_mu*(1-beta_mu)")
     if(length(weights_a) != (p-1) || length(weights_d) != (p-1))
         stop("The number of elements in the weights vectors must be equal to p-1")
     if(!(adaptation_step > 0))
