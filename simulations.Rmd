@@ -224,6 +224,8 @@ saveRDS(res, file = filename_data)
 Restore the object
 
 ```{r}
+unique_ID = 'c450ce2c'
+filename_data = paste("output/data/simulation_", unique_ID, ".rds", sep = "")
 res = readRDS(file = filename_data)
 ```
 
@@ -234,6 +236,8 @@ Recomputing the partition in other forms and the number of groups
 ```{r}
 r = do.call(rbind, lapply(res$rho, rho_to_r))
 z = do.call(rbind, lapply(res$rho, rho_to_z))
+r_true = rho_to_r(res$true_rho)
+z_true = rho_to_z(res$true_rho)
 num_clusters = do.call(rbind, lapply(res$rho, length))
 num_clusters = as.vector(num_clusters)
 ```
