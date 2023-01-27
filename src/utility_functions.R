@@ -45,6 +45,15 @@ rho_to_z = function(rho){
 }
 
 
+# TODO
+r_to_rho = function(r){
+    return()
+}
+
+r_to_z = function(r){
+    return()
+}
+
 
 
 #' Compute the rising factorial (also called Pochhammer symbol)
