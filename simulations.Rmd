@@ -205,7 +205,16 @@ res <- Gibbs_sampler(
 )
 cat("Execution time:", Sys.time() - start_time)
 log_close()
+```
 
+Before saving, also append true data
+```{r}
+res$true_rho = rho_true
+res$true_precision = sim$Prec
+res$true_graph = sim$Graph
+```
+
+```{r}
 # save an object to a file
 saveRDS(res, file = filename_data)
 ```
@@ -414,7 +423,7 @@ ACutils::ACheatmap(
 
 ```{r}
 kl_dist = do.call(rbind, lapply(res$K, function(k) {
-    ACutils::KL_dist(Prec_true, k)
+    ACutils::KL_dist(res$true_precision, k)
 }))
 
 last = round(tail(kl_dist, n=1), 3)
@@ -473,7 +482,7 @@ Select the graph and plot it against the original
 ```{r}
 par(mfrow=c(2,1))
 plot_graph(final_graph, "Estimated")
-plot_graph(Graph_true, "True")
+plot_graph(res$true_graph, "True")
 par(mfrow=c(1,1))
 ```
 
