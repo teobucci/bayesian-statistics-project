@@ -336,11 +336,9 @@ colnames(sim_matrix) = 1:length(z_true)
 heatmap(sim_matrix, Colv = FALSE, Rowv = FALSE)
 ```
 
-### Computing Binder loss e VI
+### Retrieving best partition using Binder loss e VI (deprecated: order is NOT guaranteed)
 
-TODO: is order respected?
-
-```{r}
+```{r, eval=FALSE}
 # compute final partition by minimizing the Binder loss or the VI loss functions
 binder = mcclust::minbinder(sim_matrix)
 VI     = mcclust.ext::minVI(sim_matrix)
@@ -356,12 +354,14 @@ unname(table(VI$cl))
 cat("True")
 unname(table(z_true))
 
-cat("Binder loss")
+cat("Binder loss Rand Index")
 mcclust::arandi(binder$cl, z_true, adjust = F)
 
-cat("Variance of Information")
+cat("Variance of Information Rand Index")
 mcclust::arandi(VI$cl, z_true, adjust = T)
 ```
+
+### Retrieving best partition using VI on visited ones (order is guaranteed here)
 
 Here we are satisfied with finding the optimal partition only in the set of those visited, not in all the possible ones. I expect it could work even worse. But at least it guarantees to find an admissible one.
 I would say that it is the implementation of formula (13) of the Corradin-Danese paper (https://doi.org/10.1016/j.ijar.2021.12.019).
