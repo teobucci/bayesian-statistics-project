@@ -1162,8 +1162,6 @@ Gibbs_sampler = function(data,
     if(!(alpha_target > 0 && alpha_target < 1))
         stop("The target acceptance rate of the Metropolis-Hastings alpha_target must be between 0 and 1")
 
-    # TODO sistemare questo non ho capito cosa intende con "iterations (t) per number of datapoints (n)"
-    # da noi non c'è n ma c'è p, però è l'iterazione attuale oppure n_total_iter?
     t_over_p = n_total_iter / p
   
     beta_params = estimate_Beta_params(beta_mu, beta_sig2)
