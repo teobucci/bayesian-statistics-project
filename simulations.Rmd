@@ -254,8 +254,9 @@ mean(res$accepted)
 ```{r}
 # https://stackoverflow.com/questions/62061859/abline-not-fitting-to-barplot
 bar_heights = colSums(r)
-bar_heights = bar_heights[-c(length(bar_heights))] # remove last
+cp_true = which(r_true==1)
 color <- ifelse(seq_along(bar_heights) %in% c(cp_true), "red", "gray")
+
 barplot(
     bar_heights,
     names = seq_along(bar_heights),
@@ -263,10 +264,12 @@ barplot(
     space = 0,
     yaxt = "n",
     main="Changepoint frequency distribution",
-    col = color
+    #col = color,
+    cex.names=.6,
+    las=2
 )
-# cp_true = which(r_true==1)
-# abline(v=cp_true-0.5, col="red", lwd=2)
+
+abline(v=cp_true-0.5, col="red", lwd=2)
 legend("topright", legend=c("True"), col=c("red"),
     bty = "n",
     lty = 1,
@@ -288,31 +291,52 @@ lines(x = 1:length(num_clusters), y = num_clusters)
 abline(h = length(z_to_rho(z_true)),
        col = "red",
        lwd = 4)
+legend("topleft", legend=c("True"), col=c("red"),
+    lty = 1,
+    cex = 1)
 ```
 
 ```{r}
 num_clusters_true = length(rho_true)
-color <- ifelse(sort(unique(num_clusters)) %in% c(num_clusters_true), "red", "gray")
 
-hist(
+histogram = hist(
     num_clusters,
     xlab = "Number of groups",
     ylab = "Frequency",
-    border = "NA",
-    main = "Number of groups - Frequency",
-    col = color
+    border = "darkgray",
+    main = paste(
+        "Number of groups - Frequency\n",
+        "Last:",
+        tail(num_clusters, n = 1),
+        "- Mean:",
+        round(mean(num_clusters), 2),
+        "- True:",
+        num_clusters_true
+    ),
+    xaxt = "n"
 )
 
-legend(
-    "topright",
-    legend = c(paste("Last:", tail(num_clusters, n = 1)),
-               paste("Mean:", round(mean(num_clusters),2)),
-               paste("True:", num_clusters_true)),
-    col=c(NA,NA,NA),
-    bty = "n",
-    lty = 1,
-    cex = 0.8
-)
+axis(
+    side = 1,
+    at = histogram$mids,
+    labels = seq(from = floor(histogram$mids[1]),
+                 length.out = length(histogram$mids))
+    ) 
+
+abline(v = num_clusters_true+0.25,
+       col = "red",
+       lwd = 4)
+
+# legend(
+#     "topright",
+#     legend = c(paste("Last:", tail(num_clusters, n = 1)),
+#                paste("Mean:", round(mean(num_clusters),2)),
+#                paste("True:", num_clusters_true)),
+#     col=c(NA,NA,NA),
+#     bty = "n",
+#     lty = 1,
+#     cex = 0.8
+# )
 ```
 
 ### Evolution of the Rand Index
@@ -321,8 +345,6 @@ legend(
 # computing rand index for each iteration
 rand_index = apply(z, 1, mcclust::arandi, z_true)
 
-last = round(tail(rand_index, n=1), 3)
-
 # plotting the traceplot of the index
 plot(
     x = 1:length(rand_index),
@@ -330,7 +352,13 @@ plot(
     type = "n",
     xlab = "Iterations",
     ylab = "Rand Index",
-    main = paste("Rand Index - Traceplot\nLast value:", last)
+    main = paste(
+        "Rand Index - Traceplot\n",
+        "Last:",
+        round(tail(rand_index, n=1), 3),
+        "- Mean:",
+        round(mean(rand_index), 2)
+    )
 )
 lines(x = 1:length(rand_index), y = rand_index)
 abline(h = 1, col = "red", lwd = 4)
