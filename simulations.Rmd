@@ -348,15 +348,13 @@ VI     = mcclust.ext::minVI(sim_matrix)
 # compare partitions just in terms of number of clusters and cluster cardinalities
 
 cat("Binder loss")
-table(binder$cl)
+unname(table(binder$cl))
 
 cat("Variance of Information")
-table(VI$cl)
+unname(table(VI$cl))
 
 cat("True")
-table(z_true)
-
-# compute Rand Index
+unname(table(z_true))
 
 cat("Binder loss")
 mcclust::arandi(binder$cl, z_true, adjust = F)
@@ -378,7 +376,7 @@ dists <- VI_LB(z, psm_mat = sim_matrix)
 
 # select best partition (among the visited ones)
 final_partition_VI <- z[which.min(dists),]
-table(final_partition_VI)
+unname(table(final_partition_VI))
 
 # compute Rand Index
 mcclust::arandi(final_partition_VI,z_true)
