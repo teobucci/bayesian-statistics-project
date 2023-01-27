@@ -71,3 +71,4 @@ rsconnect/
 .vscode/launch.json
 output*
 dataset*
+simulations.pdf
