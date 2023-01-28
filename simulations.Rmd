@@ -32,7 +32,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Load the necessary packages
 
-```{r}
+```{r, include = FALSE}
 suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
 suppressWarnings(suppressPackageStartupMessages(library(ACutils)))
 suppressWarnings(suppressPackageStartupMessages(library(mvtnorm)))
@@ -44,7 +44,7 @@ suppressWarnings(suppressPackageStartupMessages(library(mcclust.ext)))
 suppressWarnings(suppressPackageStartupMessages(library(logr)))
 ```
 
-```{r}
+```{r, include = FALSE}
 paths = c(
     "src/utility_functions.R",
     "src/bulky_functions.R",
@@ -189,7 +189,6 @@ unique_ID = uuid::UUIDgenerate(use.time = TRUE, n = 1, output = c("string"))
 unique_ID = dittodb::hash(unique_ID, n = 8)
 cat("This simulation has been assigned ID:", unique_ID)
 
-#filename = paste("simulation_",gsub(":", "-", Sys.time()),"_file.txt",sep="")
 filename_data = paste("output/data/simulation_", unique_ID, ".rds", sep = "")
 filename_log = paste("output/log/simulation_", unique_ID, ".log", sep = "")
 ```
@@ -198,17 +197,15 @@ Run the simulation
 
 ```{r}
 log_open(file_name = filename_log, show_notes=FALSE, logdir = FALSE)
-start_time <- Sys.time()
 res <- Gibbs_sampler(
     data = sim$data,
-    niter = 8000,
-    nburn = 2000,
+    niter = 10,
+    nburn = 2,
     thin = 1,
     options = options,
     seed = 123456,
     print = TRUE
 )
-cat("Execution time:", Sys.time() - start_time)
 log_close()
 ```
 
@@ -229,7 +226,7 @@ saveRDS(res, file = filename_data)
 Restore the object
 
 ```{r}
-unique_ID = 'c450ce2c'
+unique_ID = '1bd23dee'
 filename_data = paste("output/data/simulation_", unique_ID, ".rds", sep = "")
 res = readRDS(file = filename_data)
 ```
@@ -532,6 +529,79 @@ g <- as_tbl_graph(final_graph, directed = F)
 # Plot the graph
 ggraph(g, layout="stress") + geom_edge_link() + geom_node_point()
 ```
+
+
+
+```{r}
+# read edges and nodes
+g1 <- graph.adjacency(res$true_graph)
+edges1 <- get.edgelist(g1)
+edges1 <- cbind(edges1,rep("true",nrow(edges1)))
+
+g2 <- graph.adjacency(final_graph)
+edges2 <- get.edgelist(g2)
+edges2 <- cbind(edges2,rep("estimated",nrow(edges2)))
+
+edges <- as.data.frame(rbind(edges1,edges2))
+names(edges) = c("from","to","graph")
+
+
+nodes = data.frame(vertices=1:25,true_clust=as.factor(z_true), estim_clust=as.factor(final_partition_VI))
+nodes
+
+
+
+#n = nrow(nodes)
+#m = nrow(edges)
+
+# mutate edges and nodes
+#edge_type = sample(c("love", "friendship"), m, replace = TRUE)
+#edge_weight = runif(m, 1, 10)
+#edges = mutate(edges, type = edge_type, weight = edge_weight)
+#nodes = mutate(nodes, id = 1:n) %>% select(id, everything())
+#
+## degree of nodes (number of ties for each dolphin)
+#tb = tibble(v = c(1:n, edges$x, edges$y))
+#d = count(tb, v)$n - 1
+#nodes = mutate(nodes, degree = d)
+
+# create graph from data frames
+
+g = graph_from_data_frame(edges, directed = FALSE, nodes)
+
+#g <- as_tbl_graph(final_graph, directed = F)
+lay = create_layout(g, layout = "fr")
+
+# plot with ggraph
+ggraph(lay) + 
+  geom_edge_link() + 
+  geom_node_point() +
+  theme_graph()
+
+# unset graph theme 
+# unset_graph_style()
+
+# add node names
+ggraph(lay) + 
+  geom_edge_link(edge_colour = "grey") + 
+  geom_node_point(aes(color=true_clust, shape = estim_clust), size = 4) +
+  geom_node_text(aes(label = name), repel=TRUE)
+
+ggraph(lay) + 
+  geom_edge_link(aes(color=graph)) + 
+  geom_node_point(aes(color=true_clust, shape = estim_clust), size = 4) +
+  geom_node_text(aes(label = name), repel=TRUE) +
+  facet_edges(~graph)
+
+ggraph(lay) + 
+  geom_edge_link(edge_colour = "grey") + 
+  geom_node_point(aes(color=true_clust, shape = estim_clust), size = 4) +
+  geom_node_text(aes(label = name), repel=TRUE) +
+  facet_edges(~graph)
+
+
+```
+
 
 
 
