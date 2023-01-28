@@ -104,6 +104,7 @@ posterior_analysis <- function(i){
     g = graph_from_data_frame(edges, directed = FALSE, nodes)
     lay = create_layout(g, layout = "fr")
     
+    last_G[col(last_G)==row(last_G)] = 1 
     
     if(options$true_graph_and_K){
         pdf(file=file.path(output_path,"true_G_K.pdf"), width = 16)
@@ -137,7 +138,7 @@ posterior_analysis <- function(i){
         pdf(file=file.path(output_path,"estimated_G_K.pdf"), width = 16)
         par(mfrow=c(1,2))
         ACutils::ACheatmap(
-            tail(sim$G,n=1)[[1]],
+            last_G,
             use_x11_device = F,
             horizontal = F,
             main = "\nEstimated plinks matrix",
