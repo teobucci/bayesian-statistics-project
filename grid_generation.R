@@ -144,14 +144,35 @@ grid6 <- cbind(simulation_id = simulation_id,
                beta_sig2 = beta_sig2, 
                rho_true = rho_true_vec)
 
+
+#### GRID 7: NOISE ON THE GRAPH ####
+l <- 1 # Grid Length
+simulation_id <- rep("_",l)
+n <- rep(500,l)
+p <- rep(25,l)
+type_data_gen <- rep("B",l)
+seed_data_gen <-  rep(27121996, l)
+beta_sig2 <- rep(0.2,l)
+rho_true_vec <- rep(list(rho_true),l)
+initial_partition <- rep(list(25),l)
+
+grid7 <- cbind(simulation_id = simulation_id, 
+               n = n, p = p, 
+               type_data_gen = type_data_gen, 
+               seed_data_gen = seed_data_gen,
+               initial_partition = initial_partition,
+               beta_sig2 = beta_sig2, 
+               rho_true = rho_true_vec)
+
 ###########################################
 # Creating final grid
 
-grid <- rbind(grid1,grid2,grid3,grid4,grid5,grid6)
+grid <- rbind(grid1,grid2,grid3,grid4,grid5,grid6,grid7)
 rm(grid1)
 rm(grid2)
 rm(grid3)
 rm(grid4)
 rm(grid5)
 rm(grid6)
+rm(grid7)
 

@@ -54,17 +54,20 @@ Gibbs <- function(i,grid){
     
     # Generate data
     sim = Generate_BlockDiagonal(n = n, z_true = z_true)
-    # sim = Generate_Block(
-    #     n=n,
-    #     z_true=z_true,
-    #     p_block_diag = 1,
-    #     p_block_extra_diag = 0,
-    #     p_inside_block = 0.95,
-    #     p_outside_block = 0.1,
-    #     elem_out = 5,
-    #     min_eigenval_correction = 3,
-    #     seed = 1
-    # )
+    
+    if(grid[i,]$type_data_gen == "B"){
+        sim = Generate_Block(
+            n=n,
+            z_true=z_true,
+            p_block_diag = 1,
+            p_block_extra_diag = 0,
+            p_inside_block = 0.95,
+            p_outside_block = 0.05,
+            elem_out = 5,
+            min_eigenval_correction = 3,
+            seed = 1
+        )
+    }
     
     graph_density = sum(sim$Graph) / (p*(p-1))
     
