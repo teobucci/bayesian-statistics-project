@@ -6,7 +6,7 @@ l <- 8 # Grid Length
 simulation_id <- rep("_",l)
 n <- rep(500,l)
 p <- rep(25,l)
-type_data_gen <- rep("Generate_BlockDiagonal",l)
+type_data_gen <- rep("BD",l)
 seed_data_gen <-  c(22111996,
                     31051999,
                     27051999,
@@ -32,7 +32,7 @@ l <- 10 # Grid Length
 simulation_id <- rep("_",l)
 n <- rep(500,l)
 p <- rep(25,l)
-type_data_gen <- rep("Generate_BlockDiagonal",l)
+type_data_gen <- rep("BD",l)
 seed_data_gen <- rep(27121996,l)
 beta_sig2 <- seq(1/16,0.2,length.out=l) # Here there should be 0.25 instead of 0.2
 rho_true_vec <- rep(list(rho_true),l)
@@ -52,7 +52,7 @@ l <- 2 # Grid Length
 simulation_id <- rep("_",l)
 n <- rep(500,l)
 p <- rep(25,l)
-type_data_gen <- rep("Generate_BlockDiagonal",l)
+type_data_gen <- rep("BD",l)
 seed_data_gen <- rep(27121996,l)
 beta_sig2 <- rep(0.20,l)
 rho_true_vec <- rep(list(rho_true),l)
@@ -72,7 +72,7 @@ l <- 4# Grid Length
 simulation_id <- rep("_",l)
 n <- rep(500,l)
 p <- rep(25,l)
-type_data_gen <- rep("Generate_BlockDiagonal",l)
+type_data_gen <- rep("BD",l)
 seed_data_gen <- rep(27121996,l)
 beta_sig2 <- rep(0.20,l)
 beta_sig2[3] <- 0.02 
@@ -93,12 +93,65 @@ grid4 <- cbind(simulation_id = simulation_id,
                rho_true = rho_true_vec)
 
 
+
+#### GRID 5: VARYING N (NUMBER OF OBSERVATIONS) ####
+l <- 7 # Grid Length
+simulation_id <- rep("_",l)
+n <- c(500,400,300,200,100,50,20)
+p <- rep(25,l)
+type_data_gen <- rep("BD",l)
+seed_data_gen <-  rep(27121996, l)
+beta_sig2 <- rep(0.10,l)
+rho_true_vec <- rep(list(rho_true),l)
+initial_partition <- rep(list(25),l)
+grid5 <- cbind(simulation_id = simulation_id, 
+               n = n, p = p, 
+               type_data_gen = type_data_gen, 
+               seed_data_gen = seed_data_gen,
+               initial_partition = initial_partition,
+               beta_sig2 = beta_sig2, 
+               rho_true = rho_true_vec)
+
+
+#### GRID 6: VARYING P ####
+l <- 10 # Grid Length
+simulation_id <- rep("_",l)
+n <- rep(500,l)
+p <- c(5,10,15,20,25,30,35,40,45,50)
+type_data_gen <- rep("BD",l)
+seed_data_gen <-  rep(27121996, l)
+beta_sig2 <- rep(0.0625,l)
+rho_true_vec <- c(
+    list(c(3,2)),
+    list(c(5,5)),
+    list(c(5,5,5)),
+    list(c(5,5,5,5)),
+    list(c(5,5,5,5,5)),
+    list(c(5,5,5,5,5,5)),
+    list(c(5,5,5,5,5,5,5)),
+    list(c(5,5,5,5,5,5,5,5)),
+    list(c(5,5,5,5,5,5,5,5,5)),
+    list(c(5,5,5,5,5,5,5,5,5,5))
+)
+
+initial_partition <- sapply(p,list)
+
+grid6 <- cbind(simulation_id = simulation_id, 
+               n = n, p = p, 
+               type_data_gen = type_data_gen, 
+               seed_data_gen = seed_data_gen,
+               initial_partition = initial_partition,
+               beta_sig2 = beta_sig2, 
+               rho_true = rho_true_vec)
+
 ###########################################
 # Creating final grid
 
-grid <- rbind(grid1,grid2,grid3,grid4)
+grid <- rbind(grid1,grid2,grid3,grid4,grid5,grid6)
 rm(grid1)
 rm(grid2)
 rm(grid3)
 rm(grid4)
+rm(grid5)
+rm(grid6)
 
