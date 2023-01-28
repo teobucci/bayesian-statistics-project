@@ -93,9 +93,10 @@ Gibbs <- function(i,grid){
     dir.create(file.path("output", "data"), showWarnings = FALSE, recursive = TRUE)
     dir.create(file.path("output", "log"), showWarnings = FALSE, recursive = TRUE)
     
-    unique_ID = uuid::UUIDgenerate(use.time = TRUE, n = 1, output = c("string"))
-    unique_ID = dittodb::hash(unique_ID, n = 8)
-    cat("This simulation has been assigned ID:", unique_ID)
+    # unique_ID = uuid::UUIDgenerate(use.time = TRUE, n = 1, output = c("string"))
+    # unique_ID = dittodb::hash(unique_ID, n = 8)
+    # cat("This simulation has been assigned ID:", unique_ID)
+    unique_ID = sprintf("%02d", i)
     grid[i,]$simulation_id = unique_ID
     
     filename_data = paste("output/data/simulation_", unique_ID, ".rds", sep = "")
