@@ -1,0 +1,460 @@
+---
+title: "Stochastic Block Model Prior with Ordering Constraints for Gaussian Graphical Models"
+author:
+    - Alessandro Colombi (Supervisor)^[a.colombi10@campus.unimib.it]
+    - Teo Bucci^[teo.bucci@mail.polimi.it]
+    - Filippo Cipriani^[filippo.cipriani@mail.polimi.it]
+    - Filippo Pagella^[filippo.pagella@mail.polimi.it]
+    - Flavia Petruso^[flavia.petruso@mail.polimi.it]
+    - Andrea Puricelli^[andrea3.puricelli@mail.polimi.it]
+    - Giulio Venturini^[giulio.venturini@mail.polimi.it]
+output:
+    pdf_document:
+        toc: true
+        toc_depth: 3
+        number_section: true
+    html_document:
+        toc: true
+        toc_float: true
+        number_sections: true
+date: "2023-01-17"
+editor_options:
+    chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache=TRUE)
+```
+\newpage
+
+# Recap table
+
+```{r, include = FALSE}
+suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
+suppressWarnings(suppressPackageStartupMessages(library(ACutils)))
+suppressWarnings(suppressPackageStartupMessages(library(mvtnorm)))
+suppressWarnings(suppressPackageStartupMessages(library(salso)))
+suppressWarnings(suppressPackageStartupMessages(library(FGM)))
+suppressWarnings(suppressPackageStartupMessages(library(gmp)))
+suppressWarnings(suppressPackageStartupMessages(library(mcclust)))
+suppressWarnings(suppressPackageStartupMessages(library(mcclust.ext)))
+suppressWarnings(suppressPackageStartupMessages(library(logr)))
+suppressWarnings(suppressPackageStartupMessages(library(tidygraph)))
+suppressWarnings(suppressPackageStartupMessages(library(ggraph)))
+suppressWarnings(suppressPackageStartupMessages(library(igraph)))
+suppressWarnings(suppressPackageStartupMessages(library(pbapply)))
+suppressWarnings(suppressPackageStartupMessages(library(latex2exp)))
+library(knitr)
+library(kableExtra)
+```
+```{r, include = FALSE}
+paths = c(
+    "src/utility_functions.R",
+    "src/bulky_functions.R",
+    "src/data_generation.R"
+)
+
+for(p in paths){
+    path = file.path(p)
+    if(file.exists(path)){
+        source(path)
+    } else {
+        cat("File",path,"was not found in directory, please check.")
+    }
+}
+```
+```{r, echo = FALSE}
+posterior_analysis <- function(i,n){
+    if(i %in% c(1,9,19,21)){
+        cat(paste("## Group",n,"\n\n"))
+        n = n+1
+    }
+    cat(paste("### Simulation number",i))
+    library("Rcpp")
+    library("RcppArmadillo")
+    sourceCpp("src/wade.cpp")
+    
+    temp_init <- paste(grid[i,]$initial_partition,collapse=',')
+    temp_rho <- paste(grid[i,]$rho_true,collapse=',')
+    temp_grid <- grid[i,]
+    temp_grid$rho_true <- temp_rho
+    temp_grid$initial_partition <- temp_init
+    print(knitr::kable(as.data.frame(temp_grid)))
+    
+    simulation_id = grid[i,]$simulation_id
+    rho_true <- grid[i,]$rho_true
+    z_true = rho_to_z(rho_true)
+    r_true = z_to_r(z_true)
+    p = length(z_true)
+    num_clusters_true = length(rho_true)
+    
+    sim <- read_rds(file.path("output","data",paste("simulation_",simulation_id,".rds",sep="")))
+    Prec_true = sim$true_precision # precision matrix
+    Graph_true = sim$true_graph # true graph
+    Graph_true[col(Graph_true)==row(Graph_true)] = 0 # remove self loops
+    graph_density = sum(sim$Graph) / (p*(p-1))
+    
+    r = do.call(rbind, lapply(sim$rho, rho_to_r))
+    z = do.call(rbind, lapply(sim$rho, rho_to_z))
+    r_true = rho_to_r(sim$true_rho)
+    z_true = rho_to_z(sim$true_rho)
+    num_clusters = do.call(rbind, lapply(sim$rho, length))
+    num_clusters = as.vector(num_clusters)
+    
+    mean(sim$accepted) # acceptance frequency
+    # computing rand index for each iteration
+    rand_index = apply(z, 1, mcclust::arandi, z_true)
+    
+    # compute VI loss for all visited partitions
+    # compute similarity matrix 
+    sim_matrix <- salso::psm(z)
+    # adding names for the heatmap
+    rownames(sim_matrix) = 1:length(z_true)
+    colnames(sim_matrix) = 1:length(z_true)
+    dists <- VI_LB(z, psm_mat = sim_matrix)
+    
+    # select best partition (among the visited ones)
+    final_partition_VI <- z[which.min(dists),]
+    unname(table(final_partition_VI))
+    
+    # compute Rand Index
+    mcclust::arandi(final_partition_VI,z_true)
+    
+    # kl distance
+    kl_dist = do.call(rbind, lapply(sim$K, function(k) {
+        ACutils::KL_dist(sim$true_precision, k)
+    }))
+    last = round(tail(kl_dist, n=1), 3)
+    
+    
+    last_G = sim$G[[length(sim$G)]]
+    bfdr_select = BFDR_selection(last_G, tol = seq(0.1, 1, by = 0.001))
+    bfdr_select$best_treshold
+    final_graph = bfdr_select$best_truncated_graph
+    
+    # create graph for visualization
+    g1 <- graph.adjacency(Graph_true)
+    edges1 <- get.edgelist(g1)
+    edges1 <- cbind(edges1,rep("true",nrow(edges1)))
+    g2 <- graph.adjacency(final_graph)
+    edges2 <- get.edgelist(g2)
+    edges2 <- cbind(edges2,rep("estimated",nrow(edges2)))
+    edges <- as.data.frame(rbind(edges1,edges2))
+    names(edges) = c("from","to","graph")
+    nodes = data.frame(vertices=1:p,true_clust=as.factor(z_true), estim_clust=as.factor(final_partition_VI))
+    nodes
+    g = graph_from_data_frame(edges, directed = FALSE, nodes)
+    lay = create_layout(g, layout = "fr")
+    
+    
+    if(options$true_graph_and_K){
+        par(mfrow=c(1,2))
+        ACutils::ACheatmap(
+            sim$true_graph,
+            use_x11_device = F,
+            horizontal = F,
+            main = "Graph",
+            center_value = NULL,
+            col.upper = "black",
+            col.center = "grey50",
+            col.lower = "white"
+        )
+        
+        ACutils::ACheatmap(
+            sim$true_precision,
+            use_x11_device = F,
+            horizontal = F,
+            main = "Precision matrix K",
+            center_value = NULL,
+            col.upper = "black",
+            col.center = "grey50",
+            col.lower = "white"
+        )
+    }
+    
+    
+    if(options$estimated_graph_and_K){
+        par(mfrow=c(1,2))
+        ACutils::ACheatmap(
+            tail(sim$G,n=1)[[1]],
+            use_x11_device = F,
+            horizontal = F,
+            main = "\nEstimated plinks matrix",
+            center_value = NULL,
+            col.upper = "black",
+            col.center = "grey50",
+            col.lower = "white"
+        )
+        
+        ACutils::ACheatmap(
+            tail(sim$K,n=1)[[1]],
+            use_x11_device = F,
+            horizontal = F,
+            main = "\nEstimated Precision matrix K",
+            center_value = NULL,
+            col.upper = "black",
+            col.center = "grey50",
+            col.lower = "white"
+        )       
+    }
+    
+    if(options$plot_graph){
+        par(mfrow=c(1,1))
+        output_plot <- ggraph(lay) + 
+            geom_edge_link(edge_colour = "grey") + 
+            geom_node_point(aes(color=true_clust, shape = estim_clust), size = 2) +
+            geom_node_text(aes(label = name), repel=TRUE) +
+            facet_edges(~graph)
+        print(output_plot)
+    }
+    
+    if(options$changepoint_kl){
+        par(mfrow=c(1,3))
+        ### Barplot of changepoints
+        bar_heights = colSums(r)
+        cp_true = which(r_true==1)
+        color <- ifelse(seq_along(bar_heights) %in% c(cp_true), "red", "gray")
+        
+        barplot(
+            bar_heights,
+            names = seq_along(bar_heights),
+            border = "NA",
+            space = 0,
+            yaxt = "n",
+            main = "\nChangepoint\n frequency distribution",
+            #col = color,
+            cex.names=.6,
+            las=2
+        )
+        
+        abline(v=cp_true-0.5, col="red", lwd=2)
+        legend("topright", legend=c("True"), col=c("red"),
+               bty = "n",
+               lty = 1,
+               cex = 0.6)
+        #title(paste("Acceptance frequency:",round(mean(sim$accepted),2)), line = -20)
+        
+        plot(
+            x = 1:length(rand_index),
+            y = rand_index,
+            type = "n",
+            xlab = "Iterations",
+            ylab = "Rand Index",
+            main = paste(
+                "\nRand Index - Traceplot\n",
+                "Last:",
+                round(tail(rand_index, n=1), 3),
+                "- Mean:",
+                round(mean(rand_index), 2)
+            )
+        )
+        lines(x = 1:length(rand_index), y = rand_index)
+        abline(h = 1, col = "red", lwd = 4)
+        
+        
+        plot(
+            x = 1:length(kl_dist),
+            y = kl_dist,
+            type = "n",
+            xlab = "Iterations",
+            ylab = "K-L distance",
+            main = paste("\nKullback Leibler distance\nLast value:", last)
+        )
+        lines(x = 1:length(kl_dist), y = kl_dist)       
+    }
+    
+
+    if(options$theta_sigma){
+        par(mfrow=c(1,2))
+        plot(
+            x = 1:length(sim$sigma),
+            y = sim$sigma,
+            type = "n",
+            xlab = "Iterations",
+            ylab = TeX(r'($\sigma$ prior)'),
+            main = TeX(r'($\sigma$ prior - Traceplot)')
+        )
+        lines(x = 1:length(sim$sigma), y = sim$sigma, lwd = 0.8)
+
+        plot(
+            x = 1:length(sim$theta),
+            y = sim$theta,
+            type = "n",
+            xlab = "Iterations",
+            ylab = TeX(r'($\theta$ prior)'),
+            main = TeX(r'($\theta$ prior - Traceplot)')
+        )
+        lines(x = 1:length(sim$theta), y = sim$theta, lwd = 0.8)
+
+    }
+    
+    
+    if(options$groups_number){
+        par(mfrow=c(1,2))
+        histogram = hist(
+            num_clusters,
+            xlab = "Number of groups",
+            ylab = "Frequency",
+            border = "darkgray",
+            main = paste(
+                "Number of groups - Frequency\n",
+                "Last:",
+                tail(num_clusters, n = 1),
+                "- Mean:",
+                round(mean(num_clusters), 2),
+                "- True:",
+                num_clusters_true
+            ),
+            xaxt = "n"
+        )
+        
+        axis(
+            side = 1,
+            at = histogram$mids,
+            labels = seq(from = floor(histogram$mids[1]),
+                         length.out = length(histogram$mids))
+        ) 
+        
+        abline(v = num_clusters_true+0.25,
+               col = "red",
+               lwd = 4)
+        
+        
+        
+        plot(
+            x = 1:length(num_clusters),
+            y = num_clusters,
+            type = "n",
+            xlab = "Iterations",
+            ylab = "Number of groups",
+            main = "Number of groups - Traceplot"
+        )
+        lines(x = 1:length(num_clusters), y = num_clusters)
+        abline(h = length(z_to_rho(z_true)),
+               col = "red",
+               lwd = 4)
+        legend("topleft", legend=c("True"), col=c("red"),
+               lty = 1,
+               cex = 1)
+    }
+    
+    cat("\n\n\\pagebreak\n")
+    #writeLines("ValueForV")
+    return(n)
+}
+```
+```{r, echo = FALSE, include=FALSE, warning = FALSE}
+filename_data = "output/simulation_table.rds"
+n = 1
+grid = readRDS(file = filename_data)
+grid_posterior <- grid
+#for(i in 1:nrow(grid)){
+#    temp_init <- paste(grid[i,]$initial_partition,collapse=',')
+#    temp_rho <- paste(grid[i,]$rho_true,collapse=',')
+#    grid_posterior$rho_true <- temp_rho
+#    grid_posterior$initial_partition <- temp_init
+#}
+#
+grid_posterior[20,]$initial_partition <- "singletons"
+#print(knitr::kable(grid_posterior))    
+
+acceptance_rates <- numeric(nrow(grid))
+estimated_partition <- numeric(nrow(grid))
+VI_index <- numeric(nrow(grid))
+randindex <- numeric(nrow(grid))
+kl_dist_last <- numeric(nrow(grid))
+
+
+for(i in 1:nrow(grid)){
+    simulation_id = grid[i,]$simulation_id
+    rho_true <- grid[i,]$rho_true
+    z_true = rho_to_z(rho_true)
+    r_true = z_to_r(z_true)
+    p = length(z_true)
+    num_clusters_true = length(rho_true)
+    sim <- read_rds(file.path("output","data",paste("simulation_",simulation_id,".rds",sep="")))
+    r = do.call(rbind, lapply(sim$rho, rho_to_r))
+    z = do.call(rbind, lapply(sim$rho, rho_to_z))
+    r_true = rho_to_r(sim$true_rho)
+    z_true = rho_to_z(sim$true_rho)
+    num_clusters = do.call(rbind, lapply(sim$rho, length))
+    num_clusters = as.vector(num_clusters)
+    
+    sim_matrix <- salso::psm(z)
+    # adding names for the heatmap
+    rownames(sim_matrix) = 1:length(z_true)
+    colnames(sim_matrix) = 1:length(z_true)
+   
+    # Acceptance rate
+    acceptance_rates[i] <- round(mean(sim$accepted),4)
+    
+    
+    library("Rcpp")
+    library("RcppArmadillo")
+    sourceCpp("src/wade.cpp")
+    dists <- VI_LB(z, psm_mat = sim_matrix)
+    # Estimated partition
+    final_partition_VI <- z[which.min(dists),]
+    VI_index[i] <- final_partition_VI
+    estimated_partition[i] <- list(unname(table(final_partition_VI)))
+    unname(table(final_partition_VI))
+    # Randindex
+    randindex[i] <- round(mcclust::arandi(final_partition_VI,z_true),4)
+    
+   
+    kl_dist = ACutils::KL_dist(sim$true_precision, sim$K[[length(sim$K)]])
+    kl_dist_last[i] <- round(kl_dist,4)
+   
+}
+
+
+```
+
+```{r, echo=FALSE, results='asis'}
+grid_posterior_complete = cbind(grid_posterior, acceptance_rates=acceptance_rates,
+                       estimated_partition=estimated_partition,
+                       VI_index = VI_index,
+                       randindex = randindex,
+                       kl_dist = kl_dist_last)
+grid_posterior_df <- as.data.frame(grid_posterior_complete)
+grid_posterior_df$beta_sig2 <- lapply(grid_posterior_df$beta_sig2,function(x){round(x,3)})
+names(grid_posterior_df) <- c("sim_id","n", "p", "data_gen", "seed", "part0", "B_sigma", 
+                              "rho_true", "accept", "rho_est", "VI", "RI","KL")       
+grid_posterior_df$data_gen <- rep("BD",nrow(grid_posterior_df))
+
+knitr::kable(as.data.frame(grid_posterior_df), booktabs=TRUE, escape = TRUE) %>% 
+  kable_styling(latex_options="scale_down")
+
+```
+
+
+\newpage
+
+# Simulations
+```{r, echo = FALSE, fig.align='center', results = 'asis', fig.height = 3.5, out.width="50%"}
+options <- list(true_graph_and_K = TRUE,
+                estimated_graph_and_K = TRUE,
+                plot_graph = TRUE,
+                changepoint_kl = TRUE,
+                groups_number = FALSE,
+                theta_sigma = TRUE)
+#pbsapply(1:nrow(grid), posterior_analysis)
+for(i in 1:nrow(grid)){
+    n <- posterior_analysis(i,n)
+}
+```
+
+```{r, include = FALSE}
+
+#
+#r = do.call(rbind, lapply(res$rho, rho_to_r))
+#z = do.call(rbind, lapply(res$rho, rho_to_z))
+#r_true = rho_to_r(res$true_rho)
+#z_true = rho_to_z(res$true_rho)
+#num_clusters = do.call(rbind, lapply(res$rho, length))
+#num_clusters = as.vector(num_clusters)
+#
+
+
+
+```
