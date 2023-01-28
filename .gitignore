@@ -73,3 +73,8 @@ output*
 dataset*
 simulations.pdf
 simulation_grid_visualization_files/figure-latex/*.pdf
+matrice_facade.csv
+suonoAle_GGM.R
+docs/\[R.Argiento, P.Bissiri, A.Pievatolo, C.Scrosati\] Multilevel Functional Principal Component Analysis of Facade Sound (2015).pdf
+Suono_centered.Rdat
+Suono_Quantile_Normalized.Rdat
