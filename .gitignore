@@ -72,3 +72,4 @@ rsconnect/
 output*
 dataset*
 simulations.pdf
+simulation_grid_visualization_files/figure-latex/*.pdf
