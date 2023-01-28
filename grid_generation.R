@@ -80,10 +80,7 @@ rho_true_vec <- list(c(8,4,8,5),
                    c(1,10,2,9,3),
                    c(1,3,2,4,2,3,3,4,3),
                    c(12,13))
-initial_partition = list(25, 
-                        c(12,13), 
-                        c(8,8,9), 
-                        c(6,6,6,7))
+initial_partition = rep(list(25),l)
 grid4 <- cbind(simulation_id = simulation_id, 
                n = n, p = p, 
                type_data_gen = type_data_gen, 
