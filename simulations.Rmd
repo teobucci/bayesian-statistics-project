@@ -196,17 +196,17 @@ filename_log = paste("output/log/simulation_", unique_ID, ".log", sep = "")
 Run the simulation
 
 ```{r}
-log_open(file_name = filename_log, show_notes=FALSE, logdir = FALSE)
+#log_open(file_name = filename_log, show_notes=FALSE, logdir = FALSE)
 res <- Gibbs_sampler(
     data = sim$data,
-    niter = 10,
+    niter = 1000,
     nburn = 2,
     thin = 1,
     options = options,
     seed = 123456,
     print = TRUE
 )
-log_close()
+#log_close()
 ```
 
 Before saving, also append true data
@@ -474,16 +474,6 @@ lines(x = 1:length(kl_dist), y = kl_dist)
 
 ### Graph visualization
 
-```{r}
-library(igraph)
-plot_graph = function(adjacency_matrix, title){
-    # Create the graph object from the adjacency matrix
-    g <- graph.adjacency(adjacency_matrix, mode = "undirected")
-    # Plot the graph
-    plot(g, main=title)
-}
-```
-
 Extract last plinks
 
 ```{r}
@@ -513,21 +503,11 @@ final_graph = bfdr_select$best_truncated_graph
 
 Select the graph and plot it against the original
 
-```{r}
-par(mfrow=c(2,1))
-plot_graph(final_graph, "Estimated")
-plot_graph(res$true_graph, "True")
-par(mfrow=c(1,1))
-```
-
 Fancy stuff work in progress
 
 ```{r}
 library(tidygraph)
 library(ggraph)
-g <- as_tbl_graph(final_graph, directed = F)
-# Plot the graph
-ggraph(g, layout="stress") + geom_edge_link() + geom_node_point()
 ```
 
 
@@ -546,30 +526,12 @@ edges <- as.data.frame(rbind(edges1,edges2))
 names(edges) = c("from","to","graph")
 
 
-nodes = data.frame(vertices=1:25,true_clust=as.factor(z_true), estim_clust=as.factor(final_partition_VI))
+
+nodes = data.frame(vertices=1:p,true_clust=as.factor(z_true), estim_clust=as.factor(final_partition_VI))
 nodes
-
-
-
-#n = nrow(nodes)
-#m = nrow(edges)
-
-# mutate edges and nodes
-#edge_type = sample(c("love", "friendship"), m, replace = TRUE)
-#edge_weight = runif(m, 1, 10)
-#edges = mutate(edges, type = edge_type, weight = edge_weight)
-#nodes = mutate(nodes, id = 1:n) %>% select(id, everything())
-#
-## degree of nodes (number of ties for each dolphin)
-#tb = tibble(v = c(1:n, edges$x, edges$y))
-#d = count(tb, v)$n - 1
-#nodes = mutate(nodes, degree = d)
-
-# create graph from data frames
 
 g = graph_from_data_frame(edges, directed = FALSE, nodes)
 
-#g <- as_tbl_graph(final_graph, directed = F)
 lay = create_layout(g, layout = "fr")
 
 # plot with ggraph
@@ -588,10 +550,160 @@ ggraph(lay) +
   geom_node_text(aes(label = name), repel=TRUE)
 
 ggraph(lay) + 
-  geom_edge_link(aes(color=graph)) + 
+  geom_edge_link(edge_colour = "grey") + 
   geom_node_point(aes(color=true_clust, shape = estim_clust), size = 4) +
   geom_node_text(aes(label = name), repel=TRUE) +
   facet_edges(~graph)
+
+library(magick)
+library(gganimate)
+anim <- 
+  ggraph(lay) + 
+  geom_edge_link(edge_colour = "grey") + 
+  geom_node_point(aes(color=true_clust, shape = estim_clust), size = 4) +
+  transition_states(graph,
+                    transition_length = 0.5,
+                    state_length = 0.5)
+
+
+anim
+
+```
+
+```{r}
+p <- 25
+estim_clust=as.factor(final_partition_VI)
+nodes = data.frame(name=1:p,true_clust=as.factor(z_true), estim_clust = as.factor(z[1,]))
+
+temp_g <- matrix(0,p,p)
+temp_g[which(res$G[[1]]>threshold)] = 1
+rownames(temp_g) <- 1:p
+colnames(temp_g) <- 1:p
+g1 <- graph.adjacency(temp_g)
+g1 <- set_vertex_attr(g1, "name", index = V(g1), nodes$name)
+g1 <- set_vertex_attr(g1, "tc", index = V(g1), nodes$true_clust)
+g1 <- set_vertex_attr(g1, "ec", index = V(g1), as.factor(z[1,]))
+graphs <- list(g1)
+# read edges and nodes
+for(i in 2:400){
+    temp_g <- matrix(0,p,p)
+    temp_g[which(res$G[[i]]>threshold)] = 1
+    rownames(temp_g) <- 1:p
+    colnames(temp_g) <- 1:p
+    g1 <- graph.adjacency(temp_g)
+    g1 <- set_vertex_attr(g1, "name", index = V(g1), nodes$name)
+    g1 <- set_vertex_attr(g1, "tc", index = V(g1), nodes$true_clust)
+    g1 <- set_vertex_attr(g1, "ec", index = V(g1), as.factor(z[i,]))
+    temp_list <- list(g1)
+    graphs <- append(graphs,temp_list)
+}
+
+#graphs
+#x11(width= 16, height=9)
+xy <- layout_as_dynamic(graphs, alpha = 0.85)
+for(j in 1:length(xy)){
+    for(i in 1:nrow(xy[[j]])){
+        if(xy[[j]][i,1]<0){ xy[[j]][i,1] = -sqrt(-xy[[j]][i,1])}
+        if(xy[[j]][i,2]>0){ xy[[j]][i,2] =  sqrt( xy[[j]][i,2])}
+    }
+}
+xy
+#pList <- vector("list", length(graphs))
+#for (i in 1:length(graphs)) {
+#  pList[[i]] <- ggraph(graphs[[i]], layout = "manual", x = xy[[i]][, 1], y = xy[[i]][, 2]) +
+#    geom_edge_link0(edge_width = 0.6, edge_colour = "grey66") +
+#    geom_node_point(shape = 21, aes(fill = as.factor(z_true)), size = 6) +
+#    geom_node_text(label = 1:p, repel = FALSE, color = "white", size = 4) +
+#    #scale_fill_manual(
+#    #  values = c("forestgreen", "grey25", "firebrick"),
+#    #  guide = ifelse(i != 2, "none", "legend"),
+#    #  name = "smoking",
+#    #  labels = c("never", "occasionally", "regularly")
+#    #) +
+#    theme_graph() +
+#    theme(legend.position = "bottom") +
+#    labs(title = paste0("Iter ", i))
+#}
+#Reduce("+", pList)
+
+
+nodes_lst <- lapply(1:length(graphs), function(i) {
+  cbind(igraph::as_data_frame(graphs[[i]], "vertices"),
+    x = xy[[i]][, 1], y = xy[[i]][, 2], frame = i
+  )
+})
+
+
+edges_lst <- lapply(1:length(graphs), function(i) cbind(igraph::as_data_frame(graphs[[i]], "edges"), frame = i))
+edges_lst <- lapply(1:length(graphs), function(i) {
+  edges_lst[[i]]$x <- nodes_lst[[i]]$x[match(edges_lst[[i]]$from, nodes_lst[[i]]$name)]
+  edges_lst[[i]]$y <- nodes_lst[[i]]$y[match(edges_lst[[i]]$from, nodes_lst[[i]]$name)]
+  edges_lst[[i]]$xend <- nodes_lst[[i]]$x[match(edges_lst[[i]]$to, nodes_lst[[i]]$name)]
+  edges_lst[[i]]$yend <- nodes_lst[[i]]$y[match(edges_lst[[i]]$to, nodes_lst[[i]]$name)]
+  edges_lst[[i]]$id <- paste0(edges_lst[[i]]$from, "-", edges_lst[[i]]$to)
+  edges_lst[[i]]$status <- TRUE
+  edges_lst[[i]]
+})
+
+all_edges <- do.call("rbind", lapply(graphs, get.edgelist))
+all_edges <- all_edges[!duplicated(all_edges), ]
+all_edges <- cbind(all_edges, paste0(all_edges[, 1], "-", all_edges[, 2]))
+
+edges_lst <- lapply(1:length(graphs), function(i) {
+  idx <- which(!all_edges[, 3] %in% edges_lst[[i]]$id)
+  if (length(idx != 0)) {
+    tmp <- data.frame(from = all_edges[idx, 1], to = all_edges[idx, 2], id = all_edges[idx, 3])
+    tmp$x <- nodes_lst[[i]]$x[match(tmp$from, nodes_lst[[i]]$name)]
+    tmp$y <- nodes_lst[[i]]$y[match(tmp$from, nodes_lst[[i]]$name)]
+    tmp$xend <- nodes_lst[[i]]$x[match(tmp$to, nodes_lst[[i]]$name)]
+    tmp$yend <- nodes_lst[[i]]$y[match(tmp$to, nodes_lst[[i]]$name)]
+    tmp$frame <- i
+    tmp$status <- FALSE
+    edges_lst[[i]] <- rbind(edges_lst[[i]], tmp)
+  }
+  edges_lst[[i]]
+})
+
+
+edges_df <- do.call("rbind", edges_lst)
+nodes_df <- do.call("rbind", nodes_lst)
+
+p2 <- ggplot() +
+  geom_segment(
+    data = edges_df,
+    aes(x = x, xend = xend, y = y, yend = yend, group = id, alpha = status),
+    colour = "grey",
+    show.legend = FALSE
+  ) +
+  geom_point(
+    data = nodes_df, aes(x, y, group=name, fill = as.factor(ec)),
+    shape = 21, size = 5, show.legend = FALSE
+  ) +
+  #geom_jitter()+
+  #scale_fill_manual(values = c("forestgreen", "grey25", "firebrick")) +
+  scale_alpha_manual(values = c(0, 1)) +
+  ease_aes("quadratic-in") +
+  enter_fade() + 
+  exit_shrink() +
+  transition_states(frame, transition_length = 2, wrap = FALSE) +
+  labs(title = "Iter {closest_state}") +
+  theme_void()
+#animate(p2,nframes = 50*25,fps=50)
+anim_save("prova.gif", p2, nframes=50*70, fps=50)
+```
+
+
+
+
+```{r}
+g = graph_from_data_frame(edges, directed = FALSE, nodes)
+lay = create_layout(g, layout = "fr")
+
+# add node names
+ggraph(lay) + 
+  geom_edge_link(edge_colour = "grey") + 
+  geom_node_point(aes(color=true_clust, shape = estim_clust), size = 4) +
+  geom_node_text(aes(label = name), repel=TRUE)
 
 ggraph(lay) + 
   geom_edge_link(edge_colour = "grey") + 
@@ -600,7 +712,15 @@ ggraph(lay) +
   facet_edges(~graph)
 
 
+anim <- 
+  ggraph(lay) + 
+  geom_edge_link(edge_colour = "grey") + 
+  geom_node_point(aes(color=true_clust, shape = estim_clust), size = 4) +
+  transition_states(graph,
+                    transition_length = 0.1,
+                    state_length = 0.1)
 ```
+ì
 
 
 
