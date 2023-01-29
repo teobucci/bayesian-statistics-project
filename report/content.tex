@@ -1,10 +1,38 @@
 %!TEX root = ./main.tex
 
+
+
 \section{Introduction}
-Le prime 3 sezioni devono essere 4 pagine ben scritte. Sono poche 4 pagine, dovrete sintetizzare bene i concetti principali. Questa prima parte ci tengo venga fatta con attenzione e impegno.
+
+%First paragraph introducing GGM
+Gaussian graphical models (GGM) are probabilistic models where undirected graphs are used to express the conditional dependence structure among variables with joint gaussian distribution. Each vertex in the graph represents one variables of the model, whereas the edges model the dependencies between them. A crucial concept in GGM is the one of conditional independence: given be a p-dimensional random vector $Y$ distributed as a multivariate normal with zero mean and precision matrix $\mathbf{K_{p}^{-1}}$, the random variables $Y_i$ and $Y_j$ are independent, conditionally on all the others, if the corresponding entry in precision matrix \tectbf{K} is null, owing to the normality assumption. This translates into the absence of a direct edge linking nodes i and j in the graph. 
+
+In general,the graph is usually unknown and must be estimated from the data, and a common choice is relying on a Bayesian approach to perform inference. In this case, the first step is the choice of a prior on the graph space, and then a prior on the precision matrix conditionally on the graph must be introduced. A G-Wishart distribution is often selected as a prior for the precision matrix, whereas the specification of the graph prior is a more delicate step, heavily dependent on the context.
+
+%Use SBM as a prior to induce a block structure - IN PROGRESS - DO NOT MODIFY TO PROTECT THE CREATIVE PROCESS!
+Many real life applications allow to group the variables of the model, so that the underlying graph presents a block structure. For this purpose, Stochastic Block Models can be used to induce a block structure in the adjacency matrix of the graph. 
+
+%%---continuo domani
+A stochastic block model consists of a partition in the set of nodes into blocks. Nodes in the same block are more likely to be connected than nodes from different blocks, therefore the structure of interest is the clustering of nodes and the connectivity within and between these clusters.  When we deal with stochastic block models, we are given a random network, a graph, and we want to infer a node partition.
+
+
+%Additional specification on the order of the partition - IN PROGRESS -
+In the current work, we introduced an ordering constraint on the partition, \emph{i.e.}, groups can be formed only by adjacent nodes. This choice can be applicable to a wide range of real-life applications, for example genomics blah blah. 
+
+
+
+
 \section{Proposed Model}
+
+
 \section{Sampling Strategy}
+
+
 \section{Simulation study}
+
 La 4 invece deve contenere la descrizione degli esperimenti fatti, le figure e i risultati. Senza vincoli di spazio, anche una sbrodolata va bene.
+
+
 \section{Conclusion}
+
 Conclusioni brevi, al più riportate le criticità incontrate.
