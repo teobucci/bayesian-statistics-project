@@ -22,7 +22,8 @@ get_group_indexes = function(rho){
 
 rho_to_r = function(rho){
     group_indexes = get_group_indexes(rho)
-    r <- numeric(sum(rho))
+    group_indexes = group_indexes[1:(length(group_indexes)-1)]
+    r <- numeric(sum(rho)-1)
     r[group_indexes] = 1
     return(r)
 }
@@ -44,6 +45,15 @@ rho_to_z = function(rho){
     return(z)
 }
 
+
+# TODO
+r_to_rho = function(r){
+    return()
+}
+
+r_to_z = function(r){
+    return()
+}
 
 
 

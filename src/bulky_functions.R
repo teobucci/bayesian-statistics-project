@@ -34,12 +34,13 @@ update_partition = function(rho_current,
     if ((!choose_add && M == 1) || (choose_add && M == p)) {
         choose_add = !choose_add
     }
-    
+    #if(options$log_register){
     if (choose_add){
         log_print("Chosen move: ADD/SPLIT", console = FALSE)
     }else{
         log_print("Chosen move: DELETE/MERGE", console = FALSE)
     }
+    #}
     
     proposal_list = proposal_ratio(rho_current, alpha_add, weights_a, weights_d, choose_add)
     log_proposal_ratioNow = log(proposal_list$ratio)
@@ -54,10 +55,12 @@ update_partition = function(rho_current,
     rho_proposed        = list_output_modify_partition$new_rho
     changed_group_index = list_output_modify_partition$changed_group_index
     
+    #if(options$log_register){
     log_print("rho_current", console = FALSE)
     log_print(rho_current, console = FALSE)
     log_print("rho_proposed", console = FALSE)
     log_print(rho_proposed, console = FALSE)
+    #}
 
     log_prior_ratioNow = log_prior_ratio(
         theta_prior,
@@ -87,11 +90,15 @@ update_partition = function(rho_current,
 
     if (runif(n = 1) < alpha_accept) {
         accepted = TRUE
+        #if(options$log_register){
         log_print("Move ACCEPTED", console = FALSE)
+        #}
         rho_updated = rho_proposed
     } else {
         accepted = FALSE
+        #if(options$log_register){
         log_print("Move REJECTED", console = FALSE)
+        #}
         rho_updated = rho_current
     }
     return(
@@ -370,7 +377,9 @@ shuffle_partition <- function(rho_current, G, sigma_prior, alpha, beta) {
     K <- sample(1:(M - 1), 1)
     
     if (rho_current[K] == 1 && rho_current[K+1] == 1){
+        #if(options$log_register){
         log_print("SHUFFLE: cannot shuffle anything without reproposing the same partition", console = FALSE)
+        #}
         return(rho_current)
     }
     
@@ -452,19 +461,25 @@ shuffle_partition <- function(rho_current, G, sigma_prior, alpha, beta) {
     # compute alpha_shuffle
     alpha_shuffle = min(1, exp(log_likelihood_ratio + log_prior_ratio))
     
+    #if(options$log_register){
     log_print("SHUFFLE proposal", console = FALSE)
     log_print("rho_current", console = FALSE)
     log_print(rho_current, console = FALSE)
     log_print("rho_proposed", console = FALSE)
     log_print(rho_proposed, console = FALSE)
+    #}
 
     if (runif(n = 1) < alpha_shuffle) {
         # accept the shuffle
+        #if(options$log_register){
         log_print("Shuffle ACCEPTED", console = FALSE)
+        #}
         return(rho_proposed)
     } else {
         # reject the shuffle
+        #if(options$log_register){
         log_print("Shuffle REJECTED", console = FALSE)
+        #}
         return(rho_current)
     }
 }
@@ -1087,6 +1102,9 @@ set_options = function(sigma_prior_0,
 #'
 #' @examples
 estimate_Beta_params <- function(mu, var) {
+    if(!(var > 0 && var < mu*(1-mu)))
+        stop("The variance of the Beta must be between 0 and beta_mu*(1-beta_mu)")
+
     alpha <- ((1 - mu) / var - 1 / mu) * mu ^ 2
     beta <- alpha * (1 / mu - 1)
     return(list(alpha = alpha, beta = beta))
@@ -1151,8 +1169,8 @@ Gibbs_sampler = function(data,
         stop("The Wishart's d parameter must be greater or equal than 3")
     if(!(beta_mu > 0 && beta_mu < 1))
         stop("The mean of the Beta must be between 0 and 1")
-    if(!(beta_sig2 > 0 && beta_sig2 < 0.25))
-        stop("The variance of the Beta must be between 0 and 0.25")
+    if(!(beta_sig2 > 0 && beta_sig2 < beta_mu*(1-beta_mu)))
+        stop("The variance of the Beta must be between 0 and beta_mu*(1-beta_mu)")
     if(length(weights_a) != (p-1) || length(weights_d) != (p-1))
         stop("The number of elements in the weights vectors must be equal to p-1")
     if(!(adaptation_step > 0))
@@ -1162,8 +1180,6 @@ Gibbs_sampler = function(data,
     if(!(alpha_target > 0 && alpha_target < 1))
         stop("The target acceptance rate of the Metropolis-Hastings alpha_target must be between 0 and 1")
 
-    # TODO sistemare questo non ho capito cosa intende con "iterations (t) per number of datapoints (n)"
-    # da noi non c'è n ma c'è p, però è l'iterazione attuale oppure n_total_iter?
     t_over_p = n_total_iter / p
   
     beta_params = estimate_Beta_params(beta_mu, beta_sig2)
@@ -1174,7 +1190,9 @@ Gibbs_sampler = function(data,
         K = vector("list", length = niter),
         rho = vector("list", length = niter),
         accepted = vector("numeric", length = niter),
-        S = vector("list", length = niter)
+        S = vector("list", length = niter),
+        sigma = vector("numeric", length = niter),
+        theta = vector("numeric", length = niter)
         )
     
     # initialize iteration counter
@@ -1193,11 +1211,15 @@ Gibbs_sampler = function(data,
     total_graphs = matrix(0,p,p)
     g.start = "empty"
 
+    # save start time for measuring execution time
+    start_time = Sys.time()
+    
     # start the simulation
     for(iter in 1:n_total_iter){
-
+        #if(options$log_register){
         log_print("Iter:", console = FALSE)
         log_print(iter, console = FALSE)
+        #}
 
         # update graph
         if (options$update_graph){
@@ -1333,19 +1355,28 @@ Gibbs_sampler = function(data,
                 save_res$rho[[it_saved]] = rho
                 save_res$accepted[[it_saved]] = list_output_update_partition$accepted
             }
+            if(options$update_sigma_prior){
+                save_res$sigma[[it_saved]] = sigma_prior
+            }
+            if(options$update_theta_prior){
+                save_res$theta[[it_saved]] = theta_prior
+            }
             save_res$S[[it_saved]] = last_S
         }
         
         if(print){
             setTxtProgressBar(pb, iter)
         }
-        
+        #if(options$log_register){
         log_print("last_G:", console = FALSE)
         log_print(last_G, console = FALSE)
         log_print("last_S:", console = FALSE)
         log_print(last_S, console = FALSE)
         log_print("---------------------------------------------------------------------", console = FALSE)
+        #}
     }
+
+    save_res$execution_time = Sys.time() - start_time
     
     #output = list( sample_graphs = sample_graphs, graph_weights = graph_weights, K_hat = "empty",
     #                   all_graphs = niter-nburn, all_weights = all_weights, last_graph = last_G,

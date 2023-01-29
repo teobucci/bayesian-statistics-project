@@ -32,7 +32,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Load the necessary packages
 
-```{r}
+```{r, include = FALSE}
 suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
 suppressWarnings(suppressPackageStartupMessages(library(ACutils)))
 suppressWarnings(suppressPackageStartupMessages(library(mvtnorm)))
@@ -44,7 +44,7 @@ suppressWarnings(suppressPackageStartupMessages(library(mcclust.ext)))
 suppressWarnings(suppressPackageStartupMessages(library(logr)))
 ```
 
-```{r}
+```{r, include = FALSE}
 paths = c(
     "src/utility_functions.R",
     "src/bulky_functions.R",
@@ -66,12 +66,17 @@ for(p in paths){
 
 ```{r}
 # Define true clustering
-rho_true = c(7,8,2,3,6)
+rho_true = c(8,4,8,5)
+
+# Set seed for data generation
+seed_data_gen = 22111996
 
 # Define number of observations
 n = 500
-```
 
+# Define variance of the Beta
+beta_sig2 = 1/16
+```
 
 ```{r}
 z_true = rho_to_z(rho_true)
@@ -79,18 +84,18 @@ r_true = z_to_r(z_true)
 p = length(z_true)
 
 # Generate data
-#sim = Generate_BlockDiagonal(n = n, z_true = z_true)
-sim = Generate_Block(
-    n=n,
-    z_true=z_true,
-    p_block_diag = 0.9,
-    p_block_extra_diag = 0.2,
-    p_inside_block = 1,
-    p_outside_block = 0,
-    elem_out = 5,
-    min_eigenval_correction = 3,
-    seed = 1
-)
+sim = Generate_BlockDiagonal(n = n, z_true = z_true)
+# sim = Generate_Block(
+#     n=n,
+#     z_true=z_true,
+#     p_block_diag = 1,
+#     p_block_extra_diag = 0,
+#     p_inside_block = 0.95,
+#     p_outside_block = 0.1,
+#     elem_out = 5,
+#     min_eigenval_correction = 3,
+#     seed = 1
+# )
 ```
 
 ```{r}
@@ -157,10 +162,10 @@ options = set_options(sigma_prior_0=0.5,
                       weights_d0=rep(1,p-1),
                       alpha_target=0.234,
                       beta_mu=graph_density,
-                      beta_sig2=1/16,
+                      beta_sig2=beta_sig2,
                       d=3,
                       alpha_add=0.5,
-                      adaptation_step=1/(p*1000), # as suggested in Benson
+                      adaptation_step=1/(p*1000),
                       update_sigma_prior=TRUE,
                       update_theta_prior=TRUE,
                       update_weights=TRUE,
@@ -184,7 +189,6 @@ unique_ID = uuid::UUIDgenerate(use.time = TRUE, n = 1, output = c("string"))
 unique_ID = dittodb::hash(unique_ID, n = 8)
 cat("This simulation has been assigned ID:", unique_ID)
 
-#filename = paste("simulation_",gsub(":", "-", Sys.time()),"_file.txt",sep="")
 filename_data = paste("output/data/simulation_", unique_ID, ".rds", sep = "")
 filename_log = paste("output/log/simulation_", unique_ID, ".log", sep = "")
 ```
@@ -193,19 +197,26 @@ Run the simulation
 
 ```{r}
 log_open(file_name = filename_log, show_notes=FALSE, logdir = FALSE)
-start_time <- Sys.time()
 res <- Gibbs_sampler(
     data = sim$data,
-    niter = 8000,
-    nburn = 2000,
+    niter = 10,
+    nburn = 2,
     thin = 1,
     options = options,
     seed = 123456,
     print = TRUE
 )
-cat("Execution time:", Sys.time() - start_time)
 log_close()
+```
 
+Before saving, also append true data
+```{r}
+res$true_rho = rho_true
+res$true_precision = sim$Prec
+res$true_graph = sim$Graph
+```
+
+```{r}
 # save an object to a file
 saveRDS(res, file = filename_data)
 ```
@@ -215,6 +226,8 @@ saveRDS(res, file = filename_data)
 Restore the object
 
 ```{r}
+unique_ID = '1bd23dee'
+filename_data = paste("output/data/simulation_", unique_ID, ".rds", sep = "")
 res = readRDS(file = filename_data)
 ```
 
@@ -225,6 +238,8 @@ Recomputing the partition in other forms and the number of groups
 ```{r}
 r = do.call(rbind, lapply(res$rho, rho_to_r))
 z = do.call(rbind, lapply(res$rho, rho_to_z))
+r_true = rho_to_r(res$true_rho)
+z_true = rho_to_z(res$true_rho)
 num_clusters = do.call(rbind, lapply(res$rho, length))
 num_clusters = as.vector(num_clusters)
 ```
@@ -241,8 +256,9 @@ mean(res$accepted)
 ```{r}
 # https://stackoverflow.com/questions/62061859/abline-not-fitting-to-barplot
 bar_heights = colSums(r)
-bar_heights = bar_heights[-c(length(bar_heights))] # remove last
+cp_true = which(r_true==1)
 color <- ifelse(seq_along(bar_heights) %in% c(cp_true), "red", "gray")
+
 barplot(
     bar_heights,
     names = seq_along(bar_heights),
@@ -250,10 +266,12 @@ barplot(
     space = 0,
     yaxt = "n",
     main="Changepoint frequency distribution",
-    col = color
+    #col = color,
+    cex.names=.6,
+    las=2
 )
-# cp_true = which(r_true==1)
-# abline(v=cp_true-0.5, col="red", lwd=2)
+
+abline(v=cp_true-0.5, col="red", lwd=2)
 legend("topright", legend=c("True"), col=c("red"),
     bty = "n",
     lty = 1,
@@ -275,31 +293,52 @@ lines(x = 1:length(num_clusters), y = num_clusters)
 abline(h = length(z_to_rho(z_true)),
        col = "red",
        lwd = 4)
+legend("topleft", legend=c("True"), col=c("red"),
+    lty = 1,
+    cex = 1)
 ```
 
 ```{r}
 num_clusters_true = length(rho_true)
-color <- ifelse(sort(unique(num_clusters)) %in% c(num_clusters_true), "red", "gray")
 
-hist(
+histogram = hist(
     num_clusters,
     xlab = "Number of groups",
     ylab = "Frequency",
-    border = "NA",
-    main = "Number of groups - Frequency",
-    col = color
+    border = "darkgray",
+    main = paste(
+        "Number of groups - Frequency\n",
+        "Last:",
+        tail(num_clusters, n = 1),
+        "- Mean:",
+        round(mean(num_clusters), 2),
+        "- True:",
+        num_clusters_true
+    ),
+    xaxt = "n"
 )
 
-legend(
-    "topright",
-    legend = c(paste("Last:", tail(num_clusters, n = 1)),
-               paste("Mean:", round(mean(num_clusters),2)),
-               paste("True:", num_clusters_true)),
-    col=c(NA,NA,NA),
-    bty = "n",
-    lty = 1,
-    cex = 0.8
-)
+axis(
+    side = 1,
+    at = histogram$mids,
+    labels = seq(from = floor(histogram$mids[1]),
+                 length.out = length(histogram$mids))
+    ) 
+
+abline(v = num_clusters_true+0.25,
+       col = "red",
+       lwd = 4)
+
+# legend(
+#     "topright",
+#     legend = c(paste("Last:", tail(num_clusters, n = 1)),
+#                paste("Mean:", round(mean(num_clusters),2)),
+#                paste("True:", num_clusters_true)),
+#     col=c(NA,NA,NA),
+#     bty = "n",
+#     lty = 1,
+#     cex = 0.8
+# )
 ```
 
 ### Evolution of the Rand Index
@@ -308,8 +347,6 @@ legend(
 # computing rand index for each iteration
 rand_index = apply(z, 1, mcclust::arandi, z_true)
 
-last = round(tail(rand_index, n=1), 3)
-
 # plotting the traceplot of the index
 plot(
     x = 1:length(rand_index),
@@ -317,7 +354,13 @@ plot(
     type = "n",
     xlab = "Iterations",
     ylab = "Rand Index",
-    main = paste("Rand Index - Traceplot\nLast value:", last)
+    main = paste(
+        "Rand Index - Traceplot\n",
+        "Last:",
+        round(tail(rand_index, n=1), 3),
+        "- Mean:",
+        round(mean(rand_index), 2)
+    )
 )
 lines(x = 1:length(rand_index), y = rand_index)
 abline(h = 1, col = "red", lwd = 4)
@@ -336,11 +379,9 @@ colnames(sim_matrix) = 1:length(z_true)
 heatmap(sim_matrix, Colv = FALSE, Rowv = FALSE)
 ```
 
-### Computing Binder loss e VI
+### Retrieving best partition using Binder loss e VI (deprecated: order is NOT guaranteed)
 
-TODO: is order respected?
-
-```{r}
+```{r, eval=FALSE}
 # compute final partition by minimizing the Binder loss or the VI loss functions
 binder = mcclust::minbinder(sim_matrix)
 VI     = mcclust.ext::minVI(sim_matrix)
@@ -348,22 +389,22 @@ VI     = mcclust.ext::minVI(sim_matrix)
 # compare partitions just in terms of number of clusters and cluster cardinalities
 
 cat("Binder loss")
-table(binder$cl)
+unname(table(binder$cl))
 
 cat("Variance of Information")
-table(VI$cl)
+unname(table(VI$cl))
 
 cat("True")
-table(z_true)
+unname(table(z_true))
 
-# compute Rand Index
-
-cat("Binder loss")
+cat("Binder loss Rand Index")
 mcclust::arandi(binder$cl, z_true, adjust = F)
 
-cat("Variance of Information")
+cat("Variance of Information Rand Index")
 mcclust::arandi(VI$cl, z_true, adjust = T)
 ```
+
+### Retrieving best partition using VI on visited ones (order is guaranteed here)
 
 Here we are satisfied with finding the optimal partition only in the set of those visited, not in all the possible ones. I expect it could work even worse. But at least it guarantees to find an admissible one.
 I would say that it is the implementation of formula (13) of the Corradin-Danese paper (https://doi.org/10.1016/j.ijar.2021.12.019).
@@ -378,7 +419,7 @@ dists <- VI_LB(z, psm_mat = sim_matrix)
 
 # select best partition (among the visited ones)
 final_partition_VI <- z[which.min(dists),]
-table(final_partition_VI)
+unname(table(final_partition_VI))
 
 # compute Rand Index
 mcclust::arandi(final_partition_VI,z_true)
@@ -416,7 +457,7 @@ ACutils::ACheatmap(
 
 ```{r}
 kl_dist = do.call(rbind, lapply(res$K, function(k) {
-    ACutils::KL_dist(Prec_true, k)
+    ACutils::KL_dist(res$true_precision, k)
 }))
 
 last = round(tail(kl_dist, n=1), 3)
@@ -475,7 +516,7 @@ Select the graph and plot it against the original
 ```{r}
 par(mfrow=c(2,1))
 plot_graph(final_graph, "Estimated")
-plot_graph(Graph_true, "True")
+plot_graph(res$true_graph, "True")
 par(mfrow=c(1,1))
 ```
 
@@ -488,6 +529,79 @@ g <- as_tbl_graph(final_graph, directed = F)
 # Plot the graph
 ggraph(g, layout="stress") + geom_edge_link() + geom_node_point()
 ```
+
+
+
+```{r}
+# read edges and nodes
+g1 <- graph.adjacency(res$true_graph)
+edges1 <- get.edgelist(g1)
+edges1 <- cbind(edges1,rep("true",nrow(edges1)))
+
+g2 <- graph.adjacency(final_graph)
+edges2 <- get.edgelist(g2)
+edges2 <- cbind(edges2,rep("estimated",nrow(edges2)))
+
+edges <- as.data.frame(rbind(edges1,edges2))
+names(edges) = c("from","to","graph")
+
+
+nodes = data.frame(vertices=1:25,true_clust=as.factor(z_true), estim_clust=as.factor(final_partition_VI))
+nodes
+
+
+
+#n = nrow(nodes)
+#m = nrow(edges)
+
+# mutate edges and nodes
+#edge_type = sample(c("love", "friendship"), m, replace = TRUE)
+#edge_weight = runif(m, 1, 10)
+#edges = mutate(edges, type = edge_type, weight = edge_weight)
+#nodes = mutate(nodes, id = 1:n) %>% select(id, everything())
+#
+## degree of nodes (number of ties for each dolphin)
+#tb = tibble(v = c(1:n, edges$x, edges$y))
+#d = count(tb, v)$n - 1
+#nodes = mutate(nodes, degree = d)
+
+# create graph from data frames
+
+g = graph_from_data_frame(edges, directed = FALSE, nodes)
+
+#g <- as_tbl_graph(final_graph, directed = F)
+lay = create_layout(g, layout = "fr")
+
+# plot with ggraph
+ggraph(lay) + 
+  geom_edge_link() + 
+  geom_node_point() +
+  theme_graph()
+
+# unset graph theme 
+# unset_graph_style()
+
+# add node names
+ggraph(lay) + 
+  geom_edge_link(edge_colour = "grey") + 
+  geom_node_point(aes(color=true_clust, shape = estim_clust), size = 4) +
+  geom_node_text(aes(label = name), repel=TRUE)
+
+ggraph(lay) + 
+  geom_edge_link(aes(color=graph)) + 
+  geom_node_point(aes(color=true_clust, shape = estim_clust), size = 4) +
+  geom_node_text(aes(label = name), repel=TRUE) +
+  facet_edges(~graph)
+
+ggraph(lay) + 
+  geom_edge_link(edge_colour = "grey") + 
+  geom_node_point(aes(color=true_clust, shape = estim_clust), size = 4) +
+  geom_node_text(aes(label = name), repel=TRUE) +
+  facet_edges(~graph)
+
+
+```
+
 
 
 

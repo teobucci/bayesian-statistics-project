@@ -70,3 +70,11 @@ rsconnect/
 *Bucci_Cipriani_Pagella_Petruso_Puricelli_Venturini.pdf
 .vscode/launch.json
 output*
+dataset*
+simulations.pdf
+matrice_facade.csv
+suonoAle_GGM.R
+docs/\[R.Argiento, P.Bissiri, A.Pievatolo, C.Scrosati\] Multilevel Functional Principal Component Analysis of Facade Sound (2015).pdf
+Suono_centered.Rdat
+Suono_Quantile_Normalized.Rdat
+*/figure-latex/*.pdf
