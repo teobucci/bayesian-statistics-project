@@ -9,14 +9,14 @@ author:
     - Andrea Puricelli^[andrea3.puricelli@mail.polimi.it]
     - Giulio Venturini^[giulio.venturini@mail.polimi.it]
 output:
-    html_document:
-        toc: true
-        toc_float: true
-        number_sections: true
     pdf_document:
         toc: true
         toc_depth: 3
         number_section: true
+    html_document:
+        toc: true
+        toc_float: true
+        number_sections: true
 date: "2023-01-17"
 editor_options:
     chunk_output_type: console
@@ -40,6 +40,9 @@ suppressWarnings(suppressPackageStartupMessages(library(gmp)))
 suppressWarnings(suppressPackageStartupMessages(library(mcclust)))
 suppressWarnings(suppressPackageStartupMessages(library(mcclust.ext)))
 suppressWarnings(suppressPackageStartupMessages(library(logr)))
+suppressWarnings(suppressPackageStartupMessages(library(tidygraph)))
+suppressWarnings(suppressPackageStartupMessages(library(ggraph)))
+suppressWarnings(suppressPackageStartupMessages(library(igraph)))
 ```
 
 ```{r, include = FALSE}
@@ -60,7 +63,7 @@ for(p in paths){
 ```
 
 
-## Generate data
+## Load data
 
 ```{r}
 suono_centered <- load(here::here("dataset","Suono_centered.Rdat"))
@@ -73,9 +76,6 @@ p = ncol(suono_quant_norm)
 ## Set options for the simulation
 
 ```{r}
-# https://stackoverflow.com/a/57571028/16222204
-# Use TRUE/FALSE instead of T/F
-
 options = set_options(sigma_prior_0=0.5,
                       sigma_prior_parameters=list("a"=1,"b"=1,"c"=1,"d"=1),
                       theta_prior_0=1,
@@ -98,9 +98,7 @@ options = set_options(sigma_prior_0=0.5,
 ```
 
 
-## Running the simulation
-
-Run the simulation
+## Run the simulation
 
 ```{r}
 res <- Gibbs_sampler(
@@ -110,9 +108,8 @@ res <- Gibbs_sampler(
     thin = 1,
     options = options,
     seed = 123456,
-    print = TRUE
+    print = FALSE
 )
-
 
 res_norm <- Gibbs_sampler(
     data = suono_quant_norm,
@@ -121,17 +118,20 @@ res_norm <- Gibbs_sampler(
     thin = 1,
     options = options,
     seed = 123456,
-    print = TRUE
+    print = FALSE
 )
 ```
 
 
 ```{r}
+# create output directory if not present
+dir.create(file.path("output", "real_dataset"), showWarnings = FALSE, recursive = TRUE)
+
 # save an object to a file
-filename_data = paste("output/realtest_cent", ".rds", sep = "")
+filename_data = file.path("output","real_dataset","realtest_cent.rds")
 saveRDS(res, file = filename_data)
 
-filename_data = paste("output/realtest_norm", ".rds", sep = "")
+filename_data = file.path("output","real_dataset","realtest_norm.rds")
 saveRDS(res_norm, file = filename_data)
 ```
 
@@ -140,8 +140,9 @@ saveRDS(res_norm, file = filename_data)
 Restore the object
 
 ```{r} 
-#filename_data = paste("output/realtest_cent", ".rds", sep = "") ### CHOOSE ANALYSIS
-filename_data = paste("output/realtest_norm", ".rds", sep = "")
+# CHOOSE ANALYSIS
+#filename_data = file.path("output","real_dataset","realtest_cent.rds")
+filename_data = file.path("output","real_dataset","realtest_norm.rds")
 res = readRDS(file = filename_data)
 ```
 
@@ -168,11 +169,7 @@ mean(res$accepted)
 ### Barplot of changepoints
 
 ```{r}
-# https://stackoverflow.com/questions/62061859/abline-not-fitting-to-barplot
 bar_heights = colSums(r)
-#cp_true = which(r_true==1)
-#color <- ifelse(seq_along(bar_heights) %in% c(cp_true), "red", "gray")
-
 barplot(
     bar_heights,
     names = seq_along(bar_heights),
@@ -180,16 +177,9 @@ barplot(
     space = 0,
     yaxt = "n",
     main="Changepoint frequency distribution",
-    #col = color,
     cex.names=.6,
     las=2
 )
-
-#abline(v=cp_true-0.5, col="red", lwd=2)
-legend("topright", legend=c("True"), col=c("red"),
-    bty = "n",
-    lty = 1,
-    cex = 0.6)
 ```
 
 ### Evolution of the number of clusters
@@ -204,17 +194,9 @@ plot(
     main = "Number of groups - Traceplot"
 )
 lines(x = 1:length(num_clusters), y = num_clusters)
-#abline(h = length(z_to_rho(z_true)),
-#       col = "red",
-#       lwd = 4)
-legend("topleft", legend=c("True"), col=c("red"),
-    lty = 1,
-    cex = 1)
 ```
 
 ```{r}
-#num_clusters_true = length(rho_true)
-
 histogram = hist(
     num_clusters,
     xlab = "Number of groups",
@@ -236,17 +218,6 @@ axis(
     labels = seq(from = floor(histogram$mids[1]),
                  length.out = length(histogram$mids))
     ) 
-
-# legend(
-#     "topright",
-#     legend = c(paste("Last:", tail(num_clusters, n = 1)),
-#                paste("Mean:", round(mean(num_clusters),2)),
-#                paste("True:", num_clusters_true)),
-#     col=c(NA,NA,NA),
-#     bty = "n",
-#     lty = 1,
-#     cex = 0.8
-# )
 ```
 
 
@@ -255,7 +226,6 @@ axis(
 ```{r}
 # compute similarity matrix 
 sim_matrix <- salso::psm(z)
-
 
 heatmap(sim_matrix, Colv = FALSE, Rowv = FALSE)
 ```
@@ -276,7 +246,6 @@ dists <- VI_LB(z, psm_mat = sim_matrix)
 # select best partition (among the visited ones)
 final_partition_VI <- z[which.min(dists),]
 unname(table(final_partition_VI))
-
 ```
 
 ## Graph
@@ -352,7 +321,6 @@ edges2 <- cbind(edges2,rep("estimated",nrow(edges2)))
 edges <- as.data.frame(rbind(edges2))
 names(edges) = c("from","to","graph")
 
-
 nodes = data.frame(vertices=1:p, estim_clust=as.factor(final_partition_VI))
 nodes
 
@@ -364,8 +332,6 @@ ggraph(lay) +
   geom_edge_link(edge_colour = "grey") + 
   geom_node_point(aes(color=estim_clust), size = 4) +
   geom_node_text(aes(label = name), repel=TRUE)
-
-
 ```
 
 
