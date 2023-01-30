@@ -7,7 +7,7 @@ library(doParallel)
 source("02a_simulation_grid_generation.R")
 
 # Defining function for cycling on grid (in parallel)
-Gibbs <- function(i,grid){
+Gibbs <- function(i, grid){
     suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
     suppressWarnings(suppressPackageStartupMessages(library(ACutils)))
     suppressWarnings(suppressPackageStartupMessages(library(mvtnorm)))
@@ -105,9 +105,7 @@ Gibbs <- function(i,grid){
     filename_data = paste("output/data/simulation_", unique_ID, ".rds", sep = "")
     filename_log = paste("output/log/simulation_", unique_ID, ".log", sep = "")
     
-    #if(options$log_register){
-    #    log_open(file_name = filename_log, show_notes=FALSE, logdir = FALSE)
-    #}
+    #log_open(file_name = filename_log, show_notes=FALSE, logdir = FALSE)
     res <- Gibbs_sampler(
         data = sim$data,
         niter = 8000,
@@ -117,9 +115,7 @@ Gibbs <- function(i,grid){
         seed = 123456,
         print = TRUE
     )
-    #if(options$log_register){
-    #    log_close()
-    #}
+    #log_close()
     
     res$true_rho = rho_true
     res$true_precision = sim$Prec
