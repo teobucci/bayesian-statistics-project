@@ -165,11 +165,5 @@ grid7 <- cbind(simulation_id = simulation_id,
 # Creating final grid
 
 grid <- rbind(grid1,grid2,grid3,grid4,grid5,grid6,grid7)
-rm(grid1)
-rm(grid2)
-rm(grid3)
-rm(grid4)
-rm(grid5)
-rm(grid6)
-rm(grid7)
 
+rm(list=setdiff(ls(), "grid"))
