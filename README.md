@@ -85,6 +85,30 @@ make prese2
 make prese3
 ```
 
+To compile the report, run
+
+```
+make report
+```
+
+To compil everything, run
+
+```
+make pdf
+```
+
+To remove temporary `LaTeX` files, run
+
+```
+make clean
+```
+
+To remove both temporary and pdf files, run
+
+```
+make distclean
+```
+
 # Running the analysis
 
 The repository contains different files to perform the analysis
