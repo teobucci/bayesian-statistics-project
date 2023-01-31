@@ -91,7 +91,7 @@ To compile the report, run
 make report
 ```
 
-To compil everything, run
+To compile everything, run
 
 ```
 make pdf
