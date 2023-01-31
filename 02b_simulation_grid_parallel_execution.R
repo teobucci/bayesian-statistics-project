@@ -1,7 +1,7 @@
 rm(list=ls())
-library(doSNOW)
-library(foreach)
-library(doParallel)
+#library(doSNOW)
+#library(foreach)
+#library(doParallel)
 
 # Import gridsearch table
 source("02a_simulation_grid_generation.R")
@@ -127,6 +127,36 @@ Gibbs <- function(i, grid){
 }
 
 
+# Run the simulations in parallel (Teo version) --------------------------------
+
+# Load libraries
+library(parallel)
+library(pbapply)
+
+# All the iterations that have to be processed
+iterations <- seq_len(nrow(grid))
+
+# Detect how many cores are available
+n_cores <- detectCores()
+
+# Initiate the clusters
+cl <- makeCluster(n_cores/2)
+
+# Make the Gibbs function available to all cores
+clusterExport(cl, varlist = list("Gibbs","grid"))
+
+# Setup the wrapper
+perm_wrapper <- function(iteration) {Gibbs(iteration, grid)}
+
+# Run the parallel stuff
+results <- pbsapply(iterations, perm_wrapper, cl = cl)
+
+# Stop the clusters
+stopCluster(cl)
+
+# End Teo version --------------------------------------------------------------
+
+
 #Setup backend to use many processors
 totalCores = detectCores()
 cluster <- makeCluster(totalCores[1])
@@ -148,6 +178,8 @@ results <- foreach(i = 1:nrow(grid), .combine=rbind, .options.snow = opts) %dopa
 
 #Stop cluster
 stopCluster(cluster)
+
+# ------------------------------------------------------------------------------
 
 # Append IDs to the grid
 for(i in 1:nrow(grid)){
