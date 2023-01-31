@@ -1,0 +1,245 @@
+---
+title: "Stochastic Block Model Prior with Ordering Constraints for Gaussian Graphical Models"
+author:
+    - Alessandro Colombi (Supervisor)^[a.colombi10@campus.unimib.it]
+    - Teo Bucci^[teo.bucci@mail.polimi.it]
+    - Filippo Cipriani^[filippo.cipriani@mail.polimi.it]
+    - Filippo Pagella^[filippo.pagella@mail.polimi.it]
+    - Flavia Petruso^[flavia.petruso@mail.polimi.it]
+    - Andrea Puricelli^[andrea3.puricelli@mail.polimi.it]
+    - Giulio Venturini^[giulio.venturini@mail.polimi.it]
+output:
+    pdf_document:
+        toc: true
+        toc_depth: 3
+        number_section: true
+    html_document:
+        toc: true
+        toc_float: true
+        number_sections: true
+#date: "2023-01-17"
+editor_options:
+    chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, cache=FALSE)
+```
+\newpage
+
+# Recap table
+
+```{r, include = FALSE}
+suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
+suppressWarnings(suppressPackageStartupMessages(library(ACutils)))
+suppressWarnings(suppressPackageStartupMessages(library(mvtnorm)))
+suppressWarnings(suppressPackageStartupMessages(library(salso)))
+suppressWarnings(suppressPackageStartupMessages(library(FGM)))
+suppressWarnings(suppressPackageStartupMessages(library(gmp)))
+suppressWarnings(suppressPackageStartupMessages(library(mcclust)))
+suppressWarnings(suppressPackageStartupMessages(library(mcclust.ext)))
+suppressWarnings(suppressPackageStartupMessages(library(logr)))
+suppressWarnings(suppressPackageStartupMessages(library(tidygraph)))
+suppressWarnings(suppressPackageStartupMessages(library(ggraph)))
+suppressWarnings(suppressPackageStartupMessages(library(igraph)))
+suppressWarnings(suppressPackageStartupMessages(library(pbapply)))
+suppressWarnings(suppressPackageStartupMessages(library(latex2exp)))
+suppressWarnings(suppressPackageStartupMessages(library(viridis)))
+library(knitr)
+library(kableExtra)
+```
+```{r, include = FALSE}
+paths = c(
+    "src/utility_functions.R",
+    "src/bulky_functions.R",
+    "src/data_generation.R"
+)
+
+for(p in paths){
+    path = file.path(p)
+    if(file.exists(path)){
+        source(path)
+    } else {
+        cat("File",path,"was not found in directory, please check.")
+    }
+}
+```
+
+
+```{r, echo = FALSE, include=FALSE, warning = FALSE}
+filename_data = "output/simulation_table.rds"
+n = 1
+grid = readRDS(file = filename_data)
+grid_posterior <- grid
+grid_posterior[20,]$initial_partition <- "singletons"
+
+acceptance_rates <- numeric(nrow(grid))
+estimated_partition <- numeric(nrow(grid))
+VI_index <- numeric(nrow(grid))
+randindex <- numeric(nrow(grid))
+kl_dist_last <- numeric(nrow(grid))
+time <- numeric(nrow(grid))
+
+for(i in 1:nrow(grid)){
+    simulation_id = grid[i,]$simulation_id
+    rho_true <- grid[i,]$rho_true
+    z_true = rho_to_z(rho_true)
+    r_true = z_to_r(z_true)
+    p = length(z_true)
+    num_clusters_true = length(rho_true)
+    sim <- read_rds(file.path("output","data",paste("simulation_",simulation_id,".rds",sep="")))
+    r = do.call(rbind, lapply(sim$rho, rho_to_r))
+    z = do.call(rbind, lapply(sim$rho, rho_to_z))
+    r_true = rho_to_r(sim$true_rho)
+    z_true = rho_to_z(sim$true_rho)
+    num_clusters = do.call(rbind, lapply(sim$rho, length))
+    num_clusters = as.vector(num_clusters)
+    
+    sim_matrix <- salso::psm(z)
+    # adding names for the heatmap
+    rownames(sim_matrix) = 1:length(z_true)
+    colnames(sim_matrix) = 1:length(z_true)
+   
+    # Acceptance rate
+    acceptance_rates[i] <- round(mean(sim$accepted),4)
+    
+    
+    library("Rcpp")
+    library("RcppArmadillo")
+    sourceCpp("src/wade.cpp")
+    dists <- VI_LB(z, psm_mat = sim_matrix)
+    # Estimated partition
+    final_partition_VI <- z[which.min(dists),]
+    VI_index[i] <- final_partition_VI
+    estimated_partition[i] <- list(unname(table(final_partition_VI)))
+    unname(table(final_partition_VI))
+    # Randindex
+    randindex[i] <- round(mcclust::arandi(final_partition_VI,z_true),4)
+    
+   
+    kl_dist = ACutils::KL_dist(sim$true_precision, sim$K[[length(sim$K)]])
+    kl_dist_last[i] <- round(kl_dist,4)
+    
+    time[i] <- round(sim$execution_time,2)
+   
+}
+
+
+```
+
+```{r, echo=FALSE, results='asis'}
+grid_posterior_complete = cbind(grid_posterior, acceptance_rates=acceptance_rates,
+                       estimated_partition=estimated_partition,
+                       VI_index = VI_index,
+                       randindex = randindex,
+                       kl_dist = kl_dist_last,
+                       time = time)
+grid_posterior_df <- as.data.frame(grid_posterior_complete)
+grid_posterior_df$beta_sig2 <- lapply(grid_posterior_df$beta_sig2,function(x){round(x,3)})
+names(grid_posterior_df) <- c("sim_id","n", "p", "data_gen", "seed", "part0", "B_sigma", 
+                              "rho_true", "accept", "rho_est", "VI", "RI","KL","time")       
+
+knitr::kable(as.data.frame(grid_posterior_df), booktabs=TRUE, escape = TRUE) %>% 
+  kable_styling(latex_options="scale_down")
+
+```
+
+
+\newpage
+
+# KL distances comparison
+
+```{r, echo = FALSE, fig.align='center', results = 'asis', fig.height = 3.5, out.width="50%"}
+options <- list(true_graph_and_K = TRUE,
+                estimated_graph_and_K = TRUE,
+                plot_graph = TRUE,
+                changepoint_kl = TRUE,
+                groups_number = FALSE,
+                theta_sigma = TRUE)
+#pbsapply(1:nrow(grid), posterior_analysis)
+i <- 1
+simulation_id = grid[i,]$simulation_id
+sim <- read_rds(file.path("output","data",paste("simulation_",simulation_id,".rds",sep="")))
+# kl distance
+kl_dist = do.call(rbind, lapply(sim$K, function(k) {
+    ACutils::KL_dist(sim$true_precision, k)
+}))
+    
+kl_distances <- list(kl_dist)
+
+for(i in 2:nrow(grid)){
+    simulation_id = grid[i,]$simulation_id
+    sim <- read_rds(file.path("output","data",paste("simulation_",simulation_id,".rds",sep="")))
+    # kl distance
+    kl_dist = do.call(rbind, lapply(sim$K, function(k) {
+        ACutils::KL_dist(sim$true_precision, k)
+    }))
+    temp_list <- list(kl_dist)
+    kl_distances <- append(kl_distances,temp_list)
+    
+}
+```
+
+Simulations with different values of n:
+```{r, echo = FALSE, fig.align='center', results = 'asis'}
+vect_n = 25:31
+vect_n_labels = sapply(vect_n, function(x){grid[x,]$n})
+vect_n_palette = viridis(length(vect_n))
+plot(
+    x = 1:length(kl_distances[[1]])+1000,
+    y = kl_dist,
+    type = "n",
+    xlab = "Iterations",
+    ylab = "K-L distance",
+    main = "Kullback Leibler distance:",
+    ylim = c(0,13)
+)
+legend("topright", title = "n",legend=vect_n_labels
+       ,fill = vect_n_palette)
+for(i in vect_n){
+    lines(x = 1:length(kl_distances[[i]]), y = kl_distances[[i]], col = vect_n_palette[i-vect_n[1]+1], lwd = 2)
+}
+
+```
+
+Simulations with different values of p:
+```{r, echo = FALSE, fig.align='center', results = 'asis'}
+vect_p = 32:41
+vect_p_labels = sapply(vect_p, function(x){grid[x,]$p})
+vect_p_palette = viridis(length(vect_p))
+plot(
+    x = 1:length(kl_distances[[1]])+1000,
+    y = kl_dist,
+    type = "n",
+    xlab = "Iterations",
+    ylab = "K-L distance",
+    main = "Kullback Leibler distance:",
+    ylim = c(0,0.7)
+)
+legend("topright", title = "p",legend=vect_p_labels
+       ,fill = vect_p_palette)
+for(i in vect_p){
+    lines(x = 1:length(kl_distances[[i]]), y = kl_distances[[i]], col = vect_p_palette[i-vect_p[1]+1], lwd = 2)
+}
+```
+
+Simulations with different values of Beta_sig2 (notice the scale of y):
+```{r, echo = FALSE, fig.align='center', results = 'asis'}
+vect_s = 9:17
+vect_s_labels = sapply(vect_s, function(x){round(grid[x,]$beta_sig2,2)})
+vect_s_palette = viridis(length(vect_s))
+plot(
+    x = 1:length(kl_distances[[1]])+1000,
+    y = kl_dist,
+    type = "n",
+    xlab = "Iterations",
+    ylab = "K-L distance",
+    main = "Kullback Leibler distance:",
+    ylim = c(0.18,0.22)
+)
+legend("topright", title = "b_sig2",legend=vect_s_labels
+       ,fill = vect_s_palette)
+for(i in vect_s){
+    lines(x = 1:length(kl_distances[[i]]), y = kl_distances[[i]], col = vect_s_palette[i-vect_s[1]+1], lwd = 2)
+}
+```
