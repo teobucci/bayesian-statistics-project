@@ -49,6 +49,7 @@ po/*~
 rsconnect/
 
 *.DS_Store
+
 *.aux
 *.bbl
 *.bcf
@@ -66,8 +67,14 @@ rsconnect/
 *.nav
 *main-blx.bib
 *.pyg
+*.xdv
+*.dvi
+*.ps
+
 *main.pdf
 *Bucci_Cipriani_Pagella_Petruso_Puricelli_Venturini.pdf
+*Stochastic_Block_Model_Prior_with_Ordering_Constraints_for_Gaussian_Graphical_Models.pdf
+
 .vscode/launch.json
 output*
 dataset*
@@ -79,3 +86,4 @@ Suono_centered.Rdat
 Suono_Quantile_Normalized.Rdat
 */figure-latex/*.pdf
 03_analysis_real_dataset.pdf
+
