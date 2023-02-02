@@ -24,8 +24,6 @@ editor_options:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# pdf(file="saving_plot4.pdf")
-# dev.off()
 ```
 
 # Simulations
@@ -328,17 +326,6 @@ axis(
 abline(v = num_clusters_true+0.25,
        col = "red",
        lwd = 4)
-
-# legend(
-#     "topright",
-#     legend = c(paste("Last:", tail(num_clusters, n = 1)),
-#                paste("Mean:", round(mean(num_clusters),2)),
-#                paste("True:", num_clusters_true)),
-#     col=c(NA,NA,NA),
-#     bty = "n",
-#     lty = 1,
-#     cex = 0.8
-# )
 ```
 
 ### Evolution of the Rand Index
