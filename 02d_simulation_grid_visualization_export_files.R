@@ -12,7 +12,6 @@ suppressWarnings(suppressPackageStartupMessages(library(ggraph)))
 suppressWarnings(suppressPackageStartupMessages(library(igraph)))
 suppressWarnings(suppressPackageStartupMessages(library(pbapply)))
 suppressWarnings(suppressPackageStartupMessages(library(latex2exp)))
-##### options(warn=1)
 
 paths = c(
     "src/utility_functions.R",
@@ -42,49 +41,30 @@ posterior_analysis <- function(i){
     dir.create(output_path, showWarnings = FALSE, recursive = TRUE)
     
     sim <- read_rds(file.path("output","data",paste("simulation_",simulation_id,".rds",sep="")))
-    rho_true <- grid[i,]$rho_true
+    
+    # compute other partition forms
+    rho_true = sim$true_rho
+    r_true = rho_to_r(rho_true)
     z_true = rho_to_z(rho_true)
-    r_true = z_to_r(z_true)
     p = length(z_true)
     num_clusters_true = length(rho_true)
-    
-    Prec_true = sim$true_precision # precision matrix
-    Graph_true = sim$true_graph # true graph
-    Graph_true[col(Graph_true)==row(Graph_true)] = 0 # remove self loops
-    graph_density = sum(sim$Graph) / (p*(p-1))
-    
+    rho = sim$rho
     r = do.call(rbind, lapply(sim$rho, rho_to_r))
     z = do.call(rbind, lapply(sim$rho, rho_to_z))
-    r_true = rho_to_r(sim$true_rho)
-    z_true = rho_to_z(sim$true_rho)
     num_clusters = do.call(rbind, lapply(sim$rho, length))
     num_clusters = as.vector(num_clusters)
+
+    # graph related quantities
+    last_plinks = tail(sim$G, n=1)[[1]]
+    bfdr_select = BFDR_selection(last_plinks, tol = seq(0.1, 1, by = 0.001))
+    G_est = bfdr_select$best_truncated_graph # estimated adjacency
     
-    mean(sim$accepted) # acceptance frequency
-    # computing rand index for each iteration
-    rand_index = apply(z, 1, mcclust::arandi, z_true)
-    
-    # compute VI loss for all visited partitions
-    # compute similarity matrix 
-    sim_matrix <- salso::psm(z)
-    # adding names for the heatmap
-    rownames(sim_matrix) = 1:length(z_true)
-    colnames(sim_matrix) = 1:length(z_true)
-    dists <- VI_LB(z, psm_mat = sim_matrix)
-    
-    # select best partition (among the visited ones)
-    final_partition_VI <- z[which.min(dists),]
-    unname(table(final_partition_VI))
-    
-    # compute Rand Index
-    mcclust::arandi(final_partition_VI,z_true)
+    # --------------------------------------------------------------------------
     
     # kl distance
     kl_dist = do.call(rbind, lapply(sim$K, function(k) {
         ACutils::KL_dist(sim$true_precision, k)
     }))
-    last = round(tail(kl_dist, n=1), 3)
-    
     
     last_G = sim$G[[length(sim$G)]]
     bfdr_select = BFDR_selection(last_G, tol = seq(0.1, 1, by = 0.001))
@@ -104,12 +84,22 @@ posterior_analysis <- function(i){
     nodes
     g = graph_from_data_frame(edges, directed = FALSE, nodes)
     lay = create_layout(g, layout = "fr")
+    # computing rand index for each iteration
+    rand_index = apply(z, 1, mcclust::arandi, z_true)
     
-    last_G[col(last_G)==row(last_G)] = 1 
+    # compute VI
+    sim_matrix <- salso::psm(z)
+    dists <- VI_LB(z, psm_mat = sim_matrix)
     
-    if(options$true_graph_and_K){
-        pdf(file=file.path(output_path,"true_G_K.pdf"), width = 16)
+    # select best partition (among the visited ones)
+    best_partition_index = which.min(dists)
+    rho_est = rho[[best_partition_index]]
+    z_est = z[best_partition_index,]
+
+    if(options$comparison_G_true_est){
+        pdf(file=file.path(output_path,"comparison_G_true_est.pdf"), width = 16, height = 9)
         par(mfrow=c(1,2))
+        
         ACutils::ACheatmap(
             sim$true_graph,
             use_x11_device = F,
@@ -120,12 +110,11 @@ posterior_analysis <- function(i){
             col.center = "grey50",
             col.lower = "white"
         )
-        
         ACutils::ACheatmap(
-            sim$true_precision,
+            G_est,
             use_x11_device = F,
             horizontal = F,
-            main = "Precision matrix K",
+            main = "\nEstimated Graph",
             center_value = NULL,
             col.upper = "black",
             col.center = "grey50",
@@ -134,33 +123,31 @@ posterior_analysis <- function(i){
         dev.off()
     }
     
-    
-    if(options$estimated_graph_and_K){
-        pdf(file=file.path(output_path,"estimated_G_K.pdf"), width = 16)
+    if(options$comparison_K_true_est){
+        pdf(file=file.path(output_path,"comparison_K_true_est.pdf"), width = 16, height = 9)
         par(mfrow=c(1,2))
         ACutils::ACheatmap(
-            last_G,
+            sim$true_precision,
             use_x11_device = F,
             horizontal = F,
-            main = "\nEstimated plinks matrix",
+            main = "Precision matrix",
             center_value = NULL,
             col.upper = "black",
             col.center = "grey50",
             col.lower = "white"
         )
-        
+
         ACutils::ACheatmap(
             tail(sim$K,n=1)[[1]],
             use_x11_device = F,
             horizontal = F,
-            main = "\nEstimated Precision matrix K",
+            main = "\nEstimated Precision matrix",
             center_value = NULL,
             col.upper = "black",
             col.center = "grey50",
             col.lower = "white"
         )
         dev.off()
-        
     }
     
     if(options$plot_graph){
@@ -229,7 +216,6 @@ posterior_analysis <- function(i){
         )
         lines(x = seq_along(kl_dist), y = kl_dist)
         dev.off()
-        
     }
     
 
@@ -259,15 +245,12 @@ posterior_analysis <- function(i){
 
     }
     
-    
-    
-    if(options$groups_number){
-        par(mfrow=c(1,2))
-        histogram = hist(
-            num_clusters,
+    if(options$numgroups_frequency){
+        pdf(file=file.path(output_path,"numgroups_frequency.pdf"), width = 16, height = 9)
+        barplot(
+            table(num_clusters),
             xlab = "Number of groups",
             ylab = "Frequency",
-            border = "darkgray",
             main = paste(
                 "Number of groups - Frequency\n",
                 "Last:",
@@ -276,23 +259,13 @@ posterior_analysis <- function(i){
                 round(mean(num_clusters), 2),
                 "- True:",
                 num_clusters_true
-            ),
-            xaxt = "n"
+            )
         )
-        
-        axis(
-            side = 1,
-            at = histogram$mids,
-            labels = seq(from = floor(histogram$mids[1]),
-                         length.out = length(histogram$mids))
-        ) 
-        
-        abline(v = num_clusters_true+0.25,
-               col = "red",
-               lwd = 4)
-        
-        
-        
+        dev.off()
+    }
+    
+    if(options$numgroups_traceplot){
+        pdf(file=file.path(output_path,"numgroups_traceplot.pdf"), width = 16, height = 9)
         plot(
             x = seq_along(num_clusters),
             y = num_clusters,
@@ -308,15 +281,18 @@ posterior_analysis <- function(i){
         legend("topleft", legend=c("True"), col=c("red"),
                lty = 1,
                cex = 1)
+        dev.off()
     }
     
 }
+
 filename_data = "output/simulation_table.rds"
 grid = readRDS(file = filename_data)
-options <- list(true_graph_and_K = TRUE,
-                estimated_graph_and_K = TRUE,
+options <- list(comparison_G_true_est = TRUE,
+                comparison_K_true_est = TRUE,
                 plot_graph = TRUE,
                 changepoint_kl = TRUE,
-                groups_number = FALSE,
+                numgroups_frequency = TRUE,
+                numgroups_traceplot = FALSE,
                 theta_sigma = TRUE)
 pbsapply(1:nrow(grid), posterior_analysis)
