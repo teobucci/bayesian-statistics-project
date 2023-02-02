@@ -129,6 +129,9 @@ Gibbs <- function(i, grid){
     res$true_rho = rho_true
     res$true_precision = sim$Prec
     res$true_graph = sim$Graph
+    # remove self loops
+    res$true_graph[col(res$true_graph)==row(res$true_graph)] = 0
+    
     
     # save an object to a file
     saveRDS(res, file = filename_data)
