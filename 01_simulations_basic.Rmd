@@ -298,13 +298,10 @@ legend("topleft", legend=c("True"), col=c("red"),
 ```
 
 ```{r}
-num_clusters_true = length(rho_true)
-
-histogram = hist(
-    num_clusters,
+barplot(
+    table(num_clusters),
     xlab = "Number of groups",
     ylab = "Frequency",
-    border = "darkgray",
     main = paste(
         "Number of groups - Frequency\n",
         "Last:",
@@ -313,20 +310,8 @@ histogram = hist(
         round(mean(num_clusters), 2),
         "- True:",
         num_clusters_true
-    ),
-    xaxt = "n"
+    )
 )
-
-axis(
-    side = 1,
-    at = histogram$mids,
-    labels = seq(from = floor(histogram$mids[1]),
-                 length.out = length(histogram$mids))
-    ) 
-
-abline(v = num_clusters_true+0.25,
-       col = "red",
-       lwd = 4)
 ```
 
 ### Evolution of the Rand Index
