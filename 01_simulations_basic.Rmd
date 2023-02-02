@@ -118,7 +118,7 @@ ACutils::ACheatmap(
     sim$Prec,
     use_x11_device = F,
     horizontal = F,
-    main = "Precision matrix K",
+    main = "Precision matrix",
     center_value = NULL,
     col.upper = "black",
     col.center = "grey50",
