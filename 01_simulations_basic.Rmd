@@ -368,25 +368,42 @@ unname(z_est)
 mcclust::arandi(z_est, z_true)
 ```
 
+## Graph
 
-
-
-
-```
-
+Extract last plinks
 
 ```{r}
-
-
+last_plinks = tail(res$G, n=1)[[1]]
 ```
 
-## Graph
+Criterion 1 to select the threshold (should not work very well) and assign final graph
+
+```{r}
+threshold = 0.5
+G_est <- matrix(0,p,p)
+G_est[which(last_plinks>threshold)] = 1
+```
+
+Criterion 2 to select the threshold
+
+```{r}
+bfdr_select = BFDR_selection(last_plinks, tol = seq(0.1, 1, by = 0.001))
+```
+
+Inspect the threshold and assign final graph
+
+```{r}
+bfdr_select$best_treshold
+G_est = bfdr_select$best_truncated_graph
+```
+
 
 ### Plot estimated matrices
 
+
 ```{r}
 ACutils::ACheatmap(
-    tail(res$G,n=1)[[1]],
+    last_plinks,
     use_x11_device = F,
     horizontal = F,
     main = "Estimated plinks matrix",
@@ -440,43 +457,7 @@ lines(x = seq_along(kl_dist), y = kl_dist)
 
 ### Graph visualization
 
-Extract last plinks
-
-```{r}
-last_G = res$G[[length(res$G)]]
-```
-
-Criterion 1 to select the threshold (should not work very well) and assign final graph
-
-```{r}
-threshold = 0.5
-final_graph <- matrix(0,p,p)
-final_graph[which(last_G>threshold)] = 1
-```
-
-Criterion 2 to select the threshold
-
-```{r}
-bfdr_select = BFDR_selection(last_G, tol = seq(0.1, 1, by = 0.001))
-```
-
-Inspect the threshold and assign final graph
-
-```{r}
-bfdr_select$best_treshold
-final_graph = bfdr_select$best_truncated_graph
-```
-
-Select the graph and plot it against the original
-
-Fancy stuff work in progress
-
-```{r}
-library(tidygraph)
-library(ggraph)
-```
-
-
+Plot against the original
 
 ```{r}
 # read edges and nodes
