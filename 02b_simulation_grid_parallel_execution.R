@@ -5,6 +5,7 @@ library(doParallel)
 
 # Import gridsearch table
 source("02a_simulation_grid_generation.R")
+grid = make_grid()
 
 # Defining function for cycling on grid (in parallel)
 Gibbs <- function(i, grid){
