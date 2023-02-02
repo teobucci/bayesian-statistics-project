@@ -164,7 +164,6 @@ posterior_analysis <- function(i){
     if(options$changepoint_kl){
         pdf(file=file.path(output_path,"indexes.pdf"), width = 16, height = 9)
         par(mfrow=c(1,3))
-        ### Barplot of changepoints
         bar_heights = colSums(r)
         cp_true = which(r_true==1)
         color <- ifelse(seq_along(bar_heights) %in% c(cp_true), "red", "gray")
@@ -176,7 +175,6 @@ posterior_analysis <- function(i){
             space = 0,
             yaxt = "n",
             main = "\nChangepoint\n frequency distribution",
-            #col = color,
             cex.names=.6,
             las=2
         )
@@ -186,8 +184,9 @@ posterior_analysis <- function(i){
                bty = "n",
                lty = 1,
                cex = 0.6)
-        #title(paste("Acceptance frequency:",round(mean(sim$accepted),2)), line = -20)
         
+        # --------------------------------------------
+
         plot(
             x = seq_along(rand_index),
             y = rand_index,
@@ -205,6 +204,7 @@ posterior_analysis <- function(i){
         lines(x = seq_along(rand_index), y = rand_index)
         abline(h = 1, col = "red", lwd = 4)
         
+        # --------------------------------------------
         
         plot(
             x = seq_along(kl_dist),
@@ -212,7 +212,10 @@ posterior_analysis <- function(i){
             type = "n",
             xlab = "Iterations",
             ylab = "K-L distance",
-            main = paste("\nKullback Leibler distance\nLast value:", last)
+            main = paste(
+                "\nKullback-Leibler distance\nLast:",
+                round(tail(kl_dist, n=1), 3)
+                )
         )
         lines(x = seq_along(kl_dist), y = kl_dist)
         dev.off()
@@ -232,6 +235,8 @@ posterior_analysis <- function(i){
         )
         lines(x = seq_along(sim$sigma), y = sim$sigma, lwd = 0.8)
         
+        # --------------------------------------------
+
         plot(
             x = seq_along(sim$theta),
             y = sim$theta,
