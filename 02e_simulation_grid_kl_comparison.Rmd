@@ -32,9 +32,6 @@ knitr::opts_chunk$set(
     fig.align = 'center'
 )
 ```
-\newpage
-
-# Recap table
 
 ```{r, include = FALSE}
 suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
@@ -52,8 +49,8 @@ suppressWarnings(suppressPackageStartupMessages(library(igraph)))
 suppressWarnings(suppressPackageStartupMessages(library(pbapply)))
 suppressWarnings(suppressPackageStartupMessages(library(latex2exp)))
 suppressWarnings(suppressPackageStartupMessages(library(viridis)))
-library(knitr)
-library(kableExtra)
+suppressWarnings(suppressPackageStartupMessages(library(knitr)))
+suppressWarnings(suppressPackageStartupMessages(library(kableExtra)))
 ```
 ```{r, include = FALSE}
 paths = c(
@@ -72,181 +69,93 @@ for(p in paths){
 }
 ```
 
+\newpage
 
-```{r, echo = FALSE, include=FALSE, warning = FALSE}
-filename_data = "output/simulation_table.rds"
-n = 1
+# Kullback-Leibler distances comparison
+
+```{r, include=FALSE, warning = FALSE}
+
+filename_data = file.path("output_noburnin", "simulation_table.rds")
 grid = readRDS(file = filename_data)
-grid_posterior <- grid
-grid_posterior[20,]$initial_partition <- "singletons"
 
-acceptance_rates <- numeric(nrow(grid))
-estimated_partition <- numeric(nrow(grid))
-VI_index <- numeric(nrow(grid))
-randindex <- numeric(nrow(grid))
-kl_dist_last <- numeric(nrow(grid))
-time <- numeric(nrow(grid))
+kl_matrix = NULL
 
 for(i in 1:nrow(grid)){
     simulation_id = grid[i,]$simulation_id
-    rho_true <- grid[i,]$rho_true
-    z_true = rho_to_z(rho_true)
-    r_true = z_to_r(z_true)
-    p = length(z_true)
-    num_clusters_true = length(rho_true)
-    sim <- read_rds(file.path("output","data",paste("simulation_",simulation_id,".rds",sep="")))
-    r = do.call(rbind, lapply(sim$rho, rho_to_r))
-    z = do.call(rbind, lapply(sim$rho, rho_to_z))
-    r_true = rho_to_r(sim$true_rho)
-    z_true = rho_to_z(sim$true_rho)
-    num_clusters = do.call(rbind, lapply(sim$rho, length))
-    num_clusters = as.vector(num_clusters)
+    sim <-
+        read_rds(file.path(
+            "output_noburnin",
+            "data",
+            paste("simulation_", simulation_id, ".rds", sep = "")
+        ))
     
-    sim_matrix <- salso::psm(z)
-    # adding names for the heatmap
-    rownames(sim_matrix) = 1:length(z_true)
-    colnames(sim_matrix) = 1:length(z_true)
-   
-    # Acceptance rate
-    acceptance_rates[i] <- round(mean(sim$accepted),4)
-    
-    
-    library("Rcpp")
-    library("RcppArmadillo")
-    sourceCpp("src/wade.cpp")
-    dists <- VI_LB(z, psm_mat = sim_matrix)
-    # Estimated partition
-    final_partition_VI <- z[which.min(dists),]
-    VI_index[i] <- final_partition_VI
-    estimated_partition[i] <- list(unname(table(final_partition_VI)))
-    unname(table(final_partition_VI))
-    # Randindex
-    randindex[i] <- round(mcclust::arandi(final_partition_VI,z_true),4)
-    
-   
-    kl_dist = ACutils::KL_dist(sim$true_precision, sim$K[[length(sim$K)]])
-    kl_dist_last[i] <- round(kl_dist,4)
-    
-    time[i] <- round(sim$execution_time,2)
-   
-}
-
-
-```
-
-```{r, echo=FALSE, results='asis'}
-grid_posterior_complete = cbind(grid_posterior, acceptance_rates=acceptance_rates,
-                       estimated_partition=estimated_partition,
-                       VI_index = VI_index,
-                       randindex = randindex,
-                       kl_dist = kl_dist_last,
-                       time = time)
-grid_posterior_df <- as.data.frame(grid_posterior_complete)
-grid_posterior_df$beta_sig2 <- lapply(grid_posterior_df$beta_sig2,function(x){round(x,3)})
-names(grid_posterior_df) <- c("sim_id","n", "p", "data_gen", "seed", "rho0", "B_sigma", 
-                              "rho_true", "accept", "rho_est", "VI", "RI","KL","time")       
-
-knitr::kable(as.data.frame(grid_posterior_df), booktabs=TRUE, escape = TRUE) %>% 
-  kable_styling(latex_options="scale_down")
-
-```
-
-
-\newpage
-
-# KL distances comparison
-
-```{r, echo = FALSE, fig.align='center', results = 'asis', fig.height = 3.5, out.width="50%"}
-options <- list(true_graph_and_K = TRUE,
-                estimated_graph_and_K = TRUE,
-                plot_graph = TRUE,
-                changepoint_kl = TRUE,
-                groups_number = FALSE,
-                theta_sigma = TRUE)
-#pbsapply(1:nrow(grid), posterior_analysis)
-i <- 1
-simulation_id = grid[i,]$simulation_id
-sim <- read_rds(file.path("output","data",paste("simulation_",simulation_id,".rds",sep="")))
-# kl distance
-kl_dist = do.call(rbind, lapply(sim$K, function(k) {
-    ACutils::KL_dist(sim$true_precision, k)
-}))
-    
-kl_distances <- list(kl_dist)
-
-for(i in 2:nrow(grid)){
-    simulation_id = grid[i,]$simulation_id
-    sim <- read_rds(file.path("output","data",paste("simulation_",simulation_id,".rds",sep="")))
-    # kl distance
     kl_dist = do.call(rbind, lapply(sim$K, function(k) {
         ACutils::KL_dist(sim$true_precision, k)
     }))
-    temp_list <- list(kl_dist)
-    kl_distances <- append(kl_distances,temp_list)
     
+    kl_matrix <- cbind(kl_matrix, kl_dist)
+}
+
+compare_kl_distances = function(kl_matrix, subset, grid, param, round=FALSE){
+    
+    labels= sapply(subset,function(x){grid[x,param]})
+    
+    if(round){
+        labels = lapply(grid[subset, param], function(x){round(x,2)})
+    }
+
+    # Save current graphical parameters
+    opar <- par(no.readonly = TRUE)
+    
+    # Change the margins of the plot (the fourth is the right margin)
+    par(mar = c(5, 5, 4, 8))
+    par(mfrow = c(1, 1))
+    
+    plot(
+        x = seq_len(dim(kl_matrix[,subset])[1]),
+        #y = kl_dist,
+        type = "n",
+        xlab = "Iterations",
+        ylab = "K-L distance",
+        main = "Kullback-Leibler distance",
+        ylim = range(kl_matrix[,subset]),
+        log = 'y'
+    )
+    
+    vect_n_palette = seq_along(subset)
+    color = viridis(length(subset))
+    
+    legend(
+        "topright",
+        title = param,
+        legend = labels,
+        fill = color,
+        inset = c(-0.3, 0),
+        xpd = TRUE
+    )
+    
+    matlines(kl_matrix[,subset], col = color, lty = 1, lwd=2)
+    grid()
+
 }
 ```
 
-Simulations with different values of n:
-```{r, echo = FALSE, fig.align='center', results = 'asis'}
-vect_n = 25:31
-vect_n_labels = sapply(vect_n, function(x){grid[x,]$n})
-vect_n_palette = viridis(length(vect_n))
-plot(
-    x = 1:length(kl_distances[[1]])+1000,
-    y = kl_dist,
-    type = "n",
-    xlab = "Iterations",
-    ylab = "K-L distance",
-    main = "Kullback Leibler distance:",
-    ylim = c(0,13)
-)
-legend("topright", title = "n",legend=vect_n_labels
-       ,fill = vect_n_palette)
-for(i in vect_n){
-    lines(x = 1:length(kl_distances[[i]]), y = kl_distances[[i]], col = vect_n_palette[i-vect_n[1]+1], lwd = 2)
-}
+## Varying $B_{\sigma^2}$
 
+```{r kl_dist_comparison_beta_sig2, results = 'asis', out.width="50%", fig.height = 4.5}
+compare_kl_distances(kl_matrix, 8:17, grid, "beta_sig2")
 ```
 
-Simulations with different values of p:
-```{r, echo = FALSE, fig.align='center', results = 'asis'}
-vect_p = 32:41
-vect_p_labels = sapply(vect_p, function(x){grid[x,]$p})
-vect_p_palette = viridis(length(vect_p))
-plot(
-    x = 1:length(kl_distances[[1]])+1000,
-    y = kl_dist,
-    type = "n",
-    xlab = "Iterations",
-    ylab = "K-L distance",
-    main = "Kullback Leibler distance:",
-    ylim = c(0,0.7)
-)
-legend("topright", title = "p",legend=vect_p_labels
-       ,fill = vect_p_palette)
-for(i in vect_p){
-    lines(x = 1:length(kl_distances[[i]]), y = kl_distances[[i]], col = vect_p_palette[i-vect_p[1]+1], lwd = 2)
-}
+## Varying $p$
+
+```{r kl_dist_comparison_p, results = 'asis', out.width="50%", fig.height = 4.5}
+compare_kl_distances(kl_matrix, 31:40, grid, "p")
 ```
 
-Simulations with different values of Beta_sig2 (notice the scale of y):
-```{r, echo = FALSE, fig.align='center', results = 'asis'}
-vect_s = 9:17
-vect_s_labels = sapply(vect_s, function(x){round(grid[x,]$beta_sig2,2)})
-vect_s_palette = viridis(length(vect_s))
-plot(
-    x = 1:length(kl_distances[[1]])+1000,
-    y = kl_dist,
-    type = "n",
-    xlab = "Iterations",
-    ylab = "K-L distance",
-    main = "Kullback Leibler distance:",
-    ylim = c(0.18,0.22)
-)
-legend("topright", title = "b_sig2",legend=vect_s_labels
-       ,fill = vect_s_palette)
-for(i in vect_s){
-    lines(x = 1:length(kl_distances[[i]]), y = kl_distances[[i]], col = vect_s_palette[i-vect_s[1]+1], lwd = 2)
-}
+## Varying $n$
+
+```{r kl_dist_comparison_n, results = 'asis', out.width="50%", fig.height = 4.5}
+compare_kl_distances(kl_matrix, 24:30, grid, "n")
 ```
+
+
