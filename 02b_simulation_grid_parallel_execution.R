@@ -100,8 +100,10 @@ Gibbs <- function(i, grid){
                           update_graph=TRUE,
                           perform_shuffle=TRUE)
     
+    # --------------------------------------------------------------------------
+    
     dir.create(file.path("output", "data"), showWarnings = FALSE, recursive = TRUE)
-    dir.create(file.path("output", "log"), showWarnings = FALSE, recursive = TRUE)
+    #dir.create(file.path("output", "log"), showWarnings = FALSE, recursive = TRUE)
     
     # unique_ID = uuid::UUIDgenerate(use.time = TRUE, n = 1, output = c("string"))
     # unique_ID = dittodb::hash(unique_ID, n = 8)
@@ -110,7 +112,7 @@ Gibbs <- function(i, grid){
     grid[i,]$simulation_id = unique_ID
     
     filename_data = paste("output/data/simulation_", unique_ID, ".rds", sep = "")
-    filename_log = paste("output/log/simulation_", unique_ID, ".log", sep = "")
+    #filename_log = paste("output/log/simulation_", unique_ID, ".log", sep = "")
     
     #log_open(file_name = filename_log, show_notes=FALSE, logdir = FALSE)
     res <- Gibbs_sampler(
@@ -124,12 +126,15 @@ Gibbs <- function(i, grid){
     )
     #log_close()
     
+    # append true values
     res$true_rho = rho_true
     res$true_precision = sim$Prec
     res$true_graph = sim$Graph
     
     # save an object to a file
     saveRDS(res, file = filename_data)
+    
+    # return unique IDs to append to the grid
     return(unique_ID)
 }
 
