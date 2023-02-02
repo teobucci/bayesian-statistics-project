@@ -31,15 +31,18 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Load the necessary packages
 
 ```{r, include = FALSE}
-suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
-suppressWarnings(suppressPackageStartupMessages(library(ACutils)))
-suppressWarnings(suppressPackageStartupMessages(library(mvtnorm)))
-suppressWarnings(suppressPackageStartupMessages(library(salso)))
-suppressWarnings(suppressPackageStartupMessages(library(FGM)))
-suppressWarnings(suppressPackageStartupMessages(library(gmp)))
-suppressWarnings(suppressPackageStartupMessages(library(mcclust)))
-suppressWarnings(suppressPackageStartupMessages(library(mcclust.ext)))
-suppressWarnings(suppressPackageStartupMessages(library(logr)))
+shhh = function(lib_name){ # It's a library, so shhh!
+    suppressWarnings(suppressMessages(require(lib_name, character.only = TRUE)))
+}
+shhh("tidyverse")
+shhh("ACutils")
+shhh("mvtnorm")
+shhh("salso")
+shhh("FGM")
+shhh("gmp")
+shhh("mcclust")
+shhh("mcclust.ext")
+shhh("logr")
 ```
 
 ```{r, include = FALSE}
