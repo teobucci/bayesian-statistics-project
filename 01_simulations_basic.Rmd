@@ -232,10 +232,14 @@ res = readRDS(file = filename_data)
 Recomputing the partition in other forms and the number of groups
 
 ```{r}
+rho_true = res$true_rho
+r_true = rho_to_r(rho_true)
+z_true = rho_to_z(rho_true)
+p = length(z_true)
+num_clusters_true = length(rho_true)
+rho = res$rho
 r = do.call(rbind, lapply(res$rho, rho_to_r))
 z = do.call(rbind, lapply(res$rho, rho_to_z))
-r_true = rho_to_r(res$true_rho)
-z_true = rho_to_z(res$true_rho)
 num_clusters = do.call(rbind, lapply(res$rho, length))
 num_clusters = as.vector(num_clusters)
 ```
