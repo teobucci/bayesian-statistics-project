@@ -132,6 +132,13 @@ Gibbs <- function(i, grid){
     # remove self loops
     res$true_graph[col(res$true_graph)==row(res$true_graph)] = 0
     
+    # save other values
+    res$n = n
+    res$p = p
+    res$type_data_gen = type_data_gen
+    res$seed = seed_data_gen
+    res$rho0 = rho0
+    res$beta_sig2 = beta_sig2
     
     # save an object to a file
     saveRDS(res, file = filename_data)
