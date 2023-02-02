@@ -192,7 +192,7 @@ posterior_analysis <- function(i,group_id, recap_table, grid){
         
         output_plot <- ggraph(lay) + 
             geom_edge_arc(edge_colour = "grey") + 
-            geom_node_point(aes(color=z_true, shape = z_est), size = 2) +
+            geom_node_point(aes(color=true_clust, shape = estim_clust), size = 2) +
             geom_node_text(aes(label = name), repel=TRUE) +
             facet_edges(~graph)
         print(output_plot)
