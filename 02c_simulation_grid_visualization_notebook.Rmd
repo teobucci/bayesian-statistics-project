@@ -419,7 +419,7 @@ grid_posterior_complete = cbind(grid_posterior, acceptance_rates=acceptance_rate
                        time = time)
 grid_posterior_df <- as.data.frame(grid_posterior_complete)
 grid_posterior_df$beta_sig2 <- lapply(grid_posterior_df$beta_sig2,function(x){round(x,3)})
-names(grid_posterior_df) <- c("sim_id","n", "p", "data_gen", "seed", "part0", "B_sigma", 
+names(grid_posterior_df) <- c("sim_id","n", "p", "data_gen", "seed", "rho0", "B_sigma", 
                               "rho_true", "accept", "rho_est", "VI", "RI","KL","time")       
 
 knitr::kable(as.data.frame(grid_posterior_df), booktabs=TRUE, escape = TRUE) %>% 
