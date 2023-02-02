@@ -217,6 +217,8 @@ Before saving, also append true data
 res$true_rho = rho_true
 res$true_precision = sim$Prec
 res$true_graph = sim$Graph
+# remove self loops
+res$true_graph[col(res$true_graph)==row(res$true_graph)] = 0
 ```
 
 ```{r}
