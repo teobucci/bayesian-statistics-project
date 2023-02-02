@@ -66,24 +66,6 @@ posterior_analysis <- function(i){
         ACutils::KL_dist(sim$true_precision, k)
     }))
     
-    last_G = sim$G[[length(sim$G)]]
-    bfdr_select = BFDR_selection(last_G, tol = seq(0.1, 1, by = 0.001))
-    bfdr_select$best_treshold
-    final_graph = bfdr_select$best_truncated_graph
-    
-    # create graph for visualization
-    g1 <- graph.adjacency(Graph_true)
-    edges1 <- get.edgelist(g1)
-    edges1 <- cbind(edges1,rep("true",nrow(edges1)))
-    g2 <- graph.adjacency(final_graph)
-    edges2 <- get.edgelist(g2)
-    edges2 <- cbind(edges2,rep("estimated",nrow(edges2)))
-    edges <- as.data.frame(rbind(edges1,edges2))
-    names(edges) = c("from","to","graph")
-    nodes = data.frame(vertices=1:p,true_clust=as.factor(z_true), estim_clust=as.factor(final_partition_VI))
-    nodes
-    g = graph_from_data_frame(edges, directed = FALSE, nodes)
-    lay = create_layout(g, layout = "fr")
     # computing rand index for each iteration
     rand_index = apply(z, 1, mcclust::arandi, z_true)
     
@@ -152,6 +134,24 @@ posterior_analysis <- function(i){
     
     if(options$plot_graph){
         par(mfrow=c(1,1))
+        # create graph for visualization
+        g1 <- graph.adjacency(sim$true_graph)
+        edges1 <- get.edgelist(g1)
+        edges1 <- cbind(edges1, rep("true", nrow(edges1)))
+        g2 <- graph.adjacency(G_est)
+        edges2 <- get.edgelist(g2)
+        edges2 <- cbind(edges2, rep("estimated", nrow(edges2)))
+        edges <- as.data.frame(rbind(edges1, edges2))
+        names(edges) = c("from", "to", "graph")
+        nodes = data.frame(
+            vertices = 1:p,
+            clust_true = as.factor(z_true),
+            clust_est = as.factor(z_est)
+        )
+        # nodes
+        g = graph_from_data_frame(edges, directed = FALSE, nodes)
+        lay = create_layout(g, layout = "linear", circular = TRUE)
+
         ggraph(lay) + 
             geom_edge_link(edge_colour = "grey") + 
             geom_node_point(aes(color=true_clust, shape = estim_clust), size = 4) +
