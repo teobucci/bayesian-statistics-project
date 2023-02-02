@@ -47,19 +47,23 @@ Gibbs <- function(i, grid){
     # Define variance of the Beta
     beta_sig2 = grid[i,]$beta_sig2
     
-    # --------------------------------------------------------
+    # Define type of data generation
+    type_data_gen = grid[i, ]$type_data_gen
+    
+    # Define initial partition
+    rho0 = grid[i,]$rho0
+    
+    # --------------------------------------------------------------------------
     
     z_true = rho_to_z(rho_true)
     r_true = z_to_r(z_true)
     p = length(z_true)
     
     # Generate data
-    sim = Generate_BlockDiagonal(n = n, z_true = z_true)
-    
-    if(grid[i,]$type_data_gen == "B"){
+    if (type_data_gen == "B") {
         sim = Generate_Block(
-            n=n,
-            z_true=z_true,
+            n = n,
+            z_true = z_true,
             p_block_diag = 1,
             p_block_extra_diag = 0,
             p_inside_block = 0.95,
@@ -68,17 +72,19 @@ Gibbs <- function(i, grid){
             min_eigenval_correction = 3,
             seed = 1
         )
+    } else {
+        # BD
+        sim = Generate_BlockDiagonal(n = n, z_true = z_true)
     }
     
     graph_density = sum(sim$Graph) / (p*(p-1))
     
-    ## Set options for the simulation
-    
+    # Set options for the simulation
     options = set_options(sigma_prior_0=0.5,
                           sigma_prior_parameters=list("a"=1,"b"=1,"c"=1,"d"=1),
                           theta_prior_0=1,
                           theta_prior_parameters=list("c"=1,"d"=1),
-                          rho0=p, # start with one group
+                          rho0=rho0,
                           weights_a0=rep(1,p-1),
                           weights_d0=rep(1,p-1),
                           alpha_target=0.234,
