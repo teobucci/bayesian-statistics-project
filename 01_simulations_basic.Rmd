@@ -339,20 +339,6 @@ lines(x = seq_along(rand_index), y = rand_index)
 abline(h = 1, col = "red", lwd = 4)
 ```
 
-
-```{r}
-
-
-
-
-
-
-
-
-
-
-```
-
 ### Retrieving best partition using VI on visited ones (order is guaranteed here)
 
 Here we are satisfied with finding the optimal partition only in the set of those visited, not in all the possible ones. I expect it could work even worse. But at least it guarantees to find an admissible one.
@@ -363,15 +349,35 @@ library("Rcpp")
 library("RcppArmadillo")
 sourceCpp("src/wade.cpp")
 
-# compute VI loss for all visited partitions
+# compute VI
+sim_matrix <- salso::psm(z)
 dists <- VI_LB(z, psm_mat = sim_matrix)
 
 # select best partition (among the visited ones)
-final_partition_VI <- z[which.min(dists),]
-unname(table(final_partition_VI))
+best_partition_index = which.min(dists)
+rho_est = rho[[best_partition_index]]
+z_est = z[best_partition_index,]
+
+# VI loss
+dists[best_partition_index]
+
+# select best partition
+unname(z_est)
 
 # compute Rand Index
-mcclust::arandi(final_partition_VI,z_true)
+mcclust::arandi(z_est, z_true)
+```
+
+
+
+
+
+```
+
+
+```{r}
+
+
 ```
 
 ## Graph
