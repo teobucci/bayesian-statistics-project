@@ -285,14 +285,14 @@ legend("topright", legend=c("True"), col=c("red"),
 
 ```{r}
 plot(
-    x = 1:length(num_clusters),
+    x = seq_along(num_clusters),
     y = num_clusters,
     type = "n",
     xlab = "Iterations",
     ylab = "Number of groups",
     main = "Number of groups - Traceplot"
 )
-lines(x = 1:length(num_clusters), y = num_clusters)
+lines(x = seq_along(num_clusters), y = num_clusters)
 abline(h = length(z_to_rho(z_true)),
        col = "red",
        lwd = 4)
@@ -341,7 +341,7 @@ rand_index = apply(z, 1, mcclust::arandi, z_true)
 
 # plotting the traceplot of the index
 plot(
-    x = 1:length(rand_index),
+    x = seq_along(rand_index),
     y = rand_index,
     type = "n",
     xlab = "Iterations",
@@ -354,7 +354,7 @@ plot(
         round(mean(rand_index), 2)
     )
 )
-lines(x = 1:length(rand_index), y = rand_index)
+lines(x = seq_along(rand_index), y = rand_index)
 abline(h = 1, col = "red", lwd = 4)
 ```
 
@@ -454,14 +454,14 @@ kl_dist = do.call(rbind, lapply(res$K, function(k) {
 
 last = round(tail(kl_dist, n=1), 3)
 plot(
-    x = 1:length(kl_dist),
+    x = seq_along(kl_dist),
     y = kl_dist,
     type = "n",
     xlab = "Iterations",
     ylab = "K-L distance",
     main = paste("Kullback–Leibler distance\nLast value:", last)
 )
-lines(x = 1:length(kl_dist), y = kl_dist)
+lines(x = seq_along(kl_dist), y = kl_dist)
 ```
 
 ### Graph visualization
