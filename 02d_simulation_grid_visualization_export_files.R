@@ -153,11 +153,11 @@ posterior_analysis <- function(i){
         lay = create_layout(g, layout = "linear", circular = TRUE)
 
         ggraph(lay) + 
-            geom_edge_link(edge_colour = "grey") + 
-            geom_node_point(aes(color=true_clust, shape = estim_clust), size = 4) +
+            geom_edge_arc(edge_colour = "grey") + 
+            geom_node_point(aes(color=clust_true, shape = clust_est), size = 4) +
             geom_node_text(aes(label = name), repel=TRUE) +
             facet_edges(~graph)
-        ggsave(file.path(output_path,"graph.pdf"), device = "pdf", width=12.2, height=8.21)
+        ggsave(file.path(output_path,"graph.pdf"), device = "pdf", width=16, height=9)
     }
     
     
