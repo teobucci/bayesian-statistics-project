@@ -183,16 +183,16 @@ posterior_analysis <- function(i,group_id, recap_table, grid){
         names(edges) = c("from", "to", "graph")
         nodes = data.frame(
             vertices = 1:p,
-            true_clust = as.factor(z_true),
-            estim_clust = as.factor(z_est)
+            clust_true = as.factor(z_true),
+            clust_est = as.factor(z_est)
         )
         # nodes
         g = graph_from_data_frame(edges, directed = FALSE, nodes)
         lay = create_layout(g, layout = "linear", circular = TRUE)
         
         output_plot <- ggraph(lay) + 
-            geom_edge_arc(edge_colour = "grey") + 
-            geom_node_point(aes(color=true_clust, shape = estim_clust), size = 2) +
+            geom_edge_arc(edge_colour = "grey") +
+            geom_node_point(aes(color = clust_true, shape = clust_est), size = 2) +
             geom_node_text(aes(label = name), repel=TRUE) +
             facet_edges(~graph)
         print(output_plot)
