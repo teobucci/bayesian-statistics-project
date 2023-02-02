@@ -426,7 +426,7 @@ ACutils::ACheatmap(
 )
 ```
 
-### Evolution of the Kullback–Leibler
+### Evolution of the Kullback-Leibler
 
 ```{r}
 kl_dist = do.call(rbind, lapply(res$K, function(k) {
@@ -440,7 +440,7 @@ plot(
     type = "n",
     xlab = "Iterations",
     ylab = "K-L distance",
-    main = paste("Kullback–Leibler distance\nLast value:", last)
+    main = paste("Kullback-Leibler distance\nLast value:", last)
 )
 lines(x = seq_along(kl_dist), y = kl_dist)
 ```
