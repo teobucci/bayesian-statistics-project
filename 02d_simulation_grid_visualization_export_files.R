@@ -29,13 +29,13 @@ for(p in paths){
     }
 }
 
+library("Rcpp")
+library("RcppArmadillo")
+sourceCpp("src/wade.cpp")
 
 
 posterior_analysis <- function(i){
-    library("Rcpp")
-    library("RcppArmadillo")
-    sourceCpp("src/wade.cpp")
-    
+
     simulation_id = grid[i,]$simulation_id
     dir_name = paste("simulation_", simulation_id, sep = "")
     output_path = file.path("output", "data", dir_name)
