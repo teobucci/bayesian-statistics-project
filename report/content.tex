@@ -33,56 +33,72 @@ La 4 invece deve contenere la descrizione degli esperimenti fatti, le figure e i
 
 \section{Conclusion}
 
-\begin{table}[ht]
+\begin{table}[!h]
 \centering
-\begin{tabular}{rlrrlrlrllrrrrr}
-  \hline
- & sim\_id & $n$ & $p$ & data\_gen & seed & $\rho_0$ & beta\_sig2 & $\rho_{\text{true}}$ & $\rho_{\text{est}}$ & accept & VI & RI & KL & time \\ 
-  \hline
-1 & 01 & 500.00 & 25.00 & BD & 22111996.00 & 25 & 0.20 & 8,4,8,5 & 8,4,8,5 & 0.02 & 0.02 & 1.00 & 0.19 & 1.69 \\ 
-  2 & 02 & 500.00 & 25.00 & BD & 31051999.00 & 25 & 0.20 & 8,4,8,5 & 8,4,8,5 & 0.02 & 0.02 & 1.00 & 0.19 & 1.62 \\ 
-  3 & 03 & 500.00 & 25.00 & BD & 27051999.00 & 25 & 0.20 & 8,4,8,5 & 8,4,8,5 & 0.02 & 0.02 & 1.00 & 0.19 & 1.69 \\ 
-  4 & 04 & 500.00 & 25.00 & BD & 29061999.00 & 25 & 0.20 & 8,4,8,5 & 8,4,8,5 & 0.02 & 0.02 & 1.00 & 0.19 & 1.73 \\ 
-  5 & 05 & 500.00 & 25.00 & BD & 12091997.00 & 25 & 0.20 & 8,4,8,5 & 8,4,8,5 & 0.02 & 0.02 & 1.00 & 0.19 & 1.68 \\ 
-  6 & 06 & 500.00 & 25.00 & BD & 27091999.00 & 25 & 0.20 & 8,4,8,5 & 8,4,8,5 & 0.02 & 0.02 & 1.00 & 0.19 & 1.68 \\ 
-  7 & 07 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.20 & 8,4,8,5 & 8,4,8,5 & 0.02 & 0.02 & 1.00 & 0.19 & 1.62 \\ 
-  8 & 08 & 500.00 & 25.00 & BD & 22111996.00 & 25 & 0.20 & 8,4,8,5 & 8,4,8,5 & 0.02 & 0.02 & 1.00 & 0.19 & 1.68 \\ 
-  9 & 09 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.06 & 8,4,8,5 & 8,4,8,5 & 0.07 & 0.04 & 1.00 & 0.19 & 1.82 \\ 
-  10 & 10 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.08 & 8,4,8,5 & 8,4,8,5 & 0.08 & 0.04 & 1.00 & 0.19 & 1.82 \\ 
-  11 & 11 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.09 & 8,4,8,5 & 8,4,8,5 & 0.07 & 0.04 & 1.00 & 0.19 & 1.81 \\ 
-  12 & 12 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.11 & 8,4,8,5 & 8,4,8,5 & 0.08 & 0.05 & 1.00 & 0.19 & 1.81 \\ 
-  13 & 13 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.12 & 8,4,8,5 & 8,4,8,5 & 0.08 & 0.04 & 1.00 & 0.19 & 1.81 \\ 
-  14 & 14 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.14 & 8,4,8,5 & 8,4,8,5 & 0.06 & 0.04 & 1.00 & 0.19 & 1.80 \\ 
-  15 & 15 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.15 & 8,4,8,5 & 8,4,8,5 & 0.05 & 0.03 & 1.00 & 0.19 & 1.80 \\ 
-  16 & 16 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.17 & 8,4,8,5 & 8,4,8,5 & 0.05 & 0.02 & 1.00 & 0.19 & 1.85 \\ 
-  17 & 17 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.18 & 8,4,8,5 & 8,4,8,5 & 0.04 & 0.03 & 1.00 & 0.19 & 1.56 \\ 
-  18 & 18 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.20 & 8,4,8,5 & 8,4,8,5 & 0.02 & 0.02 & 1.00 & 0.19 & 1.56 \\ 
-  19 & 19 & 500.00 & 25.00 & BD & 27121996.00 & singletons & 0.20 & 8,4,8,5 & 8,4,8,5 & 0.02 & 0.02 & 1.00 & 0.19 & 1.55 \\ 
-  20 & 20 & 500.00 & 25.00 & BD & 27121996.00 & singletons & 0.20 & 8,4,8,5 & 8,4,8,5 & 0.02 & 0.02 & 1.00 & 0.19 & 1.55 \\ 
-  21 & 21 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.20 & 8,4,8,5 & 8,4,8,5 & 0.02 & 0.02 & 1.00 & 0.19 & 1.56 \\ 
-  22 & 22 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.20 & 1,10,2,9,3 & 1,10,2,9,3 & 0.07 & 0.11 & 1.00 & 0.18 & 1.65 \\ 
-  23 & 23 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.02 & 1,3,2,4,2,3,3,4,3 & 18,7 & 0.40 & 1.02 & 0.13 & 0.13 & 1.50 \\ 
-  24 & 24 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.20 & 12,13 & 12,13 & 0.13 & 0.07 & 1.00 & 0.26 & 1.83 \\ 
-  25 & 25 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.10 & 8,4,8,5 & 8,4,8,5 & 0.08 & 0.05 & 1.00 & 0.19 & 1.51 \\ 
-  26 & 26 & 400.00 & 25.00 & BD & 27121996.00 & 25 & 0.10 & 8,4,8,5 & 8,4,8,5 & 0.07 & 0.04 & 1.00 & 0.22 & 1.50 \\ 
-  27 & 27 & 300.00 & 25.00 & BD & 27121996.00 & 25 & 0.10 & 8,4,8,5 & 8,4,8,5 & 0.07 & 0.04 & 1.00 & 0.34 & 1.50 \\ 
-  28 & 28 & 200.00 & 25.00 & BD & 27121996.00 & 25 & 0.10 & 8,4,8,5 & 8,4,8,5 & 0.07 & 0.04 & 1.00 & 0.53 & 1.49 \\ 
-  29 & 29 & 100.00 & 25.00 & BD & 27121996.00 & 25 & 0.10 & 8,4,8,5 & 8,4,8,5 & 0.11 & 0.24 & 1.00 & 1.49 & 1.46 \\ 
-  30 & 30 & 50.00 & 25.00 & BD & 27121996.00 & 25 & 0.10 & 8,4,8,5 & 20,5 & 0.24 & 0.54 & 0.27 & 4.21 & 1.43 \\ 
-  31 & 31 & 20.00 & 25.00 & BD & 27121996.00 & 25 & 0.10 & 8,4,8,5 & 25 & 0.28 & 0.24 & 0.00 & 11.85 & 1.38 \\ 
-  32 & 32 & 500.00 & 5.00 & BD & 27121996.00 & 5 & 0.06 & 3,2 & 3,2 & 0.54 & 0.75 & 1.00 & 0.01 & 1.16 \\ 
-  33 & 33 & 500.00 & 10.00 & BD & 27121996.00 & 10 & 0.06 & 5,5 & 5,5 & 0.19 & 0.12 & 1.00 & 0.03 & 1.16 \\ 
-  34 & 34 & 500.00 & 15.00 & BD & 27121996.00 & 15 & 0.06 & 5,5,5 & 5,5,5 & 0.13 & 0.09 & 1.00 & 0.04 & 1.24 \\ 
-  35 & 35 & 500.00 & 20.00 & BD & 27121996.00 & 20 & 0.06 & 5,5,5,5 & 5,5,5,5 & 0.10 & 0.07 & 1.00 & 0.12 & 1.35 \\ 
-  36 & 36 & 500.00 & 25.00 & BD & 27121996.00 & 25 & 0.06 & 5,5,5,5,5 & 5,5,5,5,5 & 0.10 & 0.07 & 1.00 & 0.17 & 1.50 \\ 
-  37 & 37 & 500.00 & 30.00 & BD & 27121996.00 & 30 & 0.06 & 5,5,5,5,5,5 & 5,5,5,5,5,5 & 0.08 & 0.06 & 1.00 & 0.14 & 1.68 \\ 
-  38 & 38 & 500.00 & 35.00 & BD & 27121996.00 & 35 & 0.06 & 5,5,5,5,5,5,5 & 5,5,5,5,5,5,5 & 0.07 & 0.15 & 1.00 & 0.20 & 1.98 \\ 
-  39 & 39 & 500.00 & 40.00 & BD & 27121996.00 & 40 & 0.06 & 5,5,5,5,5,5,5,5 & 5,5,5,5,5,5,5,5 & 0.06 & 0.38 & 1.00 & 0.28 & 2.31 \\ 
-  40 & 40 & 500.00 & 45.00 & BD & 27121996.00 & 45 & 0.06 & 5,5,5,5,5,5,5,5,5 & 5,5,5,5,5,10,10 & 0.07 & 0.76 & 0.76 & 0.40 & 2.84 \\ 
-  41 & 41 & 500.00 & 50.00 & BD & 27121996.00 & 50 & 0.06 & 5,5,5,5,5,5,5,5,5,5 & 25,5,5,5,5,5 & 0.06 & 0.85 & 0.36 & 0.37 & 3.17 \\ 
-  42 & 42 & 500.00 & 25.00 & B & 27121996.00 & 25 & 0.20 & 8,4,8,5 & 8,4,8,5 & 0.01 & 0.10 & 1.00 & 0.18 & 1.12 \\ 
-   \hline
-\end{tabular}
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\rho_0$ & \texttt{beta\_sig2} & $\rho_{\text{true}}$ & $\rho_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{14}{l}{\textbf{Group 1: varying seed}}\\
+\cellcolor{gray!6}{\hspace{1em}01} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{22111996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21400 mins}\\
+\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}03} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}04} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{29061999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}05} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{12091997} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}06} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27091999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21500 mins}\\
+\cellcolor{gray!6}{\hspace{1em}07} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21700 mins}\\
+\addlinespace[0.3em]
+\multicolumn{14}{l}{\textbf{Group 2: varying beta\_sig2}}\\
+\cellcolor{gray!6}{\hspace{1em}08} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.062} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.066} & \cellcolor{gray!6}{0.034} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.191} & \cellcolor{gray!6}{1.22400 mins}\\
+\cellcolor{gray!6}{\hspace{1em}09} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.078} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.080} & \cellcolor{gray!6}{0.043} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.186} & \cellcolor{gray!6}{1.20700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}10} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.093} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.075} & \cellcolor{gray!6}{0.039} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}11} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.108} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.079} & \cellcolor{gray!6}{0.049} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}12} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.124} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.067} & \cellcolor{gray!6}{0.040} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}13} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.139} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.060} & \cellcolor{gray!6}{0.035} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20200 mins}\\
+\cellcolor{gray!6}{\hspace{1em}14} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.154} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.056} & \cellcolor{gray!6}{0.030} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.193} & \cellcolor{gray!6}{1.20000 mins}\\
+\cellcolor{gray!6}{\hspace{1em}15} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.169} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.047} & \cellcolor{gray!6}{0.024} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.191} & \cellcolor{gray!6}{1.20100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}16} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.185} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.034} & \cellcolor{gray!6}{0.022} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.189} & \cellcolor{gray!6}{1.20000 mins}\\
+\cellcolor{gray!6}{\hspace{1em}17} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.16200 mins}\\
+\addlinespace[0.3em]
+\multicolumn{14}{l}{\textbf{Group 3: varying initial partition}}\\
+\cellcolor{gray!6}{\hspace{1em}18} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.16300 mins}\\
+\cellcolor{gray!6}{\hspace{1em}19} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{singletons} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.020} & \cellcolor{gray!6}{0.015} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.189} & \cellcolor{gray!6}{1.24800 mins}\\
+\addlinespace[0.3em]
+\multicolumn{14}{l}{\textbf{Group 4: varying group numerosities}}\\
+\cellcolor{gray!6}{\hspace{1em}20} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.16000 mins}\\
+\cellcolor{gray!6}{\hspace{1em}21} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{1,10,2,9,3} & \cellcolor{gray!6}{1,10,2,9,3} & \cellcolor{gray!6}{0.072} & \cellcolor{gray!6}{0.109} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.181} & \cellcolor{gray!6}{1.25500 mins}\\
+\cellcolor{gray!6}{\hspace{1em}22} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.02} & \cellcolor{gray!6}{1,3,2,4,2,3,3,4,3} & \cellcolor{gray!6}{18,7} & \cellcolor{gray!6}{0.397} & \cellcolor{gray!6}{1.020} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.126} & \cellcolor{gray!6}{1.10700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}23} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{12,13} & \cellcolor{gray!6}{12,13} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.073} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.255} & \cellcolor{gray!6}{1.36700 mins}\\
+\addlinespace[0.3em]
+\multicolumn{14}{l}{\textbf{Group 5: varying n}}\\
+\cellcolor{gray!6}{\hspace{1em}24} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.082} & \cellcolor{gray!6}{0.046} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.17300 mins}\\
+\cellcolor{gray!6}{\hspace{1em}25} & \cellcolor{gray!6}{400} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.072} & \cellcolor{gray!6}{0.036} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.221} & \cellcolor{gray!6}{1.15900 mins}\\
+\cellcolor{gray!6}{\hspace{1em}26} & \cellcolor{gray!6}{300} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.070} & \cellcolor{gray!6}{0.041} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.336} & \cellcolor{gray!6}{1.16800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}27} & \cellcolor{gray!6}{200} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.074} & \cellcolor{gray!6}{0.045} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.532} & \cellcolor{gray!6}{1.15400 mins}\\
+\cellcolor{gray!6}{\hspace{1em}28} & \cellcolor{gray!6}{100} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.111} & \cellcolor{gray!6}{0.241} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{1.487} & \cellcolor{gray!6}{1.11800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}29} & \cellcolor{gray!6}{50} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{20,5} & \cellcolor{gray!6}{0.236} & \cellcolor{gray!6}{0.539} & \cellcolor{gray!6}{0.273} & \cellcolor{gray!6}{4.212} & \cellcolor{gray!6}{1.09000 mins}\\
+\cellcolor{gray!6}{\hspace{1em}30} & \cellcolor{gray!6}{20} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.280} & \cellcolor{gray!6}{0.241} & \cellcolor{gray!6}{0.000} & \cellcolor{gray!6}{11.854} & \cellcolor{gray!6}{1.07600 mins}\\
+\addlinespace[0.3em]
+\multicolumn{14}{l}{\textbf{Group 6: varying p}}\\
+\cellcolor{gray!6}{\hspace{1em}31} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{3,2} & \cellcolor{gray!6}{3,2} & \cellcolor{gray!6}{0.543} & \cellcolor{gray!6}{0.752} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.006} & \cellcolor{gray!6}{0.79960 mins}\\
+\cellcolor{gray!6}{\hspace{1em}32} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5} & \cellcolor{gray!6}{5,5} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{0.115} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.028} & \cellcolor{gray!6}{0.85055 mins}\\
+\cellcolor{gray!6}{\hspace{1em}33} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{15} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{15} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5} & \cellcolor{gray!6}{5,5,5} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.087} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.045} & \cellcolor{gray!6}{1.09400 mins}\\
+\cellcolor{gray!6}{\hspace{1em}34} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{20} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{20} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5} & \cellcolor{gray!6}{5,5,5,5} & \cellcolor{gray!6}{0.103} & \cellcolor{gray!6}{0.070} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.118} & \cellcolor{gray!6}{1.20100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}35} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{0.074} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.170} & \cellcolor{gray!6}{1.33600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}36} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{30} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{30} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,5} & \cellcolor{gray!6}{0.080} & \cellcolor{gray!6}{0.061} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.140} & \cellcolor{gray!6}{1.49600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}37} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{35} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{35} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,5,5} & \cellcolor{gray!6}{0.066} & \cellcolor{gray!6}{0.149} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.205} & \cellcolor{gray!6}{1.71700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}38} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{40} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{40} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{0.061} & \cellcolor{gray!6}{0.384} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.282} & \cellcolor{gray!6}{1.99900 mins}\\
+\cellcolor{gray!6}{\hspace{1em}39} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{45} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{45} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,10,10} & \cellcolor{gray!6}{0.071} & \cellcolor{gray!6}{0.761} & \cellcolor{gray!6}{0.756} & \cellcolor{gray!6}{0.396} & \cellcolor{gray!6}{2.45600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}40} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{50} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{50} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{25,5,5,5,5,5} & \cellcolor{gray!6}{0.059} & \cellcolor{gray!6}{0.853} & \cellcolor{gray!6}{0.364} & \cellcolor{gray!6}{0.367} & \cellcolor{gray!6}{3.05700 mins}\\
+\addlinespace[0.3em]
+\multicolumn{14}{l}{\textbf{Group 7: using noised block structure}}\\
+\cellcolor{gray!6}{\hspace{1em}41} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{B} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.013} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.176} & \cellcolor{gray!6}{1.03100 mins}\\
+\bottomrule
+\end{tabular}}
 \end{table}
 
 Conclusioni brevi, al più riportate le criticità incontrate.
