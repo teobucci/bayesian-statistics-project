@@ -168,7 +168,6 @@ options = set_options(sigma_prior_0=0.5,
                       perform_shuffle=TRUE)
 ```
 
-
 ## Running the simulation
 
 Create output directory if needed
@@ -222,7 +221,7 @@ saveRDS(res, file = filename_data)
 Restore the object
 
 ```{r}
-unique_ID = '1bd23dee'
+#unique_ID = 'c7726e0e'
 filename_data = paste("output/data/simulation_", unique_ID, ".rds", sep = "")
 res = readRDS(file = filename_data)
 ```
