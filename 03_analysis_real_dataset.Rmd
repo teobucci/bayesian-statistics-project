@@ -31,18 +31,21 @@ knitr::opts_chunk$set(echo = TRUE, fig.align='center')
 ## Load the necessary packages
 
 ```{r, include = FALSE}
-suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
-suppressWarnings(suppressPackageStartupMessages(library(ACutils)))
-suppressWarnings(suppressPackageStartupMessages(library(mvtnorm)))
-suppressWarnings(suppressPackageStartupMessages(library(salso)))
-suppressWarnings(suppressPackageStartupMessages(library(FGM)))
-suppressWarnings(suppressPackageStartupMessages(library(gmp)))
-suppressWarnings(suppressPackageStartupMessages(library(mcclust)))
-suppressWarnings(suppressPackageStartupMessages(library(mcclust.ext)))
-suppressWarnings(suppressPackageStartupMessages(library(logr)))
-suppressWarnings(suppressPackageStartupMessages(library(tidygraph)))
-suppressWarnings(suppressPackageStartupMessages(library(ggraph)))
-suppressWarnings(suppressPackageStartupMessages(library(igraph)))
+shhh = function(lib_name){ # It's a library, so shhh!
+    suppressWarnings(suppressMessages(require(lib_name, character.only = TRUE)))
+}
+shhh("tidyverse")
+shhh("ACutils")
+shhh("mvtnorm")
+shhh("salso")
+shhh("FGM")
+shhh("gmp")
+shhh("mcclust")
+shhh("mcclust.ext")
+shhh("logr")
+shhh("tidygraph")
+shhh("ggraph")
+shhh("igraph")
 ```
 
 ```{r, include = FALSE}
@@ -61,7 +64,6 @@ for(p in paths){
     }
 }
 ```
-
 
 ## Load data
 
@@ -122,7 +124,6 @@ res_norm <- Gibbs_sampler(
 )
 ```
 
-
 ```{r}
 # create output directory if not present
 dir.create(file.path("output", "real_dataset"), showWarnings = FALSE, recursive = TRUE)
@@ -135,11 +136,12 @@ filename_data = file.path("output","real_dataset","realtest_norm.rds")
 saveRDS(res_norm, file = filename_data)
 ```
 
+
 # Posterior analysis (Case: Normalized)
 
 Restore the object
 
-```{r} 
+```{r}
 filename_data = file.path("output","real_dataset","realtest_norm.rds")
 res = readRDS(file = filename_data)
 ```
@@ -149,10 +151,9 @@ res = readRDS(file = filename_data)
 Recomputing the partition in other forms and the number of groups
 
 ```{r}
+rho = res$rho
 r = do.call(rbind, lapply(res$rho, rho_to_r))
 z = do.call(rbind, lapply(res$rho, rho_to_z))
-#r_true = rho_to_r(res$true_rho)
-#z_true = rho_to_z(res$true_rho)
 num_clusters = do.call(rbind, lapply(res$rho, length))
 num_clusters = as.vector(num_clusters)
 ```
@@ -175,6 +176,7 @@ barplot(
     space = 0,
     yaxt = "n",
     main="Changepoint frequency distribution",
+    #col = color,
     cex.names=.6,
     las=2
 )
@@ -184,48 +186,29 @@ barplot(
 
 ```{r}
 plot(
-    x = 1:length(num_clusters),
+    x = seq_along(num_clusters),
     y = num_clusters,
     type = "n",
     xlab = "Iterations",
     ylab = "Number of groups",
     main = "Number of groups - Traceplot"
 )
-lines(x = 1:length(num_clusters), y = num_clusters)
+lines(x = seq_along(num_clusters), y = num_clusters)
 ```
 
 ```{r}
-histogram = hist(
-    num_clusters,
+barplot(
+    table(num_clusters),
     xlab = "Number of groups",
     ylab = "Frequency",
-    border = "darkgray",
     main = paste(
         "Number of groups - Frequency\n",
         "Last:",
         tail(num_clusters, n = 1),
         "- Mean:",
         round(mean(num_clusters), 2)
-    ),
-    xaxt = "n"
+    )
 )
-
-axis(
-    side = 1,
-    at = histogram$mids,
-    labels = seq(from = floor(histogram$mids[1]),
-                 length.out = length(histogram$mids))
-    ) 
-```
-
-
-### Compute similarity matrix
-
-```{r}
-# compute similarity matrix 
-sim_matrix <- salso::psm(z)
-
-heatmap(sim_matrix, Colv = FALSE, Rowv = FALSE)
 ```
 
 ### Retrieving best partition using VI on visited ones (order is guaranteed here)
@@ -238,23 +221,57 @@ library("Rcpp")
 library("RcppArmadillo")
 sourceCpp("src/wade.cpp")
 
-# compute VI loss for all visited partitions
+# compute VI
+sim_matrix <- salso::psm(z)
 dists <- VI_LB(z, psm_mat = sim_matrix)
 
 # select best partition (among the visited ones)
-final_partition_VI <- z[which.min(dists),]
-unname(table(final_partition_VI))
+best_partition_index = which.min(dists)
+rho_est = rho[[best_partition_index]]
+z_est = z[best_partition_index,]
+
+# VI loss
+dists[best_partition_index]
+
+# select best partition
+unname(z_est)
 ```
 
 ## Graph
 
-### Plot estimated matrices
+Extract last plinks
 
 ```{r}
-graph <- tail(res$G,n=1)[[1]]
-diag(graph)=1
+last_plinks = tail(res$G, n=1)[[1]]
+```
+
+Criterion 1 to select the threshold (should not work very well) and assign final graph
+
+```{r}
+threshold = 0.5
+G_est <- matrix(0,p,p)
+G_est[which(last_plinks>threshold)] = 1
+```
+
+Criterion 2 to select the threshold
+
+```{r}
+bfdr_select = BFDR_selection(last_plinks, tol = seq(0.1, 1, by = 0.001))
+```
+
+Inspect the threshold and assign final graph
+
+```{r}
+bfdr_select$best_treshold
+G_est = bfdr_select$best_truncated_graph
+```
+
+### Plot estimated matrices
+
+
+```{r}
 ACutils::ACheatmap(
-    graph,
+    last_plinks,
     use_x11_device = F,
     horizontal = F,
     main = "Estimated plinks matrix",
@@ -265,10 +282,21 @@ ACutils::ACheatmap(
 )
 
 ACutils::ACheatmap(
+    G_est,
+    use_x11_device = F,
+    horizontal = F,
+    main = "Estimated Graph",
+    center_value = NULL,
+    col.upper = "black",
+    col.center = "grey50",
+    col.lower = "white"
+)
+
+ACutils::ACheatmap(
     tail(res$K,n=1)[[1]],
     use_x11_device = F,
     horizontal = F,
-    main = "Estimated Precision matrix K",
+    main = "Estimated Precision matrix",
     center_value = NULL,
     col.upper = "black",
     col.center = "grey50",
@@ -276,67 +304,39 @@ ACutils::ACheatmap(
 )
 ```
 
-
 ### Graph visualization
-Extract last plinks
+
+Plot against the original
 
 ```{r}
-library(tidygraph)
-library(ggraph)
-last_G = res$G[[length(res$G)]]
-```
-
-Criterion 1 to select the threshold (should not work very well) and assign final graph
-
-```{r}
-threshold = 0.5
-final_graph <- matrix(0,p,p)
-final_graph[which(last_G>threshold)] = 1
-```
-
-Criterion 2 to select the threshold
-
-```{r}
-bfdr_select = BFDR_selection(last_G, tol = seq(0.1, 1, by = 0.001))
-```
-
-Inspect the threshold and assign final graph
-
-```{r}
-bfdr_select$best_treshold
-final_graph = bfdr_select$best_truncated_graph
-```
-
-Select the graph and plot it against the original
-
-
-```{r}
-# read edges and nodes
-g2 <- graph.adjacency(final_graph)
+g2 <- graph.adjacency(G_est)
 edges2 <- get.edgelist(g2)
-edges2 <- cbind(edges2,rep("estimated",nrow(edges2)))
-
-edges <- as.data.frame(rbind(edges2))
-names(edges) = c("from","to","graph")
-
-nodes = data.frame(vertices=1:p, estim_clust=as.factor(final_partition_VI))
-nodes
-
+edges2 <- cbind(edges2, rep("estimated", nrow(edges2)))
+edges <- as.data.frame(edges2)
+names(edges) = c("from", "to", "graph")
+nodes = data.frame(
+    vertices = 1:p,
+    clust_est = as.factor(z_est)
+)
+# nodes
 g = graph_from_data_frame(edges, directed = FALSE, nodes)
-lay = create_layout(g, layout = "fr")
+lay = create_layout(g, layout = "linear", circular = TRUE)
 
-# add node names
-ggraph(lay) + 
-  geom_edge_link(edge_colour = "grey") + 
-  geom_node_point(aes(color=estim_clust), size = 4) +
-  geom_node_text(aes(label = name), repel=TRUE)
+output_plot <- ggraph(lay) +
+    geom_edge_arc(edge_colour = "grey") +
+    geom_node_point(aes(color = clust_est), size = 4) +
+    geom_node_text(aes(label = name), repel = TRUE)
+print(output_plot)
 ```
+
+
+
 
 # Posterior analysis (Case: Centered)
 
 Restore the object
 
-```{r} 
+```{r}
 filename_data = file.path("output","real_dataset","realtest_cent.rds")
 res = readRDS(file = filename_data)
 ```
@@ -346,10 +346,9 @@ res = readRDS(file = filename_data)
 Recomputing the partition in other forms and the number of groups
 
 ```{r}
+rho = res$rho
 r = do.call(rbind, lapply(res$rho, rho_to_r))
 z = do.call(rbind, lapply(res$rho, rho_to_z))
-#r_true = rho_to_r(res$true_rho)
-#z_true = rho_to_z(res$true_rho)
 num_clusters = do.call(rbind, lapply(res$rho, length))
 num_clusters = as.vector(num_clusters)
 ```
@@ -372,6 +371,7 @@ barplot(
     space = 0,
     yaxt = "n",
     main="Changepoint frequency distribution",
+    #col = color,
     cex.names=.6,
     las=2
 )
@@ -381,48 +381,29 @@ barplot(
 
 ```{r}
 plot(
-    x = 1:length(num_clusters),
+    x = seq_along(num_clusters),
     y = num_clusters,
     type = "n",
     xlab = "Iterations",
     ylab = "Number of groups",
     main = "Number of groups - Traceplot"
 )
-lines(x = 1:length(num_clusters), y = num_clusters)
+lines(x = seq_along(num_clusters), y = num_clusters)
 ```
 
 ```{r}
-histogram = hist(
-    num_clusters,
+barplot(
+    table(num_clusters),
     xlab = "Number of groups",
     ylab = "Frequency",
-    border = "darkgray",
     main = paste(
         "Number of groups - Frequency\n",
         "Last:",
         tail(num_clusters, n = 1),
         "- Mean:",
         round(mean(num_clusters), 2)
-    ),
-    xaxt = "n"
+    )
 )
-
-axis(
-    side = 1,
-    at = histogram$mids,
-    labels = seq(from = floor(histogram$mids[1]),
-                 length.out = length(histogram$mids))
-    ) 
-```
-
-
-### Compute similarity matrix
-
-```{r}
-# compute similarity matrix 
-sim_matrix <- salso::psm(z)
-
-heatmap(sim_matrix, Colv = FALSE, Rowv = FALSE)
 ```
 
 ### Retrieving best partition using VI on visited ones (order is guaranteed here)
@@ -435,23 +416,57 @@ library("Rcpp")
 library("RcppArmadillo")
 sourceCpp("src/wade.cpp")
 
-# compute VI loss for all visited partitions
+# compute VI
+sim_matrix <- salso::psm(z)
 dists <- VI_LB(z, psm_mat = sim_matrix)
 
 # select best partition (among the visited ones)
-final_partition_VI <- z[which.min(dists),]
-unname(table(final_partition_VI))
+best_partition_index = which.min(dists)
+rho_est = rho[[best_partition_index]]
+z_est = z[best_partition_index,]
+
+# VI loss
+dists[best_partition_index]
+
+# select best partition
+unname(z_est)
 ```
 
 ## Graph
 
-### Plot estimated matrices
+Extract last plinks
 
 ```{r}
-graph <- tail(res$G,n=1)[[1]]
-diag(graph)=1
+last_plinks = tail(res$G, n=1)[[1]]
+```
+
+Criterion 1 to select the threshold (should not work very well) and assign final graph
+
+```{r}
+threshold = 0.5
+G_est <- matrix(0,p,p)
+G_est[which(last_plinks>threshold)] = 1
+```
+
+Criterion 2 to select the threshold
+
+```{r}
+bfdr_select = BFDR_selection(last_plinks, tol = seq(0.1, 1, by = 0.001))
+```
+
+Inspect the threshold and assign final graph
+
+```{r}
+bfdr_select$best_treshold
+G_est = bfdr_select$best_truncated_graph
+```
+
+### Plot estimated matrices
+
+
+```{r}
 ACutils::ACheatmap(
-    graph,
+    last_plinks,
     use_x11_device = F,
     horizontal = F,
     main = "Estimated plinks matrix",
@@ -462,10 +477,21 @@ ACutils::ACheatmap(
 )
 
 ACutils::ACheatmap(
+    G_est,
+    use_x11_device = F,
+    horizontal = F,
+    main = "Estimated Graph",
+    center_value = NULL,
+    col.upper = "black",
+    col.center = "grey50",
+    col.lower = "white"
+)
+
+ACutils::ACheatmap(
     tail(res$K,n=1)[[1]],
     use_x11_device = F,
     horizontal = F,
-    main = "Estimated Precision matrix K",
+    main = "Estimated Precision matrix",
     center_value = NULL,
     col.upper = "black",
     col.center = "grey50",
@@ -473,58 +499,27 @@ ACutils::ACheatmap(
 )
 ```
 
-
 ### Graph visualization
-Extract last plinks
+
+Plot against the original
 
 ```{r}
-library(tidygraph)
-library(ggraph)
-last_G = res$G[[length(res$G)]]
-```
-
-Criterion 1 to select the threshold (should not work very well) and assign final graph
-
-```{r}
-threshold = 0.5
-final_graph <- matrix(0,p,p)
-final_graph[which(last_G>threshold)] = 1
-```
-
-Criterion 2 to select the threshold
-
-```{r}
-bfdr_select = BFDR_selection(last_G, tol = seq(0.1, 1, by = 0.001))
-```
-
-Inspect the threshold and assign final graph
-
-```{r}
-bfdr_select$best_treshold
-final_graph = bfdr_select$best_truncated_graph
-```
-
-Select the graph and plot it against the original
-
-
-```{r}
-# read edges and nodes
-g2 <- graph.adjacency(final_graph)
+g2 <- graph.adjacency(G_est)
 edges2 <- get.edgelist(g2)
-edges2 <- cbind(edges2,rep("estimated",nrow(edges2)))
-
-edges <- as.data.frame(rbind(edges2))
-names(edges) = c("from","to","graph")
-
-nodes = data.frame(vertices=1:p, estim_clust=as.factor(final_partition_VI))
-nodes
-
+edges2 <- cbind(edges2, rep("estimated", nrow(edges2)))
+edges <- as.data.frame(edges2)
+names(edges) = c("from", "to", "graph")
+nodes = data.frame(
+    vertices = 1:p,
+    clust_est = as.factor(z_est)
+)
+# nodes
 g = graph_from_data_frame(edges, directed = FALSE, nodes)
-lay = create_layout(g, layout = "fr")
+lay = create_layout(g, layout = "linear", circular = TRUE)
 
-# add node names
-ggraph(lay) + 
-  geom_edge_link(edge_colour = "grey") + 
-  geom_node_point(aes(color=estim_clust), size = 4) +
-  geom_node_text(aes(label = name), repel=TRUE)
+output_plot <- ggraph(lay) +
+    geom_edge_arc(edge_colour = "grey") +
+    geom_node_point(aes(color = clust_est), size = 4) +
+    geom_node_text(aes(label = name), repel = TRUE)
+print(output_plot)
 ```
