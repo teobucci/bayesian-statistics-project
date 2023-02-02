@@ -109,7 +109,6 @@ Gibbs <- function(i, grid){
     # unique_ID = dittodb::hash(unique_ID, n = 8)
     # cat("This simulation has been assigned ID:", unique_ID)
     unique_ID = sprintf("%02d", i)
-    grid[i,]$simulation_id = unique_ID
     
     filename_data = paste("output/data/simulation_", unique_ID, ".rds", sep = "")
     #filename_log = paste("output/log/simulation_", unique_ID, ".log", sep = "")
