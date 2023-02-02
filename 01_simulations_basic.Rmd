@@ -465,6 +465,33 @@ lines(x = seq_along(kl_dist), y = kl_dist)
 Plot against the original
 
 ```{r}
+g1 <- graph.adjacency(res$true_graph)
+edges1 <- get.edgelist(g1)
+edges1 <- cbind(edges1, rep("true", nrow(edges1)))
+g2 <- graph.adjacency(G_est)
+edges2 <- get.edgelist(g2)
+edges2 <- cbind(edges2, rep("estimated", nrow(edges2)))
+edges <- as.data.frame(rbind(edges1, edges2))
+names(edges) = c("from", "to", "graph")
+nodes = data.frame(
+    vertices = 1:p,
+    clust_true = as.factor(z_true),
+    clust_est = as.factor(z_est)
+)
+# nodes
+g = graph_from_data_frame(edges, directed = FALSE, nodes)
+lay = create_layout(g, layout = "linear", circular = TRUE)
+
+output_plot <- ggraph(lay) +
+    geom_edge_arc(edge_colour = "grey") +
+    geom_node_point(aes(color = clust_true, shape = clust_est), size = 2) +
+    geom_node_text(aes(label = name), repel = TRUE) +
+    facet_edges( ~ graph)
+print(output_plot)
+```
+
+
+```{r}
 # read edges and nodes
 g1 <- graph.adjacency(res$true_graph)
 edges1 <- get.edgelist(g1)
