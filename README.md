@@ -40,7 +40,7 @@ Open the `./FGM/FGM.Rproj` in RStudio and type:
 
 On macOS on M1 chip you may get an error involving `gfortran`, in which case proceed as follows according to [this](https://stackoverflow.com/a/72997915/16222204):
 
-1. Install gcc which includes gfortran with
+1. Install `gcc` which includes `gfortran` with
    ```
    brew install gcc
    ```
