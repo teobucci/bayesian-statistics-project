@@ -397,6 +397,12 @@ bfdr_select$best_treshold
 G_est = bfdr_select$best_truncated_graph
 ```
 
+### Standardized Hamming distance
+
+```{r}
+SHD = sum(abs(sim$true_graph - G_est)) / (p^2 - p)
+SHD
+```
 
 ### Plot estimated matrices
 
