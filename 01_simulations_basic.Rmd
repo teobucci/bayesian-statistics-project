@@ -43,6 +43,9 @@ shhh("gmp")
 shhh("mcclust")
 shhh("mcclust.ext")
 shhh("logr")
+shhh("tidygraph")
+shhh("ggraph")
+shhh("igraph")
 ```
 
 ```{r, include = FALSE}
