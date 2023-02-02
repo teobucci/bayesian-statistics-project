@@ -137,12 +137,11 @@ ACutils::ACheatmap(
 )
 ```
 
-```{r}
-Prec_true = sim$Prec # precision matrix
-Graph_true = sim$Graph # true graph
-Graph_true[col(Graph_true)==row(Graph_true)] = 0 # remove self loops
+`sim$Prec` is the true precision matrix, `sim$Graph` is the true graph (adjacency matrix).
 
+```{r}
 graph_density = sum(sim$Graph) / (p*(p-1))
+graph_density
 ```
 
 ## Set options for the simulation
