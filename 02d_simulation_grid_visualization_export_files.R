@@ -202,7 +202,7 @@ posterior_analysis <- function(i){
         #title(paste("Acceptance frequency:",round(mean(sim$accepted),2)), line = -20)
         
         plot(
-            x = 1:length(rand_index),
+            x = seq_along(rand_index),
             y = rand_index,
             type = "n",
             xlab = "Iterations",
@@ -215,19 +215,19 @@ posterior_analysis <- function(i){
                 round(mean(rand_index), 2)
             )
         )
-        lines(x = 1:length(rand_index), y = rand_index)
+        lines(x = seq_along(rand_index), y = rand_index)
         abline(h = 1, col = "red", lwd = 4)
         
         
         plot(
-            x = 1:length(kl_dist),
+            x = seq_along(kl_dist),
             y = kl_dist,
             type = "n",
             xlab = "Iterations",
             ylab = "K-L distance",
             main = paste("\nKullback Leibler distance\nLast value:", last)
         )
-        lines(x = 1:length(kl_dist), y = kl_dist)
+        lines(x = seq_along(kl_dist), y = kl_dist)
         dev.off()
         
     }
@@ -237,24 +237,24 @@ posterior_analysis <- function(i){
         pdf(file=file.path(output_path,"theta_sigma_prior.pdf"), width = 16, height = 9)
         par(mfrow=c(2,1))
         plot(
-            x = 1:length(sim$sigma),
+            x = seq_along(sim$sigma),
             y = sim$sigma,
             type = "n",
             xlab = "Iterations",
             ylab = TeX(r'($\sigma$ prior)'),
             main = TeX(r'($\sigma$ prior - Traceplot)')
         )
-        lines(x = 1:length(sim$sigma), y = sim$sigma, lwd = 0.8)
+        lines(x = seq_along(sim$sigma), y = sim$sigma, lwd = 0.8)
         
         plot(
-            x = 1:length(sim$theta),
+            x = seq_along(sim$theta),
             y = sim$theta,
             type = "n",
             xlab = "Iterations",
             ylab = TeX(r'($\theta$ prior)'),
             main = TeX(r'($\theta$ prior - Traceplot)')
         )
-        lines(x = 1:length(sim$theta), y = sim$theta, lwd = 0.8)
+        lines(x = seq_along(sim$theta), y = sim$theta, lwd = 0.8)
         dev.off()
 
     }
@@ -294,14 +294,14 @@ posterior_analysis <- function(i){
         
         
         plot(
-            x = 1:length(num_clusters),
+            x = seq_along(num_clusters),
             y = num_clusters,
             type = "n",
             xlab = "Iterations",
             ylab = "Number of groups",
             main = "Number of groups - Traceplot"
         )
-        lines(x = 1:length(num_clusters), y = num_clusters)
+        lines(x = seq_along(num_clusters), y = num_clusters)
         abline(h = length(z_to_rho(z_true)),
                col = "red",
                lwd = 4)
