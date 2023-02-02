@@ -9,15 +9,15 @@ author:
     - Andrea Puricelli^[andrea3.puricelli@mail.polimi.it]
     - Giulio Venturini^[giulio.venturini@mail.polimi.it]
 output:
-    html_document:
-        toc: true
-        toc_float: true
-        number_sections: true
     pdf_document:
         toc: true
         toc_depth: 3
         number_section: true
-date: "2023-01-17"
+    html_document:
+        toc: true
+        toc_float: true
+        number_sections: true
+#date: "2023-01-17"
 editor_options:
     chunk_output_type: console
 ---
