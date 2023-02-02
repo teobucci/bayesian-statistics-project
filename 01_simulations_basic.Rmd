@@ -146,16 +146,7 @@ graph_density
 
 ## Set options for the simulation
 
-Grid for the variance of the Beta
-
 ```{r}
-(grid_beta_sig2 = seq(from=1/16, to=1/4, length.out = 10))
-```
-
-```{r}
-# https://stackoverflow.com/a/57571028/16222204
-# Use TRUE/FALSE instead of T/F
-
 options = set_options(sigma_prior_0=0.5,
                       sigma_prior_parameters=list("a"=1,"b"=1,"c"=1,"d"=1),
                       theta_prior_0=1,
@@ -259,7 +250,6 @@ mean(res$accepted)
 ### Barplot of changepoints
 
 ```{r}
-# https://stackoverflow.com/questions/62061859/abline-not-fitting-to-barplot
 bar_heights = colSums(r)
 cp_true = which(r_true==1)
 color <- ifelse(seq_along(bar_heights) %in% c(cp_true), "red", "gray")
