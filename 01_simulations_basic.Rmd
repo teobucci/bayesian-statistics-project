@@ -415,6 +415,17 @@ ACutils::ACheatmap(
 )
 
 ACutils::ACheatmap(
+    G_est,
+    use_x11_device = F,
+    horizontal = F,
+    main = "Estimated Graph",
+    center_value = NULL,
+    col.upper = "black",
+    col.center = "grey50",
+    col.lower = "white"
+)
+
+ACutils::ACheatmap(
     tail(res$K,n=1)[[1]],
     use_x11_device = F,
     horizontal = F,
