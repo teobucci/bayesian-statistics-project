@@ -25,9 +25,6 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE, cache=FALSE)
 ```
-\newpage
-
-# Recap table
 
 ```{r, include = FALSE}
 suppressWarnings(suppressPackageStartupMessages(library(tidyverse)))
@@ -44,10 +41,9 @@ suppressWarnings(suppressPackageStartupMessages(library(ggraph)))
 suppressWarnings(suppressPackageStartupMessages(library(igraph)))
 suppressWarnings(suppressPackageStartupMessages(library(pbapply)))
 suppressWarnings(suppressPackageStartupMessages(library(latex2exp)))
-library(knitr)
-library(kableExtra)
-```
-```{r, include = FALSE}
+suppressWarnings(suppressPackageStartupMessages(library(knitr)))
+suppressWarnings(suppressPackageStartupMessages(library(kableExtra)))
+
 paths = c(
     "src/utility_functions.R",
     "src/bulky_functions.R",
@@ -59,100 +55,73 @@ for(p in paths){
     if(file.exists(path)){
         source(path)
     } else {
-        cat("File",path,"was not found in directory, please check.")
+        stop("File",path,"was not found in directory, please check.")
     }
 }
 ```
 
-
 ```{r, echo = FALSE}
-posterior_analysis <- function(i,n){
-    if(i %in% (c(0,cumsum(c(8,10,2,4,7,10,1)))+1)){
-        cat(paste("## Group",n,"\n\n"))
-        n = n+1
+posterior_analysis <- function(i,group_id, recap_table, grid){
+    if(i %in% (c(0,cumsum(c(7,10,2,4,7,10,1)))+1)){
+        cat(paste("## Group",group_id,"\n\n"))
+        group_id = group_id+1
     }
-    cat(paste("### Simulation number",i))
-    library("Rcpp")
-    library("RcppArmadillo")
-    sourceCpp("src/wade.cpp")
+    cat(paste("### Simulation ID: ", grid[i,]$simulation_id),"\n")
     
-    temp_init <- paste(grid[i,]$initial_partition,collapse=',')
-    temp_rho <- paste(grid[i,]$rho_true,collapse=',')
-    temp_grid <- grid[i,]
-    temp_grid$rho_true <- temp_rho
-    temp_grid$initial_partition <- temp_init
-    print(knitr::kable(as.data.frame(temp_grid)))
+    # print i-th recap table row
     
+    print(knitr::kable(recap_table[i, ], booktabs = TRUE) %>%
+        kable_styling(latex_options = c("hold_position", "scale_down")))
+    
+    # extract simulation ID
     simulation_id = grid[i,]$simulation_id
-    rho_true <- grid[i,]$rho_true
+    
+    # read current simulation
+    sim <-
+        read_rds(file.path(
+            "output",
+            "data",
+            paste("simulation_", simulation_id, ".rds", sep = "")
+        ))
+    
+    # compute other partition forms
+    rho_true = sim$true_rho
+    r_true = rho_to_r(rho_true)
     z_true = rho_to_z(rho_true)
-    r_true = z_to_r(z_true)
     p = length(z_true)
     num_clusters_true = length(rho_true)
-    
-    sim <- read_rds(file.path("output","data",paste("simulation_",simulation_id,".rds",sep="")))
-    Prec_true = sim$true_precision # precision matrix
-    Graph_true = sim$true_graph # true graph
-    Graph_true[col(Graph_true)==row(Graph_true)] = 0 # remove self loops
-    graph_density = sum(sim$Graph) / (p*(p-1))
-    
+    rho = sim$rho
     r = do.call(rbind, lapply(sim$rho, rho_to_r))
     z = do.call(rbind, lapply(sim$rho, rho_to_z))
-    r_true = rho_to_r(sim$true_rho)
-    z_true = rho_to_z(sim$true_rho)
     num_clusters = do.call(rbind, lapply(sim$rho, length))
     num_clusters = as.vector(num_clusters)
     
-    mean(sim$accepted) # acceptance frequency
-    # computing rand index for each iteration
-    rand_index = apply(z, 1, mcclust::arandi, z_true)
+    # graph related quantities
+    last_plinks = tail(sim$G, n=1)[[1]]
+    bfdr_select = BFDR_selection(last_plinks, tol = seq(0.1, 1, by = 0.001))
+    G_est = bfdr_select$best_truncated_graph # estimated adjacency
     
-    # compute VI loss for all visited partitions
-    # compute similarity matrix 
-    sim_matrix <- salso::psm(z)
-    # adding names for the heatmap
-    rownames(sim_matrix) = 1:length(z_true)
-    colnames(sim_matrix) = 1:length(z_true)
-    dists <- VI_LB(z, psm_mat = sim_matrix)
-    
-    # select best partition (among the visited ones)
-    final_partition_VI <- z[which.min(dists),]
-    unname(table(final_partition_VI))
-    
-    # compute Rand Index
-    mcclust::arandi(final_partition_VI,z_true)
+    # --------------------------------------------------------------------------
     
     # kl distance
     kl_dist = do.call(rbind, lapply(sim$K, function(k) {
         ACutils::KL_dist(sim$true_precision, k)
     }))
-    last = round(tail(kl_dist, n=1), 3)
     
+    # computing rand index for each iteration
+    rand_index = apply(z, 1, mcclust::arandi, z_true)
     
-    last_G = sim$G[[length(sim$G)]]
-    bfdr_select = BFDR_selection(last_G, tol = seq(0.1, 1, by = 0.001))
-    bfdr_select$best_treshold
-    final_graph = bfdr_select$best_truncated_graph
+    # compute VI
+    sim_matrix <- salso::psm(z)
+    dists <- VI_LB(z, psm_mat = sim_matrix)
     
-    # create graph for visualization
-    g1 <- graph.adjacency(Graph_true)
-    edges1 <- get.edgelist(g1)
-    edges1 <- cbind(edges1,rep("true",nrow(edges1)))
-    g2 <- graph.adjacency(final_graph)
-    edges2 <- get.edgelist(g2)
-    edges2 <- cbind(edges2,rep("estimated",nrow(edges2)))
-    edges <- as.data.frame(rbind(edges1,edges2))
-    names(edges) = c("from","to","graph")
-    nodes = data.frame(vertices=1:p,true_clust=as.factor(z_true), estim_clust=as.factor(final_partition_VI))
-    nodes
-    g = graph_from_data_frame(edges, directed = FALSE, nodes)
-    lay = create_layout(g, layout = "fr")
+    # select best partition (among the visited ones)
+    best_partition_index = which.min(dists)
+    rho_est = rho[[best_partition_index]]
+    z_est = z[best_partition_index,]
     
-    last_G[col(last_G)==row(last_G)] = 1 
-    
-    
-    if(options$true_graph_and_K){
-        par(mfrow=c(1,2))
+    if(options$graph_and_K){
+        par(mfrow=c(1,4))
         ACutils::ACheatmap(
             sim$true_graph,
             use_x11_device = F,
@@ -165,25 +134,21 @@ posterior_analysis <- function(i,n){
         )
         
         ACutils::ACheatmap(
-            sim$true_precision,
+            G_est,
             use_x11_device = F,
             horizontal = F,
-            main = "Precision matrix K",
+            main = "\nEstimated Graph",
             center_value = NULL,
             col.upper = "black",
             col.center = "grey50",
             col.lower = "white"
         )
-    }
-    
-    
-    if(options$estimated_graph_and_K){
-        par(mfrow=c(1,2))
+        
         ACutils::ACheatmap(
-            last_G,
+            sim$true_precision,
             use_x11_device = F,
             horizontal = F,
-            main = "\nEstimated plinks matrix",
+            main = "Precision matrix",
             center_value = NULL,
             col.upper = "black",
             col.center = "grey50",
@@ -194,19 +159,40 @@ posterior_analysis <- function(i,n){
             tail(sim$K,n=1)[[1]],
             use_x11_device = F,
             horizontal = F,
-            main = "\nEstimated Precision matrix K",
+            main = "\nEstimated Precision matrix",
             center_value = NULL,
             col.upper = "black",
             col.center = "grey50",
             col.lower = "white"
-        )       
+        )
+        
+        par(mfrow=c(1,1))
     }
     
     if(options$plot_graph){
         par(mfrow=c(1,1))
+        
+        # create graph for visualization
+        g1 <- graph.adjacency(sim$true_graph)
+        edges1 <- get.edgelist(g1)
+        edges1 <- cbind(edges1, rep("true", nrow(edges1)))
+        g2 <- graph.adjacency(G_est)
+        edges2 <- get.edgelist(g2)
+        edges2 <- cbind(edges2, rep("estimated", nrow(edges2)))
+        edges <- as.data.frame(rbind(edges1, edges2))
+        names(edges) = c("from", "to", "graph")
+        nodes = data.frame(
+            vertices = 1:p,
+            true_clust = as.factor(z_true),
+            estim_clust = as.factor(z_est)
+        )
+        # nodes
+        g = graph_from_data_frame(edges, directed = FALSE, nodes)
+        lay = create_layout(g, layout = "linear", circular = TRUE)
+        
         output_plot <- ggraph(lay) + 
-            geom_edge_link(edge_colour = "grey") + 
-            geom_node_point(aes(color=true_clust, shape = estim_clust), size = 2) +
+            geom_edge_arc(edge_colour = "grey") + 
+            geom_node_point(aes(color=z_true, shape = z_est), size = 2) +
             geom_node_text(aes(label = name), repel=TRUE) +
             facet_edges(~graph)
         print(output_plot)
@@ -214,7 +200,6 @@ posterior_analysis <- function(i,n){
     
     if(options$changepoint_kl){
         par(mfrow=c(1,3))
-        ### Barplot of changepoints
         bar_heights = colSums(r)
         cp_true = which(r_true==1)
         color <- ifelse(seq_along(bar_heights) %in% c(cp_true), "red", "gray")
@@ -226,7 +211,6 @@ posterior_analysis <- function(i,n){
             space = 0,
             yaxt = "n",
             main = "\nChangepoint\n frequency distribution",
-            #col = color,
             cex.names=.6,
             las=2
         )
@@ -236,10 +220,11 @@ posterior_analysis <- function(i,n){
                bty = "n",
                lty = 1,
                cex = 0.6)
-        #title(paste("Acceptance frequency:",round(mean(sim$accepted),2)), line = -20)
+        
+        # --------------------------------------------
         
         plot(
-            x = 1:length(rand_index),
+            x = seq_along(rand_index),
             y = rand_index,
             type = "n",
             xlab = "Iterations",
@@ -252,54 +237,59 @@ posterior_analysis <- function(i,n){
                 round(mean(rand_index), 2)
             )
         )
-        lines(x = 1:length(rand_index), y = rand_index)
+        lines(x = seq_along(rand_index), y = rand_index)
         abline(h = 1, col = "red", lwd = 4)
         
+        # --------------------------------------------
         
         plot(
-            x = 1:length(kl_dist),
+            x = seq_along(kl_dist),
             y = kl_dist,
             type = "n",
             xlab = "Iterations",
             ylab = "K-L distance",
-            main = paste("\nKullback Leibler distance\nLast value:", last)
+            main = paste(
+                "\nKullback-Leibler distance\nLast:",
+                round(tail(kl_dist, n=1), 3)
+                )
         )
-        lines(x = 1:length(kl_dist), y = kl_dist)       
+        lines(x = seq_along(kl_dist), y = kl_dist)
+        
+        par(mfrow=c(1,1))
     }
     
-
-    if(options$theta_sigma){
-        par(mfrow=c(1,2))
+    par(mar=c(5,4,4,2) + 0.1)
+    
+    if(options$theta_sigma_numgroupsfreq){
+        par(mfrow=c(1,3))
         plot(
-            x = 1:length(sim$sigma),
+            x = seq_along(sim$sigma),
             y = sim$sigma,
             type = "n",
             xlab = "Iterations",
             ylab = TeX(r'($\sigma$ prior)'),
             main = TeX(r'($\sigma$ prior - Traceplot)')
         )
-        lines(x = 1:length(sim$sigma), y = sim$sigma, lwd = 0.3)
+        lines(x = seq_along(sim$sigma), y = sim$sigma, lwd = 0.3)
 
+        # --------------------------------------------
+        
         plot(
-            x = 1:length(sim$theta),
+            x = seq_along(sim$theta),
             y = sim$theta,
             type = "n",
             xlab = "Iterations",
             ylab = TeX(r'($\theta$ prior)'),
             main = TeX(r'($\theta$ prior - Traceplot)')
         )
-        lines(x = 1:length(sim$theta), y = sim$theta, lwd = 0.3)
-
-    }
-    
-    
-    if(options$groups_number){
-        par(mfrow=c(1,2))
-        histogram = hist(
-            num_clusters,
+        lines(x = seq_along(sim$theta), y = sim$theta, lwd = 0.3)
+        
+        # --------------------------------------------
+        
+        barplot(
+            table(num_clusters),
             xlab = "Number of groups",
             ylab = "Frequency",
-            border = "darkgray",
             main = paste(
                 "Number of groups - Frequency\n",
                 "Last:",
@@ -308,32 +298,22 @@ posterior_analysis <- function(i,n){
                 round(mean(num_clusters), 2),
                 "- True:",
                 num_clusters_true
-            ),
-            xaxt = "n"
+            )
         )
         
-        axis(
-            side = 1,
-            at = histogram$mids,
-            labels = seq(from = floor(histogram$mids[1]),
-                         length.out = length(histogram$mids))
-        ) 
-        
-        abline(v = num_clusters_true+0.25,
-               col = "red",
-               lwd = 4)
-        
-        
-        
+        par(mfrow=c(1,1))
+    }
+    
+    if(options$numgroups_traceplot){
         plot(
-            x = 1:length(num_clusters),
+            x = seq_along(num_clusters),
             y = num_clusters,
             type = "n",
             xlab = "Iterations",
             ylab = "Number of groups",
             main = "Number of groups - Traceplot"
         )
-        lines(x = 1:length(num_clusters), y = num_clusters)
+        lines(x = seq_along(num_clusters), y = num_clusters)
         abline(h = length(z_to_rho(z_true)),
                col = "red",
                lwd = 4)
@@ -344,102 +324,141 @@ posterior_analysis <- function(i,n){
     
     cat("\n\n\\pagebreak\n")
     #writeLines("ValueForV")
-    return(n)
+    return(group_id)
 }
 ```
 
+\newpage
+
+# Recap table
 
 ```{r, echo = FALSE, include=FALSE, warning = FALSE}
+# Read table
 filename_data = "output/simulation_table.rds"
-n = 1
 grid = readRDS(file = filename_data)
-grid_posterior <- grid
-grid_posterior[20,]$initial_partition <- "singletons"
 
-acceptance_rates <- numeric(nrow(grid))
-estimated_partition <- numeric(nrow(grid))
-VI_index <- numeric(nrow(grid))
-randindex <- numeric(nrow(grid))
-kl_dist_last <- numeric(nrow(grid))
-time <- numeric(nrow(grid))
-
-for(i in 1:nrow(grid)){
+library("Rcpp")
+library("RcppArmadillo")
+sourceCpp("src/wade.cpp")
+    
+# build the final table row by row
+recap_table = data.frame()
+for(i in seq_len(nrow(grid))){
+    
+    # extract simulation ID
     simulation_id = grid[i,]$simulation_id
-    rho_true <- grid[i,]$rho_true
+    
+    # read current simulation
+    sim <-
+        read_rds(file.path(
+            "output",
+            "data",
+            paste("simulation_", simulation_id, ".rds", sep = "")
+        ))
+    
+    # compute other partition forms
+    rho_true = sim$true_rho
+    r_true = rho_to_r(rho_true)
     z_true = rho_to_z(rho_true)
-    r_true = z_to_r(z_true)
     p = length(z_true)
     num_clusters_true = length(rho_true)
-    sim <- read_rds(file.path("output","data",paste("simulation_",simulation_id,".rds",sep="")))
+    rho = sim$rho
     r = do.call(rbind, lapply(sim$rho, rho_to_r))
     z = do.call(rbind, lapply(sim$rho, rho_to_z))
-    r_true = rho_to_r(sim$true_rho)
-    z_true = rho_to_z(sim$true_rho)
     num_clusters = do.call(rbind, lapply(sim$rho, length))
     num_clusters = as.vector(num_clusters)
     
+    # acceptance rate
+    accept <- mean(sim$accepted)
+    
+    # estimated partition and indexes
     sim_matrix <- salso::psm(z)
-    # adding names for the heatmap
-    rownames(sim_matrix) = 1:length(z_true)
-    colnames(sim_matrix) = 1:length(z_true)
-   
-    # Acceptance rate
-    acceptance_rates[i] <- round(mean(sim$accepted),4)
-    
-    
-    library("Rcpp")
-    library("RcppArmadillo")
-    sourceCpp("src/wade.cpp")
     dists <- VI_LB(z, psm_mat = sim_matrix)
-    # Estimated partition
-    final_partition_VI <- z[which.min(dists),]
-    VI_index[i] <- final_partition_VI
-    estimated_partition[i] <- list(unname(table(final_partition_VI)))
-    unname(table(final_partition_VI))
-    # Randindex
-    randindex[i] <- round(mcclust::arandi(final_partition_VI,z_true),4)
+    best_partition_index = which.min(dists)
+    rho_est = rho[[best_partition_index]]
+    z_est = z[best_partition_index,]
+    randindex = mcclust::arandi(z_est,z_true)
+    VI_loss = dists[best_partition_index]
     
-   
+    # KL distance from the true precision to the last precision
     kl_dist = ACutils::KL_dist(sim$true_precision, sim$K[[length(sim$K)]])
-    kl_dist_last[i] <- round(kl_dist,4)
     
-    time[i] <- round(sim$execution_time,2)
-   
+    # execution time
+    time = sim$execution_time
+    
+    # standardized Hamming distance
+    last_plinks = tail(sim$G, n=1)[[1]]
+    bfdr_select = BFDR_selection(last_plinks, tol = seq(0.1, 1, by = 0.001))
+    G_est = bfdr_select$best_truncated_graph
+    SHD = sum(abs(sim$true_graph - G_est)) / (p^2 - p)
+    
+    # create new row and append it
+    new_row = data.frame(
+        sim_id = grid[i,]$simulation_id,
+        n = as.character(grid[i,]$n),
+        p = as.character(grid[i,]$p),
+        data_gen = grid[i,]$type_data_gen,
+        seed = as.character(grid[i,]$seed_data_gen),
+        rho0 = paste(grid[i,]$rho0,collapse=','),
+        beta_sig2 = as.character(grid[i,]$beta_sig2),
+        rho_true = paste(grid[i,]$rho_true,collapse=','),
+        rho_est = paste(rho_est,collapse=','),
+        accept = round(accept,3),
+        VI = round(VI_loss,3),
+        RI = round(randindex,3),
+        KL = round(kl_dist,3),
+        SHD = round(SHD,3),
+        time = round(time,3)
+    )
+    
+    recap_table = rbind(recap_table, new_row)
 }
+recap_table[19,]$rho0 <- "singletons"
 
-
+# rename with latex format
+#names(recap_table)[names(recap_table) == "sim_id"] <- "\\texttt{sim\\_id}"
+#names(recap_table)[names(recap_table) == "data_gen"] <- "\\texttt{data\\_gen}"
+#names(recap_table)[names(recap_table) == "seed"] <- "\\texttt{seed}"
+#names(recap_table)[names(recap_table) == "time"] <- "\\texttt{time}"
+#names(recap_table)[names(recap_table) == "accept"] <- "\\texttt{accept}"
+#names(recap_table)[names(recap_table) == "beta_sig2"] <- "\\texttt{beta\\_sig2}"
+#names(recap_table)[names(recap_table) == "rho0"] <- "$\\rho_0$"
+#names(recap_table)[names(recap_table) == "rho_true"] <- "$\\rho_{\\text{true}}$"
+#names(recap_table)[names(recap_table) == "rho_est"] <- "$\\rho_{\\text{est}}$"
+#names(recap_table)[names(recap_table) == "n"] <- "$n$"
+#names(recap_table)[names(recap_table) == "p"] <- "$p$"
 ```
 
 ```{r, echo=FALSE, results='asis'}
-grid_posterior_complete = cbind(grid_posterior, acceptance_rates=acceptance_rates,
-                       estimated_partition=estimated_partition,
-                       VI_index = VI_index,
-                       randindex = randindex,
-                       kl_dist = kl_dist_last,
-                       time = time)
-grid_posterior_df <- as.data.frame(grid_posterior_complete)
-grid_posterior_df$beta_sig2 <- lapply(grid_posterior_df$beta_sig2,function(x){round(x,3)})
-names(grid_posterior_df) <- c("sim_id","n", "p", "data_gen", "seed", "rho0", "B_sigma", 
-                              "rho_true", "accept", "rho_est", "VI", "RI","KL","time")       
-
-knitr::kable(as.data.frame(grid_posterior_df), booktabs=TRUE, escape = TRUE) %>% 
-  kable_styling(latex_options="scale_down")
-
+# export for LaTeX
+#writeLines(knitr::kable(recap_table, "latex", booktabs=TRUE,escape=FALSE) %>% 
+knitr::kable(recap_table, booktabs=TRUE) %>% 
+    add_header_above(c(" ", "Data" = 7, "Analysis" = 7)) %>%
+    pack_rows("Group 1: varying seed", 1, 7) %>%
+    pack_rows("Group 2: varying beta_sig2", 8, 17) %>%
+    pack_rows("Group 3: varying initial partition", 18, 19) %>%
+    pack_rows("Group 4: varying group numerosities", 20, 23) %>%
+    pack_rows("Group 5: varying n", 24, 30) %>%
+    pack_rows("Group 6: varying p", 31, 40) %>%
+    pack_rows("Group 7: using noised block structure", 41, 41) %>%
+    kable_styling(latex_options=c("striped", "hold_position","scale_down"),
+                  stripe_index = c(1:7,8:17,18:19,20:23,24:30,31:40,41))
+#)
 ```
-
 
 \newpage
 
 # Simulations
-```{r, echo = FALSE, fig.align='center', results = 'asis', fig.height = 3.5, out.width="50%"}
-options <- list(true_graph_and_K = TRUE,
-                estimated_graph_and_K = TRUE,
-                plot_graph = TRUE,
+
+```{r, echo = FALSE, fig.align='center', results = 'asis', fig.width=10, fig.height=3, fig.fullwidth=TRUE, warning=FALSE}
+
+options <- list(graph_and_K = TRUE,
+                plot_graph = FALSE,
                 changepoint_kl = TRUE,
-                groups_number = FALSE,
-                theta_sigma = TRUE)
-#pbsapply(1:nrow(grid), posterior_analysis)
+                numgroups_traceplot = FALSE,
+                theta_sigma_numgroupsfreq = TRUE)
+group_id = 1
 for(i in 1:nrow(grid)){
-    n <- posterior_analysis(i,n)
+    group_id <- posterior_analysis(i,group_id, recap_table, grid)
 }
 ```
