@@ -146,7 +146,7 @@ posterior_analysis <- function(i,n){
     nodes = data.frame(vertices=1:p,true_clust=as.factor(z_true), estim_clust=as.factor(final_partition_VI))
     nodes
     g = graph_from_data_frame(edges, directed = FALSE, nodes)
-    lay = create_layout(g, layout = "fr")
+    lay = create_layout(g, layout = "linear", circular = TRUE)
     
     last_G[col(last_G)==row(last_G)] = 1 
     
@@ -205,7 +205,7 @@ posterior_analysis <- function(i,n){
     if(options$plot_graph){
         par(mfrow=c(1,1))
         output_plot <- ggraph(lay) + 
-            geom_edge_link(edge_colour = "grey") + 
+            geom_edge_arc(edge_colour = "grey") + 
             geom_node_point(aes(color=true_clust, shape = estim_clust), size = 2) +
             geom_node_text(aes(label = name), repel=TRUE) +
             facet_edges(~graph)
