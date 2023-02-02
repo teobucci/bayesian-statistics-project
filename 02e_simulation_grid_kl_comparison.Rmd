@@ -13,6 +13,7 @@ output:
         toc: true
         toc_depth: 3
         number_section: true
+        #keep_tex: yes
     html_document:
         toc: true
         toc_float: true
@@ -23,7 +24,13 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, cache=FALSE)
+knitr::opts_chunk$set(
+    dev = "pdf",
+    echo = FALSE,
+    cache = FALSE,
+    fig.path = "output/",
+    fig.align = 'center'
+)
 ```
 \newpage
 
