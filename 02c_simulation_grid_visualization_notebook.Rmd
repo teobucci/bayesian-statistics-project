@@ -169,35 +169,6 @@ posterior_analysis <- function(i,group_id, recap_table, grid){
         par(mfrow=c(1,1))
     }
     
-    if(options$plot_graph){
-        par(mfrow=c(1,1))
-        
-        # create graph for visualization
-        g1 <- graph.adjacency(sim$true_graph)
-        edges1 <- get.edgelist(g1)
-        edges1 <- cbind(edges1, rep("true", nrow(edges1)))
-        g2 <- graph.adjacency(G_est)
-        edges2 <- get.edgelist(g2)
-        edges2 <- cbind(edges2, rep("estimated", nrow(edges2)))
-        edges <- as.data.frame(rbind(edges1, edges2))
-        names(edges) = c("from", "to", "graph")
-        nodes = data.frame(
-            vertices = 1:p,
-            clust_true = as.factor(z_true),
-            clust_est = as.factor(z_est)
-        )
-        # nodes
-        g = graph_from_data_frame(edges, directed = FALSE, nodes)
-        lay = create_layout(g, layout = "linear", circular = TRUE)
-        
-        output_plot <- ggraph(lay) + 
-            geom_edge_arc(edge_colour = "grey") +
-            geom_node_point(aes(color = clust_true, shape = clust_est), size = 2) +
-            geom_node_text(aes(label = name), repel=TRUE) +
-            facet_edges(~graph)
-        print(output_plot)
-    }
-    
     if(options$changepoint_kl){
         par(mfrow=c(1,3))
         bar_heights = colSums(r)
@@ -320,6 +291,35 @@ posterior_analysis <- function(i,group_id, recap_table, grid){
         legend("topleft", legend=c("True"), col=c("red"),
                lty = 1,
                cex = 1)
+    }
+    
+    if(options$plot_graph){
+        par(mfrow=c(1,1))
+        
+        # create graph for visualization
+        g1 <- graph.adjacency(sim$true_graph)
+        edges1 <- get.edgelist(g1)
+        edges1 <- cbind(edges1, rep("true", nrow(edges1)))
+        g2 <- graph.adjacency(G_est)
+        edges2 <- get.edgelist(g2)
+        edges2 <- cbind(edges2, rep("estimated", nrow(edges2)))
+        edges <- as.data.frame(rbind(edges1, edges2))
+        names(edges) = c("from", "to", "graph")
+        nodes = data.frame(
+            vertices = 1:p,
+            clust_true = as.factor(z_true),
+            clust_est = as.factor(z_est)
+        )
+        # nodes
+        g = graph_from_data_frame(edges, directed = FALSE, nodes)
+        lay = create_layout(g, layout = "linear", circular = TRUE)
+        
+        output_plot <- ggraph(lay) + 
+            geom_edge_arc(edge_colour = "grey") +
+            geom_node_point(aes(color = clust_true, shape = clust_est), size = 2) +
+            geom_node_text(aes(label = name), repel=TRUE) +
+            facet_edges(~graph)
+        print(output_plot)
     }
     
     cat("\n\n\\pagebreak\n")
