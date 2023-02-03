@@ -64,7 +64,24 @@ On macOS on M1 chip you may get an error involving `gfortran`, in which case pro
 Install the required packages from CRAN
 
 ```
-packages_list <- c("tidyverse","mvtnorm","salso","logr","gmp","mcclust","igraph","ggraph","tidygraph", "uuid", "dittodb", "latex2exp", "kableExtra", "doSNOW", "doParallel")
+packages_list <-
+    c(
+        "tidyverse",
+        "mvtnorm",
+        "salso",
+        "logr",
+        "gmp",
+        "mcclust",
+        "igraph",
+        "ggraph",
+        "tidygraph",
+        "uuid",
+        "dittodb",
+        "latex2exp",
+        "kableExtra",
+        "doSNOW",
+        "doParallel"
+    )
 install.packages(packages_list)
 ```
 
