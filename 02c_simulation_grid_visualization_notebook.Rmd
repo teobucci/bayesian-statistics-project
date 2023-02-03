@@ -450,10 +450,10 @@ knitr::kable(recap_table, booktabs=TRUE) %>%
 
 # Simulations
 
-```{r, echo = FALSE, fig.align='center', results = 'asis', fig.width=10, fig.height=3, fig.fullwidth=TRUE, warning=FALSE}
+```{r, echo = FALSE, fig.align='center', results = 'asis', fig.width=10, fig.height=2.8, fig.fullwidth=TRUE, warning=FALSE}
 
 options <- list(graph_and_K = TRUE,
-                plot_graph = FALSE,
+                plot_graph = TRUE,
                 changepoint_kl = TRUE,
                 numgroups_traceplot = FALSE,
                 theta_sigma_numgroupsfreq = TRUE)
