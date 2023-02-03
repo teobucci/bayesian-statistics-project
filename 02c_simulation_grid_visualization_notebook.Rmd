@@ -258,11 +258,11 @@ posterior_analysis <- function(i,group_id, recap_table, grid){
         # --------------------------------------------
         
         barplot(
-            table(num_clusters),
+            prop.table(table(num_clusters)),
             xlab = "Number of groups",
-            ylab = "Frequency",
+            ylab = "Relative Frequency",
             main = paste(
-                "Number of groups - Frequency\n",
+                "Number of groups - Relative Frequency\n",
                 "Last:",
                 tail(num_clusters, n = 1),
                 "- Mean:",

@@ -253,11 +253,11 @@ posterior_analysis <- function(i){
     if(options$numgroups_frequency){
         pdf(file=file.path(output_path,"numgroups_frequency.pdf"), width = 16, height = 9)
         barplot(
-            table(num_clusters),
+            prop.table(table(num_clusters)),
             xlab = "Number of groups",
-            ylab = "Frequency",
+            ylab = "Relative Frequency",
             main = paste(
-                "Number of groups - Frequency\n",
+                "Number of groups - Relative Frequency\n",
                 "Last:",
                 tail(num_clusters, n = 1),
                 "- Mean:",

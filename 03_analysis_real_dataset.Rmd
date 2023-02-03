@@ -198,11 +198,11 @@ lines(x = seq_along(num_clusters), y = num_clusters)
 
 ```{r}
 barplot(
-    table(num_clusters),
+    prop.table(table(num_clusters)),
     xlab = "Number of groups",
-    ylab = "Frequency",
+    ylab = "Relative Frequency",
     main = paste(
-        "Number of groups - Frequency\n",
+        "Number of groups - Relative Frequency\n",
         "Last:",
         tail(num_clusters, n = 1),
         "- Mean:",
@@ -393,11 +393,11 @@ lines(x = seq_along(num_clusters), y = num_clusters)
 
 ```{r}
 barplot(
-    table(num_clusters),
+    prop.table(table(num_clusters)),
     xlab = "Number of groups",
-    ylab = "Frequency",
+    ylab = "Relative Frequency",
     main = paste(
-        "Number of groups - Frequency\n",
+        "Number of groups - Relative Frequency\n",
         "Last:",
         tail(num_clusters, n = 1),
         "- Mean:",
