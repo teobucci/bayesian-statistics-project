@@ -57,7 +57,7 @@ On macOS on M1 chip you may get an error involving `gfortran`, in which case pro
     ```
     This can be done by opening it in a normal text editor such as VSCode (`code ~/.R/Makevars`) or SublimeText (`subl ~/.R/Makevars`).
     
-    Note that you might have to change gcc version `11.3.0_2` to whatever your gcc version is.
+    Note that you might have to change `gcc` version `11.3.0_2` to whatever your `gcc` version is.
 
 ## How to install the packages
 
