@@ -42,6 +42,8 @@
 \usepackage[font=footnotesize]{caption}
 \usepackage{booktabs}
 
+\usepackage{authblk}
+
 \usepackage{bookmark}% loads hyperref too
     \hypersetup{
         %pdftitle={Fundamentos de C\'alculo},
@@ -73,9 +75,27 @@
     \rule{\linewidth}{2pt}  \\ [10pt]
 }
 
-%\author{\textsc{Teo Bucci\footnote{Politecnico di Milano, Mathematical Engineering, \url{teo.bucci@mail.polimi.it}}} \\ \normalsize{ASP: 100097, Polimi: 993998}}
 %\author{Teo Bucci, Filippo Cipriani, Filippo Pagella,\\ Flavia Petruso, Andrea Puricelli, Giulio Venturini}
-\author{T. Bucci, F. Cipriani, F. Pagella,\\ F. Petruso, A. Puricelli, G. Venturini}
+%\author{T. Bucci, F. Cipriani, F. Pagella,\\ F. Petruso, A. Puricelli, G. Venturini}
+%\author{T. Bucci\footnote{teo.bucci@mail.polimi.it, 10621873}, F. Cipriani\footnote{filippo.cipriani@mail.polimi.it, 10596877}, F. Pagella\footnote{filippo.pagella@mail.polimi.it, 10616351},\\ F. Petruso\footnote{flavia.petruso@mail.polimi.it, 10544566}, A. Puricelli\footnote{andrea3.puricelli@mail.polimi.it, 10632135}, G. Venturini\footnote{giulio.venturini@mail.polimi.it, 10624098}}
+
+%\affil{\texttt{\{teo.bucci, filippo.cipriani, filippo.pagella, flavia.petruso, andrea3.puricelli, giulio.venturini\}@mail.polimi.it}}
+
+\makeatletter
+\renewcommand\AB@affilsepx{, \protect\Affilfont}
+\makeatother
+\author[1]{Teo Bucci}
+\author[2]{Filippo Cipriani}
+\author[3]{Filippo Pagella}
+\author[4]{Flavia Petruso}
+\author[5]{Andrea Puricelli}
+\author[6]{Giulio Venturini}
+\affil[1]{10621873}
+\affil[2]{10596877}
+\affil[3]{10616351}
+\affil[4]{10544566}
+\affil[5]{10632135}
+\affil[6]{10624098}
 
 \date{\normalsize \today}
 
