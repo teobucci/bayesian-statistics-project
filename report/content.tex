@@ -57,6 +57,170 @@ where
 
 These two densities are not normalized.
 
+\section{Sampling strategy}
+We proposed a Block Gibbs-Sampler strategy divided into two main chunks: 
+\begin{enumerate}
+    \item sampling of the graph $G$ and the precision matrix $\bm{K}$
+    \item sampling of the random partition $\bm{z}$
+\end{enumerate}
+
+\subsection{Graph sampling}
+The conditional distribution used to sample the graph is:
+$$\small P(\bm{K},G \mid \bm{Y},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G}) P(G \mid \bm{z})$$
+Given the membership vector $\bm{z}$, a Birth-and-Death approach is used to sample the graph, as suggested in the work of Mohammadi and Wit. (TODO : add citation).
+The Birth-and-Death algorithm decides at every iteration of the Gibbs Sampler whether to add a new edge to the graph (birth) or delete an already existing one (death).
+For this purpose, we modified the R package \textit{BDgraph} to take into account the dependency from membership vector $\bm{z}$, updating the target distribution and the birth and death rates as follows: (TODO : dovremmo aggiungere i numeri alle formule?)
+\[
+\text{Birth rate} \propto \frac{P(G^{+ e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{S_{uv} + \alpha}{S^{\star}_{uv} + \beta}
+\quad
+\text{Death rate} \propto \frac{P(G^{- e}\mid \bm{z})}{P(G\mid \bm{z})} \frac{S^{\star}_{uv} + \beta}{S_{uv} + \alpha}
+\]
+
+$S_{uv}$ is the number of existing edges between the nodes from cluster $u$ and the nodes from cluster $v$ and $S^{\star}_{uv}$ is the number of all possible edges between the clusters $u$ and $v$, minus the already existing ones. 
+
+$\alpha$ and $\beta$ are the parameters of the Beta distribution of $Q_{uv}\vert \bm{z}$.
+
+\subsection{Random partition sampling}
+For the second part of our sampling strategy, the random partition is sampled conditionally on the graph G using the conditional distribution:
+
+$$ \small P(\bm{z} \mid \bm{Y},\bm{K},G) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z}) \propto P(G \mid \bm{z})P(\bm{z}) $$
+
+To sample from $\bm{z}$, we built from scratch (KEEP?) an adaptive split and merge sampler.
+\newline
+
+\subsubsection{Split and merge move}
+
+After the graph update, the sampler proposes either a splitting or a merging move, with probability respectively $\alpha_{\text{split}}$ and $1-\alpha_{\text{split}}$, usually set to $0.5$.
+It is also important to take into account two extreme cases:
+
+\begin{itemize}
+    \item When every node of the graph belongs to the same group a merging move is not allowed
+    \item When every node of the graph is a singleton (i.e. is in a group composed only by itself) a splitting move is not allowed
+\end{itemize}
+
+
+The move is thus accepted or rejected using Metropolis-Hastings. 
+
+
+The $\alpha_{\text{target}}$ is: $$f(\rho \mid G) \approx f_G(G \mid \rho) f_{\rho}(\rho)$$
+The acceptance probability is calculated as:
+ \[
+   \alpha_{\text{accept}} = \min
+   \bigg\{1,
+   \overbrace{
+   \underbrace{\frac{f_G\left(G \mid \rho'\right)}{f_G(G \mid \rho)}}_{\substack{\text{graph}\\\text{ratio}}}
+   \underbrace{\frac{f_\rho\left(\rho'\right)}{f_\rho(\rho)}}_{\substack{\text{partition}\\\text{ratio}}}
+   }^{\text{target ratio}}
+   \underbrace{\frac{Q(\rho',\rho)}{Q(\rho,\rho')}}_{\substack{\text{proposal}\\\text{ratio}}}
+   \bigg\}
+\]
+The acceptance probability is as such the minimum between $1$ and the product of the graph ratio, the partition ratio, and the proposal ratio.
+\paragraph{Proposal ratio}
+To compute the proposal ratio we first need to introduce two $(p-1)$ dimensional vectors of weights: $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$. They are unnormalized discrete densities that  are used to choose the node to perform the split or the merge. 
+
+For example, supposing a splitting move, the probability to draw node $i$ for the split is proportional to its weight $\bm{a}_{i}^{(t)}$.
+
+ We then introduce: $$a^{\star} = \sum_{j\in \{\text{admissible split nodes}\}}{a_{j}^{(t)}}$$  $$d^{\star} = \sum_{j\in \{\text{admissible merge nodes}\}}{d_{j}^{(t)}}$$
+
+We can thus compute the proposal ratio: (TO DO: da sistemare)
+\[
+    \frac{Q(\rho',\rho)}{Q(\rho,\rho')}
+    =
+    \frac{P(\text{choose merge})}{P(\text{choose split})}
+    \cdot 
+    \frac{P(\text{merge at node $i$})}{P(\text{split at node $i$})}
+    =
+    \frac{1-\alpha_{\text{split}}}{\alpha_{\text{split}}}
+    \cdot
+    \frac{\frac{d_{i}^{(t)}}{d^{\star}+d_{i}^{(t)}}}{\frac{a_{i}^{(t)}}{a^{\star}}}
+\]
+The first term is the ratio of the probabilities of choosing one move over the other, which cancels out when $\alpha$ is set to $0.5$. In the second ratio we have at the denominator the probability of choosing exactly the node $i$ for the split, at the numerator the probability of going back after the split  by choosing the same node $i$ for a merge.
+\paragraph{Partition ratio}
+As a prior, we use an EPPF induced by the two-parameter Poisson-Dirichlet process (Pitman-Yor process) from \cite{martinezNonparametricChangePoint2014}.
+
+Let $M$ and $p$ be the number of groups and nodes, respectively, and $n_{j},j=1,\ldots,M$ the cardinalities of the groups, with $\theta$ and $\sigma$ parameters.
+
+    $$P(\rho = \{n_1, \ldots, n_M\})
+    =
+    \begin{cases}
+        \frac{p!}{M!} \frac{ \prod_{i=1}^{M-1}{(\theta +i\sigma)} }{(\theta+1)_{(p-1)\uparrow}} \prod_{j=1}^{M}{\frac{(1-\sigma)_{(n_{j}-1)\uparrow}}{n_{j\uparrow}} }, & \rho \text{ admissible}\\
+                0, & \rho \text{ not admissible.}
+    \end{cases}
+$$
+
+In the split case, after simplifying common factors, the partition ratio is:
+
+\begin{equation*}
+    \frac{f_{\rho}(\rho')}{f_{\rho}(\rho)}
+    =
+    \frac{1}{M}(\theta+M\sigma)\frac{(1-\sigma)_{(n_{s}'-1)\uparrow}(1-\sigma)_{(n_{s}'+1)\uparrow}}{(1-\sigma)_{(n_{s}-1)\uparrow}}\frac{n_{s}!}{n'_{s}!n'_{s+1}!}
+\end{equation*}
+\paragraph{Graph ratio}
+As for the graph ratio, supposing a split move and after simplifying common factors, it is computed as:
+{
+    \footnotesize
+    \begin{align*}
+        & \frac{f_G(G \mid \rho^\prime)}{f_G(G \mid \rho)}=\left(\frac{1}{B(\alpha, \beta)}\right)^{M+1} \times \\
+        & \frac{ \prod_{l=1}^{S-1} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime) \cdot \prod_{m=S+2}^{M+1} f_B(C_S^\prime, C_m^\prime) f_B(C_{S+1}^\prime, C_m^\prime) \cdot f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{\prod_{l=1}^{S-1} f_B(C_l, C_S) \prod_{m=S+1}^M f_B(C_S, C_m) \cdot f_B(C_S, C_S)}
+    \end{align*}
+}
+
+where
+
+\[
+    f_B(C_u, C_v) = B(\alpha+S_{uv},\beta+S^{\star}_{uv})
+\]
+
+\subsubsection{Shuffle move}
+
+After the split and merge step we have implemented a shuffle move to improve the mixing of the chain. The shuffle proposes a new partition by moving some nodes from a group to an adjacent one.
+The shuffle move is then accepted using Metropolis-Hastings where the acceptance probability is calculated as: (TODO: controllare formule)
+ \[
+   \alpha_{\text{shuffle}} = \min
+   \bigg\{1,
+   \underbrace{\frac{P(G\mid \bm{z'})}{P(G\mid \bm{z})}}_{\substack{\text{Likelihood}\\\text{ratio}}}
+   {\frac{\mathcal{L}(\rho'_{\rho})}{\mathcal{L}(\rho_{\rho})}}
+   \bigg\}
+\]
+
+Where the likelihood ratio, since  the number of groups M, in this case, doesn't change, is computed as: (TODO : controllare formule)
+ \[
+   P(G\mid \bm{z}) = \prod_{l=1}^M \prod_{l=m}^M \frac{B(\alpha+S_{uv},\beta+S^{\star}_{uv})}{B(\alpha,\beta)} = \left(\frac{1}{B(\alpha,\beta)}\right)^\frac{M(M+1)}{2}\prod_{l=1}^M \prod_{l=m}^M B(\alpha+S_{uv},\beta+S^{\star}_{uv})
+\]
+
+\subsubsection{Adaptive step}
+
+The adaptive step consists of updating the two weights vectors $\bm{a}^{(t)}$ (in case of a split move) and $\bm{d}^{(t)}$ (in case of a merge move) at each iteration $t$ as in \cite{bensonAdaptiveMCMCMultiple2018} (TODO : right citation?) using the following scheme:
+    \begin{itemize}
+        \item If a split move at node $i$ has been accepted, then update:
+		\[
+		    \log (a_i^{(t+1)})=\log (a_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{split}}-\alpha_{\text{target}}) .
+		\]
+        \item If a merge move at node $i$ has been accepted, then update:
+		\[
+		    \log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{merge}}-\alpha_{\text{target}}) .
+		\]
+    \end{itemize}
+    
+Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number of nodes $(p)$, $\alpha_{\text{target}}$ is the target MH acceptance rate and $\alpha_{\text{merge}} = 1 - \alpha_{\text{split}}$.
+
+\subsection{Posterior Graph}
+
+To select the posterior graph, a common approach is to choose the graph with the highest posterior probability. However, this method can be unreliable due to the large number of possible graphs and low frequency of occurrence of the same graph in a MCMC sampling. Our solution is to estimate the marginal posterior probabilities for each edge inclusion, which is calculated as:
+
+$$\hat{p}_{j k}=\frac{\sum_{t=1}^T \mathbbm{1}_{\left((j, k) \in E_t\right)} w\left(\boldsymbol{G}_t\right)}{\sum_{t=1}^T w\left(\boldsymbol{G}_t\right)}$$
+
+where $\mathbbm{1}_{\left((j, k) \in E_t\right)}$ is the indicator function for the existence of the edge linking node j and node k at iteration t and $\left(\boldsymbol{G}_t\right)$ is the graph weight at iteration t.
+Then the graph is selected based on the edges with posterior probabilities greater than a given threshold $s$. 
+Two different thresholds can be considered:
+\begin{itemize}
+    \item  $s$ = 0.5, similar to the median probability model proposed by Barbieri and Berger (2004)
+    \item the Bayesian False Discovery rate.
+$$\operatorname{BFDR}=\frac{\sum_{j<k}\left(1-\hat{p}_{j k}\right) \mathbbm{1}_{\left(\hat{p}_{j k} \geq s\right)}}{\sum_{j<k} \mathbbm{1}_{\left(\hat{p}_{j k} \geq s\right)}}$$
+
+where $s$ is selected so that BFDR is below $0.05$.
+
+\end{itemize}
 
 \section{Simulation study}
 
