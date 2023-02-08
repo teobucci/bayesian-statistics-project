@@ -23,46 +23,23 @@ In the next two sections, we introduce the proposed model and describe the sampl
 \section{Proposed Model}
 
 
-\section{Sampling Strategy}
-
-Sampling from the partition
-\begin{align*}
-G\mid \mathbf{z} &\sim f_{G}( G\mid \mathbf{z})\\
-\rho &\sim \mathcal{L}( \rho )
-\end{align*}
-We adopt three possible ways to express the partition
+\section{Sampling strategy}
+We propose a Block Gibbs sampling strategy divided into two main parts: 
+\begin{enumerate}
+    \item sampling of the graph $\bm{G}$ and the precision matrix $\bm{K}$
+    \item sampling of the random partition $\bm{z}$
+\end{enumerate}
+We adopt three possible ways to express the partition depending on the aspect is most convenient and we wish to highlight
 \begin{itemize}
 \item $\rho =( C_{1} ,\dotsc ,C_{M}) =( n_{1} ,\dotsc ,n_{M})$ is the vector of groups cardinalities. This representation makes sense since as its law we use the one from \parencite{martinezNonparametricChangePoint2014}
-\item $\mathbf{z} =( z_{1} ,\dotsc ,z_{p})$ is a $p$-dimensional vector of memberships, $z_{j} =m$ if node $j$ belongs to group $C_{j}$
-\item $\mathbf{r} =( r_{1} ,\dotsc ,r_{p-1})$ is a $( p-1)$-dimensional vector which tells us if a node is the right end of a group. The last node is, by definition, always the end of a group, at most its own group, thus technically can always be thought of as $1$.
+\item $\bm{z} =( z_{1} ,\dotsc ,z_{p})$ is a $p$-dimensional vector of memberships, $z_{j} =m$ if node $j$ belongs to group $C_{j}$
+\item $\bm{r} =( r_{1} ,\dotsc ,r_{p-1})$ is a $( p-1)$-dimensional vector which tells us if a node is the right end of a group. The last node is, by definition, always the end of a group, at most its own group, thus technically can always be thought of as $1$.
 \end{itemize}
 
 Example
 \begin{equation*}
-\rho =( 1,3,2,2) \ \ \iff \ \ \mathbf{z} =( 1,2,2,2,3,3,4,4) \ \ \iff \ \ \mathbf{r} =( 1,0,0,1,0,1,0)
+\rho =( 1,3,2,2) \ \ \iff \ \ \bm{z} =( 1,2,2,2,3,3,4,4) \ \ \iff \ \ \bm{r} =( 1,0,0,1,0,1,0)
 \end{equation*}
-
-
-
-
-Using \parencite{bensonAdaptiveMCMCMultiple2018} approach we introduce two $( p-1)$-dimensional vectors iteration-dependent
-\begin{equation*}
-\mathbf{a}^{( t)} =( a_{1}^{( t)} ,\dotsc ,a_{p-1}^{( t)}) \quad \mathbf{d}^{( t)} =( d_{1}^{( t)} ,\dotsc ,d_{p-1}^{( t)})
-\end{equation*}
-where
-\begin{itemize}
-\item $a_{j}^{( t)}$ is the probability that node $j$ is chosen as candidate for splitting a group at iteration $t$
-\item $d_{j}^{( t)}$ is the probability that node $j$ is chosen as candidate for merging a group at iteration $t$
-\end{itemize}
-
-These two densities are not normalized.
-
-\section{Sampling strategy}
-We proposed a Block Gibbs sampling strategy divided into two main chunks: 
-\begin{enumerate}
-    \item sampling of the graph $G$ and the precision matrix $\bm{K}$
-    \item sampling of the random partition $\bm{z}$
-\end{enumerate}
 
 \subsection{Graph sampling}
 The conditional distribution used to sample the graph is:
