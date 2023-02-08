@@ -47,9 +47,9 @@ Given the membership vector $\bm{z}$, a Birth-and-Death approach is used to samp
 The Birth-and-Death algorithm decides at every iteration of the Gibbs sampling whether to add a new edge to the graph (birth) or delete an already existing one (death).
 For this purpose, we modified the \texttt{R} and \texttt{C++} package \texttt{BDgraph} to take into account the dependency from membership vector $\bm{z}$, updating the target distribution and the birth and death rates as follows: (TODO : dovremmo aggiungere i numeri alle formule?)
 \[
-\text{Birth rate} \propto \frac{P(G^{+ e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{S_{uv} + \alpha}{S^{\star}_{uv} + \beta}
+\text{Birth rate} \propto \frac{P(\bm{G}^{+ e}\mid \bm{z})}{P(\bm{G}\mid \bm{z})} = \frac{S_{uv} + \alpha}{S^{\star}_{uv} + \beta}
 \quad
-\text{Death rate} \propto \frac{P(G^{- e}\mid \bm{z})}{P(G\mid \bm{z})} \frac{S^{\star}_{uv} + \beta}{S_{uv} + \alpha}
+\text{Death rate} \propto \frac{P(\bm{G}^{- e}\mid \bm{z})}{P(\bm{G}\mid \bm{z})} \frac{S^{\star}_{uv} + \beta}{S_{uv} + \alpha}
 \]
 
 $S_{uv}$ is the number of existing edges between the nodes from cluster $u$ and the nodes from cluster $v$ and $S^{\star}_{uv}$ is the number of all possible edges between the clusters $u$ and $v$, minus the already existing ones. 
@@ -59,7 +59,7 @@ $\alpha$ and $\beta$ are the parameters of the Beta distribution of $Q_{uv}\vert
 \subsection{Random partition sampling}
 For the second part of our sampling strategy, the random partition is sampled conditionally on the graph G using the conditional distribution:
 
-$$ \small P(\bm{z} \mid \bm{Y},\bm{K},G) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z}) \propto P(G \mid \bm{z})P(\bm{z}) $$
+$$ \small P(\bm{z} \mid \bm{Y},\bm{K},\bm{G}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid \bm{G})P(\bm{G} \mid \bm{z})P(\bm{z}) \propto P(\bm{G} \mid \bm{z})P(\bm{z}) $$
 
 To sample from $\bm{z}$, we built from scratch (KEEP?) an adaptive split and merge sampler.
 \newline
@@ -78,13 +78,13 @@ It is also important to take into account two extreme cases:
 The move is thus accepted or rejected using Metropolis-Hastings. 
 
 
-The $\alpha_{\text{target}}$ is: $$f(\rho \mid G) \approx f_G(G \mid \rho) f_{\rho}(\rho)$$
+The $\alpha_{\text{target}}$ is: $$f(\rho \mid \bm{G}) \approx f_G(\bm{G} \mid \rho) f_{\rho}(\rho)$$
 The acceptance probability is calculated as:
  \[
    \alpha_{\text{accept}} = \min
    \bigg\{1,
    \overbrace{
-   \underbrace{\frac{f_G\left(G \mid \rho'\right)}{f_G(G \mid \rho)}}_{\substack{\text{graph}\\\text{ratio}}}
+   \underbrace{\frac{f_G\left(\bm{G} \mid \rho'\right)}{f_G(\bm{G} \mid \rho)}}_{\substack{\text{graph}\\\text{ratio}}}
    \underbrace{\frac{f_\rho\left(\rho'\right)}{f_\rho(\rho)}}_{\substack{\text{partition}\\\text{ratio}}}
    }^{\text{target ratio}}
    \underbrace{\frac{Q(\rho',\rho)}{Q(\rho,\rho')}}_{\substack{\text{proposal}\\\text{ratio}}}
@@ -116,7 +116,7 @@ As a prior, we use an EPPF induced by the two-parameter Poisson-Dirichlet proces
 
 Let $M$ and $p$ be the number of groups and nodes, respectively, and $n_{j},j=1,\ldots,M$ the cardinalities of the groups, with $\theta$ and $\sigma$ parameters.
 
-    $$P(\rho = \{n_1, \ldots, n_M\})
+    $$P(\rho = (n_1, \ldots, n_M))
     =
     \begin{cases}
         \frac{p!}{M!} \frac{ \prod_{i=1}^{M-1}{(\theta +i\sigma)} }{(\theta+1)_{(p-1)\uparrow}} \prod_{j=1}^{M}{\frac{(1-\sigma)_{(n_{j}-1)\uparrow}}{n_{j\uparrow}} }, & \rho \text{ admissible}\\
@@ -134,7 +134,7 @@ In the split case, after simplifying common factors, the partition ratio is:
 \paragraph{Graph ratio}
 As for the graph ratio, supposing a split move and after simplifying common factors, it is computed as:
 \begin{align*}
-    \frac{f_G(G \mid \rho^\prime)}{f_G(G \mid \rho)}
+    \frac{f_G(\bm{G} \mid \rho^\prime)}{f_G(\bm{G} \mid \rho)}
     & =\left(\frac{1}{B(\alpha, \beta)}\right)^{M+1} &  \\
     & \quad \times \frac{\prod_{l=1}^{S-1} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime)}{\prod_{l=1}^{S-1} f_B(C_l, C_S)} & \text{interactions with terms before}\\
     & \quad \times \frac{\prod_{m=S+2}^{M+1} f_B(C_S^\prime, C_m^\prime) f_B(C_{S+1}^\prime, C_m^\prime)}{\prod_{m=S+1}^M f_B(C_S, C_m)} & \text{interactions with terms after}\\
@@ -153,14 +153,14 @@ The shuffle move is then accepted using Metropolis-Hastings where the acceptance
  \[
    \alpha_{\text{shuffle}} = \min
    \bigg\{1,
-   \underbrace{\frac{P(G\mid \bm{z}')}{P(G\mid \bm{z})}}_{\substack{\text{Likelihood}\\\text{ratio}}}
+   \underbrace{\frac{P(\bm{G}\mid \bm{z}')}{P(\bm{G}\mid \bm{z})}}_{\substack{\text{Likelihood}\\\text{ratio}}}
    {\frac{\mathcal{L}(\rho'_{\rho})}{\mathcal{L}(\rho_{\rho})}}
    \bigg\}
 \]
 
 Where the likelihood ratio, since  the number of groups M, in this case, doesn't change, is computed as: (TODO : controllare formule)
  \[
-   P(G\mid \bm{z}) = \prod_{l=1}^M \prod_{l=m}^M \frac{B(\alpha+S_{uv},\beta+S^{\star}_{uv})}{B(\alpha,\beta)} = \left(\frac{1}{B(\alpha,\beta)}\right)^\frac{M(M+1)}{2}\prod_{l=1}^M \prod_{l=m}^M B(\alpha+S_{uv},\beta+S^{\star}_{uv})
+   P(\bm{G}\mid \bm{z}) = \prod_{l=1}^M \prod_{l=m}^M \frac{B(\alpha+S_{uv},\beta+S^{\star}_{uv})}{B(\alpha,\beta)} = \left(\frac{1}{B(\alpha,\beta)}\right)^\frac{M(M+1)}{2}\prod_{l=1}^M \prod_{l=m}^M B(\alpha+S_{uv},\beta+S^{\star}_{uv})
 \]
 
 \subsubsection{Adaptive step}
