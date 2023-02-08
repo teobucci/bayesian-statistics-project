@@ -58,11 +58,10 @@ $\alpha$ and $\beta$ are the parameters of the Beta distribution of $Q_{uv}\vert
 
 \subsection{Random partition sampling}
 For the second part of our sampling strategy, the random partition is sampled conditionally on the graph $\bm{G}$ using the conditional distribution:
-
-$$ \small P(\bm{z} \mid \bm{Y},\bm{K},\bm{G}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid \bm{G})P(\bm{G} \mid \bm{z})P(\bm{z}) \propto P(\bm{G} \mid \bm{z})P(\bm{z}) $$
-
+\begin{equation*}
+    \small P(\bm{z} \mid \bm{Y},\bm{K},\bm{G}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid \bm{G})P(\bm{G} \mid \bm{z})P(\bm{z}) \propto P(\bm{G} \mid \bm{z})P(\bm{z})
+\end{equation*}
 To sample from $\bm{z}$, we built from scratch (KEEP?) an adaptive split and merge sampler.
-\newline
 
 \subsubsection{Split and merge move}
 
@@ -105,7 +104,11 @@ They are unnormalized discrete densities that are used to choose the node to per
 
 For example, supposing a splitting move, the probability to draw node $i$ for the split is proportional to its weight $\bm{a}_{i}^{(t)}$.
 
- We then introduce: $$a^{\star} = \sum\nolimits_{j\in \{\text{admissible split nodes}\}}{a_{j}^{(t)}}$$  $$d^{\star} = \sum\nolimits_{j\in \{\text{admissible merge nodes}\}}{d_{j}^{(t)}}$$
+We then introduce:
+\begin{align*}
+    a^{\star} &= \sum\nolimits_{j\in \{\text{admissible split nodes}\}}{a_{j}^{(t)}}\\
+    d^{\star} &= \sum\nolimits_{j\in \{\text{admissible merge nodes}\}}{d_{j}^{(t)}}
+\end{align*}
 
 We can thus compute the proposal ratio: (TO DO: da sistemare)
 \[
@@ -192,7 +195,7 @@ Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number
 
 To select the posterior graph, a common approach is to choose the graph with the highest posterior probability. However, this method can be unreliable due to the large number of possible graphs and low frequency of occurrence of the same graph in a MCMC sampling. Our solution is to estimate the marginal posterior probabilities for each edge inclusion, which is calculated as:
 
-$$\hat{p}_{j k}=\frac{\sum_{t=1}^T \mathbbm{1}_{\left((j, k) \in E_t\right)} w\left(\boldsymbol{G}_t\right)}{\sum_{t=1}^T w\left(\boldsymbol{G}_t\right)}$$
+$$\hat{p}_{j k}=\frac{\sum_{t=1}^T \mathbbm{1}_{((j, k) \in E_t)} w(\boldsymbol{G}_t)}{\sum_{t=1}^T w(\boldsymbol{G}_t)}$$
 
 where $\mathbbm{1}_{\left((j, k) \in E_t\right)}$ is the indicator function for the existence of the edge linking node $j$ and node $k$ at iteration $t$ and $\boldsymbol{G}_t$ is the graph weight (\emph{holding time}) at iteration $t$.
 Then the graph is selected based on the edges with posterior probabilities greater than a given threshold $s$. 
