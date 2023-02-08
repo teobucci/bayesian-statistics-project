@@ -157,14 +157,13 @@ In the split case, after simplifying common factors, the partition ratio is:
 \end{equation*}
 \paragraph{Graph ratio}
 As for the graph ratio, supposing a split move and after simplifying common factors, it is computed as:
-{
-    \footnotesize
-    \begin{align*}
-        & \frac{f_G(G \mid \rho^\prime)}{f_G(G \mid \rho)}=\left(\frac{1}{B(\alpha, \beta)}\right)^{M+1} \times \\
-        & \frac{ \prod_{l=1}^{S-1} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime) \cdot \prod_{m=S+2}^{M+1} f_B(C_S^\prime, C_m^\prime) f_B(C_{S+1}^\prime, C_m^\prime) \cdot f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{\prod_{l=1}^{S-1} f_B(C_l, C_S) \prod_{m=S+1}^M f_B(C_S, C_m) \cdot f_B(C_S, C_S)}
-    \end{align*}
-}
-
+\begin{align*}
+    \frac{f_G(G \mid \rho^\prime)}{f_G(G \mid \rho)}
+    & =\left(\frac{1}{B(\alpha, \beta)}\right)^{M+1} &  \\
+    & \quad \times \frac{\prod_{l=1}^{S-1} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime)}{\prod_{l=1}^{S-1} f_B(C_l, C_S)} & \text{interactions with terms before}\\
+    & \quad \times \frac{\prod_{m=S+2}^{M+1} f_B(C_S^\prime, C_m^\prime) f_B(C_{S+1}^\prime, C_m^\prime)}{\prod_{m=S+1}^M f_B(C_S, C_m)} & \text{interactions with terms after}\\
+    & \quad \times \frac{f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{f_B(C_S, C_S)} & \text{internal interactions}
+\end{align*}
 where
 
 \[
