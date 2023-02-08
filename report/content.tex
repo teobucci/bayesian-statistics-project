@@ -197,7 +197,7 @@ To select the posterior graph, a common approach is to choose the graph with the
 
 $$\hat{p}_{j k}=\frac{\sum_{t=1}^T \mathbbm{1}_{((j, k) \in E_t)} w(\boldsymbol{G}_t)}{\sum_{t=1}^T w(\boldsymbol{G}_t)}$$
 
-where $\mathbbm{1}_{\left((j, k) \in E_t\right)}$ is the indicator function for the existence of the edge linking node $j$ and node $k$ at iteration $t$ and $\boldsymbol{G}_t$ is the graph weight (\emph{holding time}) at iteration $t$.
+where $\mathbbm{1}_{\left((j, k) \in E_t\right)}$ is the indicator function for the existence of the edge linking node $j$ and node $k$ at iteration $t$ and $w(\boldsymbol{G}_t)$ is the graph weight (\emph{holding time}) at iteration $t$.
 Then the graph is selected based on the edges with posterior probabilities greater than a given threshold $s$. 
 Two different thresholds can be considered:
 \begin{itemize}
