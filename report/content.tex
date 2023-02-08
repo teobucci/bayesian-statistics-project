@@ -57,7 +57,7 @@ $S_{uv}$ is the number of existing edges between the nodes from cluster $u$ and 
 $\alpha$ and $\beta$ are the parameters of the Beta distribution of $Q_{uv}\vert \bm{z}$.
 
 \subsection{Random partition sampling}
-For the second part of our sampling strategy, the random partition is sampled conditionally on the graph G using the conditional distribution:
+For the second part of our sampling strategy, the random partition is sampled conditionally on the graph $\bm{G}$ using the conditional distribution:
 
 $$ \small P(\bm{z} \mid \bm{Y},\bm{K},\bm{G}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid \bm{G})P(\bm{G} \mid \bm{z})P(\bm{z}) \propto P(\bm{G} \mid \bm{z})P(\bm{z}) $$
 
@@ -68,18 +68,16 @@ To sample from $\bm{z}$, we built from scratch (KEEP?) an adaptive split and mer
 
 After the graph update, the sampler proposes either a splitting or a merging move, with probability respectively $\alpha_{\text{split}}$ and $1-\alpha_{\text{split}}$, usually set to $0.5$.
 It is also important to take into account two extreme cases:
-
 \begin{itemize}
     \item When every node of the graph belongs to the same group a merging move is not allowed
     \item When every node of the graph is a singleton (i.e. is in a group composed only by itself) a splitting move is not allowed
 \end{itemize}
-
-
 The move is thus accepted or rejected using Metropolis-Hastings. 
-
-
-The $\alpha_{\text{target}}$ is: $$f(\rho \mid \bm{G}) \approx f_G(\bm{G} \mid \rho) f_{\rho}(\rho)$$
-The acceptance probability is calculated as:
+The target distribution is:
+\begin{equation*}
+    f(\rho \mid \bm{G}) \approx f_G(\bm{G} \mid \rho) f_{\rho}(\rho)
+\end{equation*}
+The acceptance probability is computed as:
  \[
    \alpha_{\text{accept}} = \min
    \bigg\{1,
@@ -92,7 +90,18 @@ The acceptance probability is calculated as:
 \]
 The acceptance probability is as such the minimum between $1$ and the product of the graph ratio, the partition ratio, and the proposal ratio.
 \paragraph{Proposal ratio}
-To compute the proposal ratio we first need to introduce two $(p-1)$ dimensional vectors of weights: $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$. They are unnormalized discrete densities that  are used to choose the node to perform the split or the merge. 
+
+
+Using \parencite{bensonAdaptiveMCMCMultiple2018} approach we introduce two $( p-1)$-dimensional vectors iteration-dependent
+\begin{equation*}
+\mathbf{a}^{( t)} =( a_{1}^{( t)} ,\dotsc ,a_{p-1}^{( t)}) \qquad \mathbf{d}^{( t)} =( d_{1}^{( t)} ,\dotsc ,d_{p-1}^{( t)})
+\end{equation*}
+where
+\begin{itemize}
+\item $a_{j}^{( t)}$ is the probability that node $j$ is chosen as candidate for splitting a group at iteration $t$
+\item $d_{j}^{( t)}$ is the probability that node $j$ is chosen as candidate for merging a group at iteration $t$
+\end{itemize}
+They are unnormalized discrete densities that are used to choose the node to perform the split or the merge, namely where to add or remove a $1$ from the $\bm{r}$ partition representation.
 
 For example, supposing a splitting move, the probability to draw node $i$ for the split is proportional to its weight $\bm{a}_{i}^{(t)}$.
 
@@ -114,7 +123,7 @@ The first term is the ratio of the probabilities of choosing one move over the o
 \paragraph{Partition ratio}
 As a prior, we use an EPPF induced by the two-parameter Poisson-Dirichlet process (Pitman-Yor process) from \parencite{martinezNonparametricChangePoint2014}.
 
-Let $M$ and $p$ be the number of groups and nodes, respectively, and $n_{j},j=1,\ldots,M$ the cardinalities of the groups, with $\theta$ and $\sigma$ parameters.
+Recall that $M$ and $p$ are, respectively, the number of groups and nodes, and $n_{j}$ with $j=1,\ldots,M$ are the cardinalities of the groups, with $\theta$ and $\sigma$ parameters.
 
     $$P(\rho = (n_1, \ldots, n_M))
     =
