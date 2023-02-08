@@ -14,7 +14,7 @@ In many real-life applications, the variables of interest can be grouped into cl
 One additional constraint that may exist in real contexts (\textbf{should we mention /quote some of them?}) is that the variables present some predefined order which cannot be ignored when identifying clusters. This limits the admissible partitions to the ones where the order is preserved.
 
 %Introduce the goal of the project
-In this project, we propose a flexible prior that allows to infere a block-structured graph while respecting an ordering constraint on the nodes. To do so, we build upon the theory of changepoint models from the works of Benson \cite{bensonAdaptiveMCMCMultiple2018} and Martinez \cite{martinezNonparametricChangePoint2014}, borrowing some ideas concerning the prior on the partition and relying on an adaptive approach. 
+In this project, we propose a flexible prior that allows to infere a block-structured graph while respecting an ordering constraint on the nodes. To do so, we build upon the theory of changepoint models from the works of \parencite{bensonAdaptiveMCMCMultiple2018} and \parencite{martinezNonparametricChangePoint2014}, borrowing some ideas concerning the prior on the partition and relying on an adaptive approach. 
 
 %Details on the structure
 In the next two sections, we introduce the proposed model and describe the sampling strategy, which relies on a two-block Gibbs sampler to update the graph and the partition. Then, we present the main results of our simulations. Finally, we perform a critical analysis of our results and discuss the limitations of the current work, while also identifying potential directions for future investigation.
@@ -112,7 +112,7 @@ We can thus compute the proposal ratio: (TO DO: da sistemare)
 \]
 The first term is the ratio of the probabilities of choosing one move over the other, which cancels out when $\alpha$ is set to $0.5$. In the second ratio we have at the denominator the probability of choosing exactly the node $i$ for the split, at the numerator the probability of going back after the split  by choosing the same node $i$ for a merge.
 \paragraph{Partition ratio}
-As a prior, we use an EPPF induced by the two-parameter Poisson-Dirichlet process (Pitman-Yor process) from \cite{martinezNonparametricChangePoint2014}.
+As a prior, we use an EPPF induced by the two-parameter Poisson-Dirichlet process (Pitman-Yor process) from \parencite{martinezNonparametricChangePoint2014}.
 
 Let $M$ and $p$ be the number of groups and nodes, respectively, and $n_{j},j=1,\ldots,M$ the cardinalities of the groups, with $\theta$ and $\sigma$ parameters.
 
@@ -165,7 +165,7 @@ Where the likelihood ratio, since  the number of groups M, in this case, doesn't
 
 \subsubsection{Adaptive step}
 
-The adaptive step consists of updating the two weights vectors $\bm{a}^{(t)}$ (in case of a split move) and $\bm{d}^{(t)}$ (in case of a merge move) at each iteration $t$ as in \cite{bensonAdaptiveMCMCMultiple2018} using the following scheme:
+The adaptive step consists of updating the two weights vectors $\bm{a}^{(t)}$ (in case of a split move) and $\bm{d}^{(t)}$ (in case of a merge move) at each iteration $t$ as in \parencite{bensonAdaptiveMCMCMultiple2018} using the following scheme:
     \begin{itemize}
         \item If a split move at node $i$ has been accepted, then update:
 		\[
