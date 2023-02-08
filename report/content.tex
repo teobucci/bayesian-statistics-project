@@ -17,7 +17,7 @@ One additional constraint that may exist in real contexts (\textbf{should we men
 In this project, we propose a flexible prior that allows to infere a block-structured graph while respecting an ordering constraint on the nodes. To do so, we build upon the theory of changepoint models from the works of Benson \cite{bensonAdaptiveMCMCMultiple2018} and Martinez \cite{martinezNonparametricChangePoint2014}, borrowing some ideas concerning the prior on the partition and relying on an adaptive approach. 
 
 %Details on the structure
-In the next two sections, we introduce the proposed model and describe the sampling strategy, which relies on a two-block Gibbs sampler to update the graph and the partition. Then, we present the main results of our simulations. Finally, we perform a critical analysis of our results and discuss the limitations of the current work, while also identifying potential directions for future investigation.  
+In the next two sections, we introduce the proposed model and describe the sampling strategy, which relies on a two-block Gibbs sampler to update the graph and the partition. Then, we present the main results of our simulations. Finally, we perform a critical analysis of our results and discuss the limitations of the current work, while also identifying potential directions for future investigation.
 
 
 \section{Proposed Model}
@@ -201,7 +201,7 @@ The adaptive step consists of updating the two weights vectors $\bm{a}^{(t)}$ (i
 		    \log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{merge}}-\alpha_{\text{target}}) .
 		\]
     \end{itemize}
-    
+
 Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number of nodes $(p)$, $\alpha_{\text{target}}$ is the target MH acceptance rate and $\alpha_{\text{merge}} = 1 - \alpha_{\text{split}}$.
 
 \subsection{Posterior Graph}
