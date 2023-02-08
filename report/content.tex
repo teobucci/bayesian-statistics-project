@@ -45,7 +45,7 @@ The conditional distribution used to sample the graph is:
 $$\small P(\bm{K},G \mid \bm{Y},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G}) P(G \mid \bm{z})$$
 Given the membership vector $\bm{z}$, a Birth-and-Death approach is used to sample the graph, as suggested in the work of \parencite{mohammadiBayesianStructureLearning2015a}.
 The Birth-and-Death algorithm decides at every iteration of the Gibbs sampling whether to add a new edge to the graph (birth) or delete an already existing one (death).
-For this purpose, we modified the \texttt{R} package \texttt{BDgraph} to take into account the dependency from membership vector $\bm{z}$, updating the target distribution and the birth and death rates as follows: (TODO : dovremmo aggiungere i numeri alle formule?)
+For this purpose, we modified the \texttt{R} and \texttt{C++} package \texttt{BDgraph} to take into account the dependency from membership vector $\bm{z}$, updating the target distribution and the birth and death rates as follows: (TODO : dovremmo aggiungere i numeri alle formule?)
 \[
 \text{Birth rate} \propto \frac{P(G^{+ e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{S_{uv} + \alpha}{S^{\star}_{uv} + \beta}
 \quad
