@@ -256,8 +256,8 @@ where $s$ is selected so that BFDR is below $0.05$.
 
 \end{itemize}
 
-\section{Simulation study}
-
+\subsection{Posterior partition}
+TODO sistemare soprattutto citazioni
 Once we produce a sample of random orders from the posterior distribution, we can obtain point estimates by exploiting a decision theoretic approach based on a specific loss function, solving an optimization problem as
 \[
 \hat{\rho}_n=\underset{\rho_n \in \mathcal{C}_n}{\operatorname{argmin}} \mathbb{E}\left[L\left(\tilde{\rho}_n, \rho_n\right) \mid \mathbf{X}_1, \ldots, \mathbf{X}_n\right]=\underset{\rho_n \in \mathcal{C}_n}{\operatorname{argmin}} \sum_{\rho_n^* \in \mathcal{C}_n} L\left(\rho_n^*, \rho_n\right) P\left(\tilde{\rho}_n=\rho_n^* \mid \mathbf{X}_1, \ldots, \mathbf{X}_n\right),
@@ -265,7 +265,7 @@ Once we produce a sample of random orders from the posterior distribution, we ca
 where $\hat{\rho}_n$ denotes the optimal point estimate of the latent random order, and $L(\cdot, \cdot): \mathcal{C}_n \times \mathcal{C}_n \rightarrow \mathbb{R}$ denotes a loss function. Different choices can be made for the loss function, such as the $0-1$ loss function and the Binder loss function [9,18]. Here, we resort to the variation of information loss function [25] to produce an optimal estimate of the latent random order in the data. This approach was recently investigated in the literature by Wade and Ghahramani [43] and Rastelli and Friel [34] for the estimation of latent partitions, but can be naturally applied to the case of latent order by considering the restricted support of the loss function. Even for small values of $n$, it is unfeasible to scan the entire order space $\mathcal{C}_n$. Among the several solutions proposed in the literature, we restrict the optimization problem to a sub-optimal solution within the space $\mathcal{C}_n^R \subseteq \mathcal{C}_n$ of the orders visited in $R$ steps of an MCMC sampling.
 
 
-\section{Conclusion}
+\section{Simulation study}
 
 \begin{table}[!h]
 \centering
@@ -335,4 +335,4 @@ where $\hat{\rho}_n$ denotes the optimal point estimate of the latent random ord
 \end{tabular}}
 \end{table}
 
-Conclusioni brevi, al più riportate le criticità incontrate.
+\section{Conclusion}
