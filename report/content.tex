@@ -162,6 +162,23 @@ where
     f_B(C_u, C_v) = B(\alpha+S_{uv},\beta+S^{\star}_{uv})
 \]
 
+\subsubsection{Adaptive step}
+
+The adaptive step consists of updating the two weights vectors $\bm{a}^{(t)}$ (in case of a split move) and $\bm{d}^{(t)}$ (in case of a merge move) at each iteration $t$ as in \textcite{bensonAdaptiveMCMCMultiple2018} using the following scheme:
+    \begin{itemize}
+        \item If a split move at node $i$ has been accepted, then update:
+        \[
+            \log (a_i^{(t+1)})=\log (a_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{split}}-\alpha_{\text{target}}) .
+        \]
+        \item If a merge move at node $i$ has been accepted, then update:
+        \[
+            \log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{merge}}-\alpha_{\text{target}}) .
+        \]
+    \end{itemize}
+
+Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number of nodes $(p)$, $\alpha_{\text{target}}$ is the target Metropolis-Hastings acceptance rate and $\alpha_{\text{merge}} = 1 - \alpha_{\text{split}}$.
+
+
 \subsubsection{Shuffle move}
 
 After the split and merge step we have implemented a shuffle move to improve the mixing of the chain. The shuffle proposes a new partition by moving some nodes from a group to an adjacent one.
@@ -178,22 +195,6 @@ Where the likelihood ratio, since  the number of groups $M$, in this case, doesn
  \[
    P(\bm{G}\mid \bm{z}) = \prod_{l=1}^M \prod_{l=m}^M \frac{B(\alpha+S_{uv},\beta+S^{\star}_{uv})}{B(\alpha,\beta)} = \left(\frac{1}{B(\alpha,\beta)}\right)^\frac{M(M+1)}{2}\prod_{l=1}^M \prod_{l=m}^M B(\alpha+S_{uv},\beta+S^{\star}_{uv})
 \]
-
-\subsubsection{Adaptive step}
-
-The adaptive step consists of updating the two weights vectors $\bm{a}^{(t)}$ (in case of a split move) and $\bm{d}^{(t)}$ (in case of a merge move) at each iteration $t$ as in \textcite{bensonAdaptiveMCMCMultiple2018} using the following scheme:
-    \begin{itemize}
-        \item If a split move at node $i$ has been accepted, then update:
-		\[
-		    \log (a_i^{(t+1)})=\log (a_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{split}}-\alpha_{\text{target}}) .
-		\]
-        \item If a merge move at node $i$ has been accepted, then update:
-		\[
-		    \log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{merge}}-\alpha_{\text{target}}) .
-		\]
-    \end{itemize}
-
-Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number of nodes $(p)$, $\alpha_{\text{target}}$ is the target Metropolis-Hastings acceptance rate and $\alpha_{\text{merge}} = 1 - \alpha_{\text{split}}$.
 
 \subsection{Posterior Graph}
 
