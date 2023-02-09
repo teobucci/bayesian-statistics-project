@@ -29,7 +29,7 @@ We propose a Block Gibbs sampling strategy divided into two steps:
     \item sampling of the graph $\bm{G}$ and the precision matrix $\bm{K}$, conditionally to the partition $\bm{z}$ and the data $\bm{Y}$,
     \item sampling of the partition $\bm{z}$, conditionally to the graph $\bm{G}$, the precision matrix $\bm{K}$ and the data $\bm{Y}$.
 \end{enumerate}
-We adopt three possible ways to express the partition depending on the aspect is most convenient and we wish to highlight. In the following we will always denote by $M$ the number of groups the nodes have been partitioned into, with $C_{1}, \dotsc, C_{M}$ the groups and with $p$ the number of nodes.
+We adopt three possible ways to express the partition depending on the aspect is most convenient and we wish to highlight. In the following we will always denote by $M$ the number of groups the nodes have been partitioned into, with $C_{1}, \dotsc, C_{M}$ the groups, with $n_{j} = |C_{j}|$ and with $p$ the number of nodes.
 \begin{itemize}
 \item $\rho =( |C_{1}| ,\dotsc ,|C_{M}|) =( n_{1} ,\dotsc ,n_{M})$ is the vector of groups cardinalities. Since we have a constraint on the ordering of the nodes, it's enough to specify the cardinalities of each group.
 \item $\bm{z} =( z_{1} ,\dotsc ,z_{p})$ is a $p$-dimensional vector of memberships, $z_{j} =m$ if node $j$ belongs to group $C_{m}$
@@ -71,10 +71,11 @@ To sample from $\bm{z}$, an adaptive split and merge was built from scratch usin
 
 \subsubsection{Split and merge move}
 
-Suppose the current partition at iteration $t$ is $\rho$.
-We propose a new candidate partition $\rho'$ and we either accept it or reject it using Metropolis-Hastings and update the partition accordingly for the next iteration $t+1$.
+Suppose the current partition at iteration $t$ is $\bm{z}$.
+We propose a new candidate partition $\bm{z}'$ and we either accept it or reject it using Metropolis-Hastings and update the partition accordingly for the next iteration $t+1$.
 
-The proposal distribution $Q(\rho,\rho')$ is based on property that the nodes are ordered. % TODO non bellissima
+The proposal distribution $Q(\bm{z},\bm{z}')$ is based on property that the nodes are ordered. % TODO non bellissima
+% TODO potremmo aggiungere tutti i casi più generali scritti nel file pdf di colombi
 Depending on the move we choose with some probability a group from the current partition to be split into two groups or two groups to be merged into one.
 To this extent, we consider the $\bm{r}$ representation of the partition.
 
@@ -90,25 +91,16 @@ Unless we are forced by extreme cases to choose a split move (case with all the 
         \alpha_{\text{accept}} = \min
        \bigg\{1,
        \overbrace{
-       \underbrace{\frac{f_G\left(\bm{G} \mid \rho'\right)}{f_G(\bm{G} \mid \rho)}}_{\substack{\text{graph}\\\text{ratio}}}
-       \underbrace{\frac{f_\rho\left(\rho'\right)}{f_\rho(\rho)}}_{\substack{\text{partition}\\\text{ratio}}}
+       \underbrace{\frac{P(\bm{G} \mid \bm{z}')}{P(\bm{G} \mid \bm{z})}}_{\substack{\text{graph}\\\text{ratio}}}
+       \underbrace{\frac{P(\bm{z}')}{P(\bm{z})}}_{\substack{\text{partition}\\\text{ratio}}}
        }^{\text{target ratio}}
-       \underbrace{\frac{Q(\rho',\rho)}{Q(\rho,\rho')}}_{\substack{\text{proposal}\\\text{ratio}}}
+       \underbrace{\frac{Q(\bm{z}',\bm{z})}{Q(\bm{z},\bm{z}')}}_{\substack{\text{proposal}\\\text{ratio}}}
        \bigg\}
        \label{eq:alphaaccept}
     \end{equation}
 \end{enumerate}
 
- 
-The target distribution is: TODO questa è da sistemare e anche quella sopra, scrivere con P o con f?
-\begin{equation*}
-    f(\rho \mid \bm{G}) \approx f_G(\bm{G} \mid \rho) f_{\rho}(\rho)
-\end{equation*}
-
-
-
 \paragraph{Proposal distribution}\label{par:proposalratio}
-
 
 Using \textcite{bensonAdaptiveMCMCMultiple2018} approach we introduce two $( p-1)$-dimensional vectors iteration-dependent
 \begin{equation*}
@@ -131,7 +123,7 @@ We then introduce:
 
 The proposal ratio in \eqref{eq:alphaaccept} becomes
 \[
-    \frac{Q(\rho',\rho)}{Q(\rho,\rho')}
+    \frac{Q(\bm{z}',\bm{z})}{Q(\bm{z},\bm{z}')}
     =
     \frac{P(\text{choose merge})}{P(\text{choose split})}
     \cdot 
@@ -144,9 +136,10 @@ The proposal ratio in \eqref{eq:alphaaccept} becomes
 The first term is the ratio of the probabilities of choosing one move over the other. In the second ratio we have at the denominator the probability of choosing exactly the node $i$ for the split, at the numerator the probability of going back after the split  by choosing the same node $i$ for a merge.
 \paragraph{Target ratio}
 TODO capire se è detto anche prima o no
-As a prior, we use an EPPF induced by the two-parameter Poisson-Dirichlet process (Pitman-Yor process) from \parencite{martinezNonparametricChangePoint2014}.
+As a prior, we use an EPPF induced by the two-parameter Poisson-Dirichlet process (Pitman-Yor process) from \parencite[830]{martinezNonparametricChangePoint2014}.
 
-Recall that $M$ and $p$ are the number of groups and nodes, respectively, and $n_{j}$, for $j=1,\ldots,M$, are the cardinalities of the groups. $\theta$ and $\sigma$ are hyperparameters. TODO specificare le condizioni sui loro valori
+Recall that $M$ and $p$ are the number of groups and nodes, respectively, and $n_{j}$, for $j=1,\ldots,M$, are the cardinalities of the groups.
+$\theta$ and $\sigma$ are hyperparameters such that $\sigma\in[0,1)$ with $\theta>-\sigma$ or $\sigma<0$ with $\theta=m|\sigma|$ for some positive integer $m$. We will work with the case $\sigma\in[0,1)$.
 \[
     P(\rho = (n_1, \ldots, n_M))
     =
@@ -155,35 +148,28 @@ Recall that $M$ and $p$ are the number of groups and nodes, respectively, and $n
                 0, & \rho \text{ not admissible.}
     \end{cases}
 \]
-where $x_{n\uparrow}$ is the rising factorial (Pochhammer function), namely
+where $x_{n\uparrow}$ is the rising factorial (or Pochhammer function), namely
 \begin{equation*}
-x_{n\uparrow} = \overbrace{x(x+1)(x+2)\cdots(x+n-1)}^{n\text{ factors}}.
+x_{n\uparrow} = \overbrace{x(x+1)(x+2)\cdots(x+n-1)}^{n\text{ factors}} \qquad x_{0\uparrow}=1.
 \end{equation*}
 
-In the split case, after simplifying common factors, the partition ratio is:
+In the split case, after simplifying common factors, the partition ratio in \eqref{eq:alphaaccept} is suitably expressed in the $\rho$ representation:
 
 \begin{equation*}
-    \frac{f_{\rho}(\rho')}{f_{\rho}(\rho)}
+    \frac{P(\bm{z}')}{P(\bm{z})}
+    =
+    \frac{P(\rho')}{P(\rho)}
     =
     \frac{1}{M}(\theta+M\sigma)\frac{(1-\sigma)_{(n_{s}'-1)\uparrow}(1-\sigma)_{(n_{s}'+1)\uparrow}}{(1-\sigma)_{(n_{s}-1)\uparrow}}\frac{n_{s}!}{n'_{s}!n'_{s+1}!}
 \end{equation*}
 
 
-TODO sta roba è da sistemare
-TODO chi sono C'?
-As for the graph ratio, supposing a split move and after simplifying common factors, it is computed as:
+As for the graph ratio in \eqref{eq:alphaaccept}, supposing a split move, the likelihood is given by
 \begin{align*}
-    \frac{f_G(\bm{G} \mid \rho^\prime)}{f_G(\bm{G} \mid \rho)}
-    & =\left(\frac{1}{B(\alpha, \beta)}\right)^{M+1} &  \\
-    & \quad \times \frac{\prod_{l=1}^{S-1} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime)}{\prod_{l=1}^{S-1} f_B(C_l, C_S)} & \text{interactions with terms before}\\
-    & \quad \times \frac{\prod_{m=S+2}^{M+1} f_B(C_S^\prime, C_m^\prime) f_B(C_{S+1}^\prime, C_m^\prime)}{\prod_{m=S+1}^M f_B(C_S, C_m)} & \text{interactions with terms after}\\
-    & \quad \times \frac{f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{f_B(C_S, C_S)} & \text{internal interactions}
+    P(\bm{G}\mid \bm{z}) &= \prod_{l=1}^M \prod_{l=m}^M \frac{B(\alpha+S_{uv},\beta+S^{\star}_{uv})}{B(\alpha,\beta)} \\
+    &= \left(\frac{1}{B(\alpha,\beta)}\right)^\frac{M(M+1)}{2}\prod_{l=1}^M \prod_{l=m}^M B(\alpha+S_{uv},\beta+S^{\star}_{uv})
 \end{align*}
-where
-
-\[
-    f_B(C_u, C_v) = B(\alpha+S_{uv},\beta+S^{\star}_{uv})
-\]
+It's enough to compute it both with the current partition $\bm{z}$ and with the proposed one $\bm{z}'$ and compute the ratio simplifying common factors. For further details about the resulting expression see Appendix TODO ref
 
 \subsubsection{Adaptive step}
 
@@ -336,3 +322,25 @@ where $\hat{\rho}_n$ denotes the optimal point estimate of the latent random ord
 \end{table}
 
 \section{Conclusion}
+
+
+
+
+
+
+Appendix
+
+after simplifying common factors, it is computed as:
+TODO chi sono C'?
+\begin{align*}
+    \frac{f_G(\bm{G} \mid \rho^\prime)}{f_G(\bm{G} \mid \rho)}
+    & =\left(\frac{1}{B(\alpha, \beta)}\right)^{M+1} &  \\
+    & \quad \times \frac{\prod_{l=1}^{S-1} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime)}{\prod_{l=1}^{S-1} f_B(C_l, C_S)} & \text{interactions with terms before}\\
+    & \quad \times \frac{\prod_{m=S+2}^{M+1} f_B(C_S^\prime, C_m^\prime) f_B(C_{S+1}^\prime, C_m^\prime)}{\prod_{m=S+1}^M f_B(C_S, C_m)} & \text{interactions with terms after}\\
+    & \quad \times \frac{f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{f_B(C_S, C_S)} & \text{internal interactions}
+\end{align*}
+where
+
+\[
+    f_B(C_u, C_v) = B(\alpha+S_{uv},\beta+S^{\star}_{uv})
+\]
