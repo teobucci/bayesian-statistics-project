@@ -3,7 +3,7 @@
 \section{Introduction}
 
 %First paragraph introducing GGM
-Gaussian graphical models (GGM) are probabilistic models where undirected graphs are used to express the conditional dependence structure among variables with a joint Gaussian distribution. The vertexes of the graph represent the variables of the model, whereas the edges model the dependency between them. A crucial concept in GGM is the one of conditional independence: given a p-dimensional random vector $\mathbf{Y}$ distributed as a multivariate normal with zero mean and precision matrix $\mathbf{K}$, the random variables $Y_i$ and $Y_j$ are independent, conditionally on all the others, if and only if the corresponding entry in precision matrix $\mathbf{K}$ is null. This translates into the absence of a direct edge linking nodes $i$ and $j$ in the graph. 
+Gaussian graphical models (GGM) are probabilistic models where undirected graphs are used to express the conditional dependence structure among variables with a joint Gaussian distribution. The vertexes of the graph represent the variables of the model, whereas the edges model the dependency between them. A crucial concept in GGM is the one of conditional independence: given a p-dimensional random vector $\mathbf{Y}$ distributed as a multivariate normal with zero mean and precision matrix $\mathbf{K}$, the random variables $Y_i$ and $Y_j$ are independent, conditionally on all the others, if and only if the corresponding entry in precision matrix $\mathbf{K}$ is null. This translates into the absence of an undirected edge linking nodes $i$ and $j$ in the graph. 
 
 The graph is usually unknown and must be learnt from the data. Following a Bayesian approach, the graph itself is considered a random variable, which can assume values in the space of all possible undirected graphs with p nodes. A common choice is to place a uniform prior distribution over such space. Furthermore, a prior on the precision matrix conditionally on the graph must also be introduced. Due to its conjugacy property, a G-Wishart distribution is often selected as a prior for the precision matrix.
 
@@ -14,7 +14,7 @@ In many real-life applications, the variables of interest can be grouped into cl
 One additional constraint that may exist in real contexts (\textbf{should we mention /quote some of them?}) is that the variables present some predefined order which cannot be ignored when identifying clusters. This limits the admissible partitions to the ones where the order is preserved.
 
 %Introduce the goal of the project
-In this project, we propose a flexible prior that allows to infere a block-structured graph while respecting an ordering constraint on the nodes. To do so, we build upon the theory of changepoint models from the works of \parencite{bensonAdaptiveMCMCMultiple2018} and \parencite{martinezNonparametricChangePoint2014}, borrowing some ideas concerning the prior on the partition and relying on an adaptive approach. 
+In this project, we propose a flexible prior that allows to infere a block-structured graph while respecting an ordering constraint on the nodes. To do so, we build upon the theory of changepoint models from the works of \textcite[44]{bensonAdaptiveMCMCMultiple2018} and \parencite{martinezNonparametricChangePoint2014}, borrowing some ideas concerning the prior on the partition and relying on an adaptive approach. 
 
 %Details on the structure
 In the next two sections, we introduce the proposed model and describe the sampling strategy, which relies on a two-block Gibbs sampler to update the graph and the partition. Then, we present the main results of our simulations. Finally, we perform a critical analysis of our results and discuss the limitations of the current work, while also identifying potential directions for future investigation.
@@ -24,18 +24,22 @@ In the next two sections, we introduce the proposed model and describe the sampl
 
 
 \section{Sampling strategy}
-We propose a Block Gibbs sampling strategy divided into two main parts: 
+We propose a Block Gibbs sampling strategy divided into two steps: 
 \begin{enumerate}
-    \item sampling of the graph $\bm{G}$ and the precision matrix $\bm{K}$
-    \item sampling of the random partition $\bm{z}$
+    \item sampling of the graph $\bm{G}$ and the precision matrix $\bm{K}$, conditionally to the partition $\bm{z}$ and the data $\bm{Y}$,
+    \item sampling of the partition $\bm{z}$, conditionally to the graph $\bm{G}$, the precision matrix $\bm{K}$ and the data $\bm{Y}$.
 \end{enumerate}
 We adopt three possible ways to express the partition depending on the aspect is most convenient and we wish to highlight. In the following we will always denote by $M$ the number of groups the nodes have been partitioned into, with $C_{1}, \dotsc, C_{M}$ the groups and with $p$ the number of nodes.
 \begin{itemize}
-\item $\rho =( |C_{1}| ,\dotsc ,|C_{M}|) =( n_{1} ,\dotsc ,n_{M})$ is the vector of groups cardinalities. This representation makes sense since as its law we use the one from \parencite{martinezNonparametricChangePoint2014}
+\item $\rho =( |C_{1}| ,\dotsc ,|C_{M}|) =( n_{1} ,\dotsc ,n_{M})$ is the vector of groups cardinalities. Since we have a constraint on the ordering of the nodes, it's enough to specify the cardinalities of each group.
 \item $\bm{z} =( z_{1} ,\dotsc ,z_{p})$ is a $p$-dimensional vector of memberships, $z_{j} =m$ if node $j$ belongs to group $C_{m}$
-\item $\bm{r} =( r_{1} ,\dotsc ,r_{p-1})$ is a $( p-1)$-dimensional vector which tells us if a node is the right end of a group. The last node is, by definition, always the end of a group, at most its own group, thus technically can always be thought of as $1$.
+\item $\bm{r} =( r_{1} ,\dotsc ,r_{p-1})$ is a $( p-1)$-dimensional vector which tells us if a node is the right end of a group. The last node is, by definition, always the end of a group, at most its own group, thus by convention can be thought of as $1$.
 \end{itemize}
-Example
+For example, when $p=8$ and $M=4$, let us consider the partition
+\[
+    (C_{1}, C_{2}, C_{3}, C_{4}) = (\{1\},\{2,3,4\},\{5,6\},\{7,8\})
+\]
+then we have
 \begin{equation*}
 \rho =( 1,3,2,2) \ \ \iff \ \ \bm{z} =( 1,2,2,2,3,3,4,4) \ \ \iff \ \ \bm{r} =( 1,0,0,1,0,1,0)
 \end{equation*}
@@ -43,7 +47,7 @@ Example
 \subsection{Graph sampling}
 The conditional distribution used to sample the graph is:
 $$\small P(\bm{K},G \mid \bm{Y},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G}) P(G \mid \bm{z})$$
-Given the membership vector $\bm{z}$, a Birth-and-Death approach is used to sample the graph, as suggested in the work of \parencite{mohammadiBayesianStructureLearning2015a}.
+Given the membership vector $\bm{z}$, a Birth-and-Death approach is used to sample the graph, as suggested in the work of \textcite{mohammadiBayesianStructureLearning2015a}.
 The Birth-and-Death algorithm decides at every iteration of the Gibbs sampling whether to add a new edge to the graph (birth) or delete an already existing one (death).
 For this purpose, we modified the \texttt{R} and \texttt{C++} package \texttt{BDgraph} to take into account the dependency from membership vector $\bm{z}$, updating the target distribution and the birth and death rates as follows: (TODO : dovremmo aggiungere i numeri alle formule?)
 \[
@@ -57,15 +61,15 @@ $S_{uv}$ is the number of existing edges between the nodes from cluster $u$ and 
 $\alpha$ and $\beta$ are the parameters of the Beta distribution of $Q_{uv}\vert \bm{z}$.
 
 \subsection{Random partition sampling}
-For the second part of our sampling strategy, the random partition is sampled conditionally on the graph $\bm{G}$ using the conditional distribution:
+After the graph update, the random partition is sampled conditionally on the graph $\bm{G}$ using the conditional distribution:
 \begin{equation*}
     \small P(\bm{z} \mid \bm{Y},\bm{K},\bm{G}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid \bm{G})P(\bm{G} \mid \bm{z})P(\bm{z}) \propto P(\bm{G} \mid \bm{z})P(\bm{z})
 \end{equation*}
-To sample from $\bm{z}$, we built from scratch (KEEP?) an adaptive split and merge sampler.
+To sample from $\bm{z}$, an adaptive split and merge was built from scratch using \texttt{R}.
 
 \subsubsection{Split and merge move}
 
-After the graph update, the sampler proposes either a splitting or a merging move, with probability respectively $\alpha_{\text{split}}$ and $1-\alpha_{\text{split}}$, usually set to $0.5$.
+The sampler proposes either a split or a merge move, with probability $\alpha_{\text{split}}$ and $1-\alpha_{\text{split}}$, respectively, usually set to $0.5$.
 It is also important to take into account two extreme cases:
 \begin{itemize}
     \item When every node of the graph belongs to the same group a merging move is not allowed
@@ -177,7 +181,7 @@ Where the likelihood ratio, since  the number of groups $M$, in this case, doesn
 
 \subsubsection{Adaptive step}
 
-The adaptive step consists of updating the two weights vectors $\bm{a}^{(t)}$ (in case of a split move) and $\bm{d}^{(t)}$ (in case of a merge move) at each iteration $t$ as in \parencite{bensonAdaptiveMCMCMultiple2018} using the following scheme:
+The adaptive step consists of updating the two weights vectors $\bm{a}^{(t)}$ (in case of a split move) and $\bm{d}^{(t)}$ (in case of a merge move) at each iteration $t$ as in \textcite{bensonAdaptiveMCMCMultiple2018} using the following scheme:
     \begin{itemize}
         \item If a split move at node $i$ has been accepted, then update:
 		\[
@@ -211,7 +215,11 @@ where $s$ is selected so that BFDR is below $0.05$.
 
 \section{Simulation study}
 
-La 4 invece deve contenere la descrizione degli esperimenti fatti, le figure e i risultati. Senza vincoli di spazio, anche una sbrodolata va bene.
+Once we produce a sample of random orders from the posterior distribution, we can obtain point estimates by exploiting a decision theoretic approach based on a specific loss function, solving an optimization problem as
+\[
+\hat{\rho}_n=\underset{\rho_n \in \mathcal{C}_n}{\operatorname{argmin}} \mathbb{E}\left[L\left(\tilde{\rho}_n, \rho_n\right) \mid \mathbf{X}_1, \ldots, \mathbf{X}_n\right]=\underset{\rho_n \in \mathcal{C}_n}{\operatorname{argmin}} \sum_{\rho_n^* \in \mathcal{C}_n} L\left(\rho_n^*, \rho_n\right) P\left(\tilde{\rho}_n=\rho_n^* \mid \mathbf{X}_1, \ldots, \mathbf{X}_n\right),
+\]
+where $\hat{\rho}_n$ denotes the optimal point estimate of the latent random order, and $L(\cdot, \cdot): \mathcal{C}_n \times \mathcal{C}_n \rightarrow \mathbb{R}$ denotes a loss function. Different choices can be made for the loss function, such as the $0-1$ loss function and the Binder loss function [9,18]. Here, we resort to the variation of information loss function [25] to produce an optimal estimate of the latent random order in the data. This approach was recently investigated in the literature by Wade and Ghahramani [43] and Rastelli and Friel [34] for the estimation of latent partitions, but can be naturally applied to the case of latent order by considering the restricted support of the loss function. Even for small values of $n$, it is unfeasible to scan the entire order space $\mathcal{C}_n$. Among the several solutions proposed in the literature, we restrict the optimization problem to a sub-optimal solution within the space $\mathcal{C}_n^R \subseteq \mathcal{C}_n$ of the orders visited in $R$ steps of an MCMC sampling.
 
 
 \section{Conclusion}
