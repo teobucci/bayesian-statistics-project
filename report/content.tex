@@ -74,8 +74,8 @@ To sample from $\bm{z}$, an adaptive split and merge was built from scratch usin
 Suppose the current partition at iteration $t$ is $\bm{z}$.
 We propose a new candidate partition $\bm{z}'$ and we either accept it or reject it using Metropolis-Hastings and update the partition accordingly for the next iteration $t+1$.
 
-The proposal distribution $Q(\bm{z},\bm{z}')$ is based on property that the nodes are ordered. % TODO non bellissima
-% TODO potremmo aggiungere tutti i casi più generali scritti nel file pdf di colombi
+The proposal distribution $Q(\bm{z},\bm{z}')$ exploits the property that the nodes are ordered.
+
 Depending on the move we choose with some probability a group from the current partition to be split into two groups or two groups to be merged into one.
 To this extent, we consider the $\bm{r}$ representation of the partition.
 
@@ -169,7 +169,7 @@ As for the graph ratio in \eqref{eq:alphaaccept}, supposing a split move, the li
     P(\bm{G}\mid \bm{z}) &= \prod_{l=1}^M \prod_{l=m}^M \frac{B(\alpha+S_{uv},\beta+S^{\star}_{uv})}{B(\alpha,\beta)} \\
     &= \left(\frac{1}{B(\alpha,\beta)}\right)^\frac{M(M+1)}{2}\prod_{l=1}^M \prod_{l=m}^M B(\alpha+S_{uv},\beta+S^{\star}_{uv})
 \end{align*}
-It's enough to compute it both with the current partition $\bm{z}$ and with the proposed one $\bm{z}'$ and compute the ratio simplifying common factors. For further details about the resulting expression see Appendix TODO ref
+It's enough to compute it both with the current partition $\bm{z}$ and with the proposed one $\bm{z}'$ and compute the ratio simplifying common factors. For further details about the resulting expression see \ref{sec:graphratio}.
 
 \subsubsection{Adaptive step}
 
@@ -233,8 +233,8 @@ where $\mathbbm{1}_{\left((j, k) \in E_t\right)}$ is the indicator function for 
 Then the graph is selected based on the edges with posterior probabilities greater than a given threshold $s$. 
 Two different thresholds can be considered:
 \begin{itemize}
-    \item  $s$ = 0.5, similar to the median probability model proposed by Barbieri and Berger (2004) TODO cite
-    \item the Bayesian False Discovery rate (BFDR) (TODO cite BFDR; Müller et al. 2007; Peterson et al. 2015))
+    \item $s$ = 0.5, similar to the median probability model proposed by \textcite{Barbieri2004Optimal};
+    \item the Bayesian False Discovery rate \parencite[BFDR;][]{Mller2006FDRAB}
     \[
         \operatorname{BFDR}=\frac{\sum_{j<k}\left(1-\hat{p}_{j k}\right) \mathbbm{1}_{\left(\hat{p}_{j k} \geq s\right)}}{\sum_{j<k} \mathbbm{1}_{\left(\hat{p}_{j k} \geq s\right)}}
     \]
@@ -328,19 +328,28 @@ where $\hat{\rho}_n$ denotes the optimal point estimate of the latent random ord
 
 
 
-Appendix
+\appendix
 
-after simplifying common factors, it is computed as:
-TODO chi sono C'?
+\section{Mathematical details}
+
+\subsection{Graph ratio}\label{sec:graphratio}
+After simplifying common factors, the resulting expression in the split case is % TODO forse si potrebbe spiegare ancora meglio
 \begin{align*}
-    \frac{f_G(\bm{G} \mid \rho^\prime)}{f_G(\bm{G} \mid \rho)}
+    \frac{P(\bm{G} \mid \bm{z}^\prime)}{P(\bm{G} \mid \bm{z})}
     & =\left(\frac{1}{B(\alpha, \beta)}\right)^{M+1} &  \\
     & \quad \times \frac{\prod_{l=1}^{S-1} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime)}{\prod_{l=1}^{S-1} f_B(C_l, C_S)} & \text{interactions with terms before}\\
     & \quad \times \frac{\prod_{m=S+2}^{M+1} f_B(C_S^\prime, C_m^\prime) f_B(C_{S+1}^\prime, C_m^\prime)}{\prod_{m=S+1}^M f_B(C_S, C_m)} & \text{interactions with terms after}\\
     & \quad \times \frac{f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{f_B(C_S, C_S)} & \text{internal interactions}
 \end{align*}
-where
-
+where with $C_{j}$ ($C_{j}^\prime$) we denote group $j$ in the current (proposed) partition and
 \[
     f_B(C_u, C_v) = B(\alpha+S_{uv},\beta+S^{\star}_{uv})
+\]
+Moreover, $S$ is the index of the cluster that is being split into two, thus
+\[
+    \begin{cases}
+        C_{m} = C_{m}^\prime & \forall m<S\\
+        C_{S} = C_{S}^\prime \cup C_{S+1}^\prime &\\
+        C_{m-1} = C_{m}^\prime & \forall m>S+1\\
+    \end{cases}
 \]
