@@ -134,7 +134,7 @@ The proposal ratio in \eqref{eq:alphaaccept} becomes
 The first term is the ratio of the probabilities of choosing one move over the other. In the second ratio we have at the denominator the probability of choosing exactly the node $i$ for the split, at the numerator the probability of going back after the split  by choosing the same node $i$ for a merge.
 \paragraph{Target ratio}
 TODO capire se è detto anche prima o no
-As a prior, we use an EPPF induced by the two-parameter Poisson-Dirichlet process (Pitman-Yor process) from \parencite[830]{martinezNonparametricChangePoint2014}.
+As a prior, we use an EPPF induced by the two-parameter Poisson-Dirichlet process (Pitman-Yor process) from \textcite[830]{martinezNonparametricChangePoint2014}.
 
 Recall that $M$ and $p$ are the number of groups and nodes, respectively, and $n_{j}$, for $j=1,\ldots,M$, are the cardinalities of the groups.
 $\theta$ and $\sigma$ are hyperparameters such that $\sigma\in[0,1)$ with $\theta>-\sigma$ or $\sigma<0$ with $\theta=m|\sigma|$ for some positive integer $m$. We will work with the case $\sigma\in[0,1)$.
@@ -197,19 +197,28 @@ Specifically, if $M>1$:
     \[
         \bm{\rho}'=\left(n_1, \ldots, n_{j-1}, \ell, n_j+n_{j+1}-\ell, \ldots, n_M\right)
     \]
-    \item accept or reject using Metropolis-Hastings
+    \item accept or reject using Metropolis-Hastings. Since the proposal is a Uniform, the proposal ratio is 1, thus in the acceptance probability we only have the target ratio
     \[
-       \alpha_{\text{shuffle}} = \min
+       \alpha_{\text{shuffle}}
+       =
+       \min
        \bigg\{1,
-       \underbrace{\frac{P(\bm{G}\mid \bm{z}')}{P(\bm{G}\mid \bm{z})}}_{\substack{\text{Likelihood}\\\text{ratio}}}
-       {\frac{\mathcal{L}(\bm{\rho}'_{\bm{\rho}})}{\mathcal{L}(\bm{\rho}_{\bm{\rho}})}}
+       \frac{P(\bm{z}'\mid \bm{G})}{P(\bm{z}\mid \bm{G})}
+       \bigg\}
+       =
+       \min
+       \bigg\{1,
+       \frac{P(\bm{G}\mid \bm{z}')}{P(\bm{G}\mid \bm{z})}
+       \frac{P(\bm{z}')}{P(\bm{z})}
        \bigg\}
     \]
-    Since the number of groups $M$, in this case, doesn't change, the first ratio is computed as:
-    \begin{align*}
-        P(\bm{G}\mid \bm{z}) &= \prod_{l=1}^M \prod_{l=m}^M \frac{B(\alpha+S_{uv},\beta+S^{\star}_{uv})}{B(\alpha,\beta)} \\
-        &= \left(\frac{1}{B(\alpha,\beta)}\right)^\frac{M(M+1)}{2}\prod_{l=1}^M \prod_{l=m}^M B(\alpha+S_{uv},\beta+S^{\star}_{uv})
-    \end{align*}
+    In this case, the number of groups $M$ doesn't change.
+    The first ratio can be found in \ref{sec:graphratioshuffle}.
+    The second ratio, after simplifying common factors, is
+    \[
+        \frac{P(\bm{z}')}{P(\bm{z})} = \frac{(1-\sigma)_{(l)\uparrow} (1-\sigma)_{(n_{s}+n_{s+1}-l)\uparrow}}{(1-\sigma)_{(n_{s}-1)\uparrow} (1-\sigma)_{(n_{s+1}-1)\uparrow}}
+        \cdot \frac{n_{s}! n_{s+1}!}{l!(n_{s} + n_{s+1} - l)!}
+    \]
     
 \end{enumerate}
 
@@ -334,7 +343,7 @@ It is unfeasible to scan the entire space $\mathcal{C}$. We restrict the optimiz
 
 \section{Mathematical details}
 
-\subsection{Graph ratio}\label{sec:graphratio}
+\subsection{Graph ratio split and merge}\label{sec:graphratio}
 After simplifying common factors, the resulting expression in the split case is % TODO forse si potrebbe spiegare ancora meglio
 \begin{align*}
     \frac{P(\bm{G} \mid \bm{z}^\prime)}{P(\bm{G} \mid \bm{z})}
@@ -355,3 +364,23 @@ Moreover, $S$ is the index of the cluster that is being split into two, thus
         C_{m-1} = C_{m}^\prime & \forall m>S+1\\
     \end{cases}
 \]
+
+\subsection{Graph ratio shuffle}\label{sec:graphratioshuffle}
+
+\begin{align*}
+    \frac{P(\bm{G}\mid \bm{z}')}{P(\bm{G}\mid \bm{z})}
+    &= \frac{\prod_{l=1}^{S-1} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime)}{\prod_{l=1}^{S-1} f_B(C_l, C_S) f_B(C_l, C_{S+1})} \\
+    & \quad \times \frac{\prod_{l=S+2}^{M} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime)}{\prod_{l=S+2}^{M} f_B(C_l, C_S) f_B(C_l, C_{S+1})} \\
+    & \quad \times \frac{f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{f_B(C_S, C_{S+1}) f_B(C_S, C_S) f_B(C_{S+1}, C_{S+1})}
+\end{align*}
+
+
+
+
+
+
+
+
+
+
+
