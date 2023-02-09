@@ -14,7 +14,7 @@ In many real-life applications, the variables of interest can be grouped into cl
 One additional constraint that may exist in real contexts (\textbf{should we mention /quote some of them?}) is that the variables present some predefined order which cannot be ignored when identifying clusters. This limits the admissible partitions to the ones where the order is preserved.
 
 %Introduce the goal of the project
-In this project, we propose a flexible prior that allows to infere a block-structured graph while respecting an ordering constraint on the nodes. To do so, we build upon the theory of changepoint models from the works of \textcite[44]{bensonAdaptiveMCMCMultiple2018} and \parencite{martinezNonparametricChangePoint2014}, borrowing some ideas concerning the prior on the partition and relying on an adaptive approach. 
+In this project, we propose a flexible prior that allows to infere a block-structured graph while respecting an ordering constraint on the nodes. To do so, we build upon the theory of changepoint models from the works of \textcite{bensonAdaptiveMCMCMultiple2018} and \parencite{martinezNonparametricChangePoint2014}, borrowing some ideas concerning the prior on the partition and relying on an adaptive approach. 
 
 %Details on the structure
 In the next two sections, we introduce the proposed model and describe the sampling strategy, which relies on a two-block Gibbs sampler to update the graph and the partition. Then, we present the main results of our simulations. Finally, we perform a critical analysis of our results and discuss the limitations of the current work, while also identifying potential directions for future investigation.
@@ -31,7 +31,7 @@ We propose a Block Gibbs sampling strategy divided into two steps:
 \end{enumerate}
 We adopt three possible ways to express the partition depending on the aspect is most convenient and we wish to highlight. In the following we will always denote by $M$ the number of groups the nodes have been partitioned into, with $C_{1}, \dotsc, C_{M}$ the groups, with $n_{j} = |C_{j}|$ and with $p$ the number of nodes.
 \begin{itemize}
-\item $\rho =( |C_{1}| ,\dotsc ,|C_{M}|) =( n_{1} ,\dotsc ,n_{M})$ is the vector of groups cardinalities. Since we have a constraint on the ordering of the nodes, it's enough to specify the cardinalities of each group.
+\item $\bm{\rho} =( |C_{1}| ,\dotsc ,|C_{M}|) =( n_{1} ,\dotsc ,n_{M})$ is the vector of groups cardinalities. Since we have a constraint on the ordering of the nodes, it's enough to specify the cardinalities of each group.
 \item $\bm{z} =( z_{1} ,\dotsc ,z_{p})$ is a $p$-dimensional vector of memberships, $z_{j} =m$ if node $j$ belongs to group $C_{m}$
 \item $\bm{r} =( r_{1} ,\dotsc ,r_{p-1})$ is a $( p-1)$-dimensional vector which tells us if a node is the right end of a group. The last node is, by definition, always the end of a group, at most its own group, thus by convention can be thought of as $1$.
 \end{itemize}
@@ -41,7 +41,7 @@ For example, when $p=8$ and $M=4$, let us consider the partition
 \]
 then we have
 \begin{equation*}
-\rho =( 1,3,2,2) \ \ \iff \ \ \bm{z} =( 1,2,2,2,3,3,4,4) \ \ \iff \ \ \bm{r} =( 1,0,0,1,0,1,0)
+\bm{\rho} =( 1,3,2,2) \ \ \iff \ \ \bm{z} =( 1,2,2,2,3,3,4,4) \ \ \iff \ \ \bm{r} =( 1,0,0,1,0,1,0)
 \end{equation*}
 
 \subsection{Graph sampling}
@@ -75,7 +75,6 @@ Suppose the current partition at iteration $t$ is $\bm{z}$.
 We propose a new candidate partition $\bm{z}'$ and we either accept it or reject it using Metropolis-Hastings and update the partition accordingly for the next iteration $t+1$.
 
 The proposal distribution $Q(\bm{z},\bm{z}')$ exploits the property that the nodes are ordered.
-
 Depending on the move we choose with some probability a group from the current partition to be split into two groups or two groups to be merged into one.
 To this extent, we consider the $\bm{r}$ representation of the partition.
 
@@ -117,8 +116,7 @@ For example, supposing a splitting move, the probability of drawing node $i$ for
 
 We then introduce:
 \begin{align*}
-    a^{\star} &= \sum\nolimits_{j:r_j=0}{a_{j}^{(t)}}\\
-    d^{\star} &= \sum\nolimits_{j:r_j=1}{d_{j}^{(t)}}
+    a^{\star} = \sum\nolimits_{j:r_j=0}{a_{j}^{(t)}} \qquad d^{\star} = \sum\nolimits_{j:r_j=1}{d_{j}^{(t)}}
 \end{align*}
 
 The proposal ratio in \eqref{eq:alphaaccept} becomes
@@ -141,11 +139,11 @@ As a prior, we use an EPPF induced by the two-parameter Poisson-Dirichlet proces
 Recall that $M$ and $p$ are the number of groups and nodes, respectively, and $n_{j}$, for $j=1,\ldots,M$, are the cardinalities of the groups.
 $\theta$ and $\sigma$ are hyperparameters such that $\sigma\in[0,1)$ with $\theta>-\sigma$ or $\sigma<0$ with $\theta=m|\sigma|$ for some positive integer $m$. We will work with the case $\sigma\in[0,1)$.
 \[
-    P(\rho = (n_1, \ldots, n_M))
+    P(\bm{\rho} = (n_1, \ldots, n_M))
     =
     \begin{cases}
-        \frac{p!}{M!} \frac{ \prod_{i=1}^{M-1}{(\theta +i\sigma)} }{(\theta+1)_{(p-1)\uparrow}} \prod_{j=1}^{M}{\frac{(1-\sigma)_{(n_{j}-1)\uparrow}}{n_{j\uparrow}} }, & \rho \text{ admissible}\\
-                0, & \rho \text{ not admissible.}
+        \frac{p!}{M!} \frac{ \prod_{i=1}^{M-1}{(\theta +i\sigma)} }{(\theta+1)_{(p-1)\uparrow}} \prod_{j=1}^{M}{\frac{(1-\sigma)_{(n_{j}-1)\uparrow}}{n_{j\uparrow}} }, & \bm{\rho} \text{ admissible}\\
+                0, & \bm{\rho} \text{ not admissible.}
     \end{cases}
 \]
 where $x_{n\uparrow}$ is the rising factorial (or Pochhammer function), namely
@@ -153,12 +151,12 @@ where $x_{n\uparrow}$ is the rising factorial (or Pochhammer function), namely
 x_{n\uparrow} = \overbrace{x(x+1)(x+2)\cdots(x+n-1)}^{n\text{ factors}} \qquad x_{0\uparrow}=1.
 \end{equation*}
 
-In the split case, after simplifying common factors, the partition ratio in \eqref{eq:alphaaccept} is suitably expressed in the $\rho$ representation:
+In the split case, after simplifying common factors, the partition ratio in \eqref{eq:alphaaccept} is suitably expressed in the $\bm{\rho}$ representation:
 
 \begin{equation*}
     \frac{P(\bm{z}')}{P(\bm{z})}
     =
-    \frac{P(\rho')}{P(\rho)}
+    \frac{P(\bm{\rho}')}{P(\bm{\rho})}
     =
     \frac{1}{M}(\theta+M\sigma)\frac{(1-\sigma)_{(n_{s}'-1)\uparrow}(1-\sigma)_{(n_{s}'+1)\uparrow}}{(1-\sigma)_{(n_{s}-1)\uparrow}}\frac{n_{s}!}{n'_{s}!n'_{s+1}!}
 \end{equation*}
@@ -197,14 +195,14 @@ Specifically, if $M>1$:
     \item choose $j$ uniformly from $\{1, \ldots, M-1\}$, the group to be shuffled with the $(j+1)$-th;
     \item choose $\ell$ uniformly from $\left\{1, \ldots, n_j+n_{j+1}-1\right\}$ the number of nodes to keep in the $j$-th group and set the proposed random partition as
     \[
-        \rho'=\left(n_1, \ldots, n_{j-1}, \ell, n_j+n_{j+1}-\ell, \ldots, n_M\right)
+        \bm{\rho}'=\left(n_1, \ldots, n_{j-1}, \ell, n_j+n_{j+1}-\ell, \ldots, n_M\right)
     \]
     \item accept or reject using Metropolis-Hastings
     \[
        \alpha_{\text{shuffle}} = \min
        \bigg\{1,
        \underbrace{\frac{P(\bm{G}\mid \bm{z}')}{P(\bm{G}\mid \bm{z})}}_{\substack{\text{Likelihood}\\\text{ratio}}}
-       {\frac{\mathcal{L}(\rho'_{\rho})}{\mathcal{L}(\rho_{\rho})}}
+       {\frac{\mathcal{L}(\bm{\rho}'_{\bm{\rho}})}{\mathcal{L}(\bm{\rho}_{\bm{\rho}})}}
        \bigg\}
     \]
     Since the number of groups $M$, in this case, doesn't change, the first ratio is computed as:
@@ -243,12 +241,16 @@ where $s$ is selected so that BFDR is below $0.05$.
 \end{itemize}
 
 \subsection{Posterior partition}
-TODO sistemare soprattutto citazioni
-Once we produce a sample of random orders from the posterior distribution, we can obtain point estimates by exploiting a decision theoretic approach based on a specific loss function, solving an optimization problem as
+
+We can obtain point estimates of the partition by exploiting a decision theoretic approach based on a specific loss function, solving an optimization problem as
 \[
-\hat{\rho}_n=\underset{\rho_n \in \mathcal{C}_n}{\operatorname{argmin}} \mathbb{E}\left[L\left(\tilde{\rho}_n, \rho_n\right) \mid \mathbf{X}_1, \ldots, \mathbf{X}_n\right]=\underset{\rho_n \in \mathcal{C}_n}{\operatorname{argmin}} \sum_{\rho_n^* \in \mathcal{C}_n} L\left(\rho_n^*, \rho_n\right) P\left(\tilde{\rho}_n=\rho_n^* \mid \mathbf{X}_1, \ldots, \mathbf{X}_n\right),
+    \hat{\bm{\rho}}=\underset{\bm{\rho} \in \mathcal{C}}{\operatorname{argmin}} \mathbb{E}\left[L\left(\tilde{\bm{\rho}}, \bm{\rho}\right) \mid \bm{Y}_1, \ldots, \bm{Y}_n \right]=\underset{\bm{\rho} \in \mathcal{C}}{\operatorname{argmin}} \sum_{\bm{\rho}^* \in \mathcal{C}} L\left(\bm{\rho}^*, \bm{\rho}\right) \underbrace{P\left(\tilde{\bm{\rho}}=\bm{\rho}^* \mid \bm{Y}_1, \ldots, \bm{Y}_n\right)}_{\text{posterior similarity matrix}},
 \]
-where $\hat{\rho}_n$ denotes the optimal point estimate of the latent random order, and $L(\cdot, \cdot): \mathcal{C}_n \times \mathcal{C}_n \rightarrow \mathbb{R}$ denotes a loss function. Different choices can be made for the loss function, such as the $0-1$ loss function and the Binder loss function [9,18]. Here, we resort to the variation of information loss function [25] to produce an optimal estimate of the latent random order in the data. This approach was recently investigated in the literature by Wade and Ghahramani [43] and Rastelli and Friel [34] for the estimation of latent partitions, but can be naturally applied to the case of latent order by considering the restricted support of the loss function. Even for small values of $n$, it is unfeasible to scan the entire order space $\mathcal{C}_n$. Among the several solutions proposed in the literature, we restrict the optimization problem to a sub-optimal solution within the space $\mathcal{C}_n^R \subseteq \mathcal{C}_n$ of the orders visited in $R$ steps of an MCMC sampling.
+where $\tilde{\bm{\rho}}$ is the \emph{true} partition, $\mathcal{C}$ is the space of all possible partitions, and $L(\cdot, \cdot): \mathcal{C} \times \mathcal{C} \rightarrow \mathbb{R}$ denotes a loss function.
+
+Different choices can be made for the loss function, such as the Binder loss function. Here, we resort to the Variation of Information (VI) loss function \parencite{Meila2007Comparing}.
+
+It is unfeasible to scan the entire space $\mathcal{C}$. We restrict the optimization problem to a sub-optimal solution within the space $\mathcal{C}^T \subseteq \mathcal{C}$ of the orders visited in $T$ steps of the MCMC sampling.
 
 
 \section{Simulation study}
@@ -260,7 +262,7 @@ where $\hat{\rho}_n$ denotes the optimal point estimate of the latent random ord
 \toprule
 \multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
 \cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
-\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\rho_0$ & \texttt{beta\_sig2} & $\rho_{\text{true}}$ & $\rho_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
 \multicolumn{14}{l}{\textbf{Group 1: varying seed}}\\
