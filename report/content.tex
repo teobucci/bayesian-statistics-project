@@ -40,7 +40,7 @@ The Beta distribution is conjugate to the prior for $G$, and can be integrated o
     \prod_{u=1}^{M}\prod_{v=u}^{M}
     \frac{B(\alpha + S_{uv}, \beta+ S^{\star}_{uv})}{B(\alpha,\beta)}
 \]
-$S^{\star}_{uv}$ is the sum of the ``non-edges'', namely $S^{\star}_{uv} = T_{uv} - S_{uv}$ and $T_{uv}$is the number of possible edges. \\       
+$S^{\star}_{uv}$ is the sum of the ``non-edges'', namely $S^{\star}_{uv} = T_{uv} - S_{uv}$ and $T_{uv}$ is the number of possible edges. \\       
 
 %Sezione changepoint prior
 Given this model, our goal is to propose a prior distribution for z which account for the ordering constraint on the nodes, assigning a probability law over the space of admissible partitions. To do so, we introduce an equivalent formulation for the vector of cluster memberships $\mathbf{z}$, introducing the partition vector $\rho_p=\{C_1,\ldots,C_M\}$ representing the partition of the $p$ nodes into $m$ groups, where $C_i$ is the cardinality of group $i$ for $i=1,...,m$. The relationship with $\mathbf{z}$ is given by 
