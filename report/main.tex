@@ -15,6 +15,7 @@
 \usepackage{siunitx}
 \setcounter{secnumdepth}{6} 
 %\usepackage[toc]{appendix}
+\usepackage{multirow}
 
 \usepackage{booktabs}
 \usepackage{multirow}
@@ -64,6 +65,13 @@
         pdfstartview=Fit, % Fits the page to the window.
         pdfpagemode=UseOutlines, %Determines how the file is opening in Acrobat; the possibilities are UseNone, UseThumbs (show thumbnails), UseOutlines (show bookmarks), FullScreen, UseOC (PDF 1.5), and UseAttachments (PDF 1.6). If no mode if explicitly chosen, but the bookmarks option is set, UseOutlines is used.
     }
+
+\usepackage[acronym]{glossaries}
+\setacronymstyle{long-short} 
+\makenoidxglossaries
+\newacronym{ggm}{GGM}{Gaussian Graphical Models}
+\newacronym{sbm}{SBM}{Stochastic Block Model}
+\newacronym{vi}{VI}{Variation of Information}
 
 \setlength{\marginparwidth}{3.4cm}
 
@@ -155,7 +163,10 @@ Gaussian graphical models are used to study the conditional dependence structure
 % title("Regression of MPG on Weight")
 % \end{minted}
 
+% Optional, comment if not needed
+\printnoidxglossary[type=\acronymtype, title=Glossary, toctitle=Glossary, numberedsection=autolabel]
+
 \nocite{*}
-\printbibliography
+\printbibliography[heading=bibintoc,title={References}]
 
 \end{document}
