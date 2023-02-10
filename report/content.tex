@@ -83,8 +83,7 @@ where $x_{n\uparrow}$ is the rising factorial (or Pochhammer function), namely
 \begin{equation*}
 x_{n\uparrow} = \overbrace{x(x+1)(x+2)\cdots(x+n-1)}^{n\text{ factors}} \qquad x_{0\uparrow}=1.
 \end{equation*}
-
-$\theta$ and $\sigma$ are hyperparameters such that $\sigma\in[0,1)$ with $\theta>-\sigma$ or $\sigma<0$ with $\theta=m|\sigma|$ for some positive integer $m$. We will work with the case $\sigma\in[0,1)$.\\
+$\theta$ and $\sigma$ are hyperparameters such that $\sigma\in[0,1)$ with $\theta>-\sigma$ or $\sigma<0$ with $\theta=m|\sigma|$ for some positive integer $m$. We will work with the case $\sigma\in[0,1)$.
 
 Finally, we can rewrite the model as
  \begin{align*}
@@ -191,9 +190,8 @@ The proposal ratio in \eqref{eq:alphaaccept} becomes
 The first term is the ratio of the probabilities of choosing one move over the other. In the second ratio we have at the denominator the probability of choosing exactly the node $i$ for the split, at the numerator the probability of going back after the split  by choosing the same node $i$ for a merge.
 
 \paragraph{Target ratio}
-MODIFICATO DA FLAVIA, HO SPOSTATO SOPRA
 
-
+In the split case, after simplifying common factors, the partition ratio in \eqref{eq:alphaaccept} is suitably expressed in the $\bm{\rho}$ representation:
 \begin{equation*}
     \frac{P(\bm{z}')}{P(\bm{z})}
     =
@@ -201,8 +199,6 @@ MODIFICATO DA FLAVIA, HO SPOSTATO SOPRA
     =
     \frac{1}{M}(\theta+M\sigma)\frac{(1-\sigma)_{(n_{s}'-1)\uparrow}(1-\sigma)_{(n_{s}'+1)\uparrow}}{(1-\sigma)_{(n_{s}-1)\uparrow}}\frac{n_{s}!}{n'_{s}!n'_{s+1}!}
 \end{equation*}
-
-
 As for the graph ratio in \eqref{eq:alphaaccept}, supposing a split move, the likelihood is given by
 \begin{align*}
     P(\bm{G}\mid \bm{z}) &= \prod_{l=1}^M \prod_{l=m}^M \frac{B(\alpha+S_{uv},\beta+S^{\star}_{uv})}{B(\alpha,\beta)} \\
