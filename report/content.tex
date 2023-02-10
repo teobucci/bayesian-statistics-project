@@ -239,23 +239,24 @@ Specifically, if $M>1$:
         \bm{\rho}'=\left(n_1, \ldots, n_{j-1}, \ell, n_j+n_{j+1}-\ell, \ldots, n_M\right)
     \]
     \item accept or reject using Metropolis-Hastings. Since the proposal is a Uniform, the proposal ratio is 1, thus in the acceptance probability we only have the target ratio
-    \[
-       \alpha_{\text{shuffle}}
-       =
-       \min
-       \bigg\{1,
-       \frac{P(\bm{z}'\mid \bm{G})}{P(\bm{z}\mid \bm{G})}
-       \bigg\}
-       =
-       \min
-       \bigg\{1,
-       \frac{P(\bm{G}\mid \bm{z}')}{P(\bm{G}\mid \bm{z})}
-       \frac{P(\bm{z}')}{P(\bm{z})}
-       \bigg\}
-    \]
+    \begin{equation}
+        \alpha_{\text{shuffle}}
+        =
+        \min
+        \bigg\{1,
+        \frac{P(\bm{z}'\mid \bm{G})}{P(\bm{z}\mid \bm{G})}
+        \bigg\}
+        =
+        \min
+        \bigg\{1,
+        \frac{P(\bm{G}\mid \bm{z}')}{P(\bm{G}\mid \bm{z})}
+        \frac{P(\bm{z}')}{P(\bm{z})}
+        \bigg\}
+        \label{eq:alphashuffle}
+    \end{equation}
     In this case, the number of groups $M$ doesn't change.
-    The first ratio can be found in \ref{sec:graphratioshuffle}.
-    The second ratio, after simplifying common factors, is
+    The first ratio in \eqref{eq:alphashuffle} can be found in \ref{sec:graphratioshuffle}.
+    The second ratio in \eqref{eq:alphashuffle}, after simplifying common factors, is
     \[
         \frac{P(\bm{z}')}{P(\bm{z})} = \frac{(1-\sigma)_{(\ell)\uparrow} (1-\sigma)_{(n_{s}+n_{s+1}-\ell)\uparrow}}{(1-\sigma)_{(n_{s}-1)\uparrow} (1-\sigma)_{(n_{s+1}-1)\uparrow}}
         \cdot \frac{n_{s}! n_{s+1}!}{\ell!(n_{s} + n_{s+1} - \ell)!}
