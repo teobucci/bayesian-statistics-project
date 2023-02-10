@@ -64,6 +64,12 @@
         pdfpagemode=UseOutlines, %Determines how the file is opening in Acrobat; the possibilities are UseNone, UseThumbs (show thumbnails), UseOutlines (show bookmarks), FullScreen, UseOC (PDF 1.5), and UseAttachments (PDF 1.6). If no mode if explicitly chosen, but the bookmarks option is set, UseOutlines is used.
     }
 
+% numerate equations only in ref (load after hyperref)
+% https://tex.stackexchange.com/a/4729/214267
+\usepackage{mathtools}
+\mathtoolsset{showonlyrefs=true}
+
+% glossary
 \usepackage[acronym]{glossaries}
 \setacronymstyle{long-short} 
 \makenoidxglossaries
