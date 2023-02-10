@@ -43,12 +43,12 @@ The Beta distribution is conjugate to the prior for $G$, and can be integrated o
 $S^{\star}_{uv}$ is the sum of the ``non-edges'', namely $S^{\star}_{uv} = T_{uv} - S_{uv}$ and $T_{uv}$ is the number of possible edges. \\       
 
 %Sezione changepoint prior
-Given this model, our goal is to propose a prior distribution for z which account for the ordering constraint on the nodes, assigning a probability law over the space of admissible partitions. To do so, we introduce an equivalent formulation for the vector of cluster memberships $\mathbf{z}$, introducing the partition vector $\rho_p=\{C_1,\ldots,C_M\}$ representing the partition of the $p$ nodes into $m$ groups, where $C_i$ is the cardinality of group $i$ for $i=1,...,m$. The relationship with $\mathbf{z}$ is given by 
+Given this model, our goal is to propose a prior distribution for the vector of cluster memberships $\mathbf{z}$ which account for the ordering constraint on the nodes, assigning a probability law over the space of admissible partitions. To do so, we introduce an equivalent formulation for $\mathbf{z}$, introducing the partition vector $\rho_p=\{C_1,\ldots,C_M\}$ representing the partition of the $p$ nodes into $m$ groups, where $C_i$ is the cardinality of group $i$ for $i=1,...,m$. The relationship between $\rho_p$ and $\mathbf{z}$ is given by 
 \[
 z_i=m \iff i \in C_m, \quad i=1, \ldots, p, \quad m=1, \ldots, M.
 \]
-Choosing a law for $\mathbf{z}$ is therefore equivalent to specifying a law for $\rho_p$, which will be the focus of the next paragraphs. From this Section onwards, we will switch from one representation to the other accordingly to the context. To introduce an ordering constraint on the law of $\rho_p$, we need to restrict to the space of partition to the admissible ones.
-We say that $\rho_p$ is admissible if, for each $i<j$, each element of $C_i$ is strictly smaller than each element of $C_j$. 
+Choosing a law for $\mathbf{z}$ is therefore equivalent to specifying a law for $\rho_p$, which will be the focus of the next paragraphs. From this \textbf{Section} onwards, we will switch from one representation to the other accordingly to the context. To introduce an ordering constraint on $\rho_p$, we need to restrict to the space of partition to the admissible ones.
+We define $\rho_p$ as admissible if, for each $i<j$, each element of $C_i$ is strictly smaller than each element of $C_j$. 
 As a prior for our model, we use the Exchangeable Partition Probability Function (EPPF)induced by the two-parameter Poisson-Dirichlet process (Pitman-Yor process) from \textcite[830]{martinezNonparametricChangePoint2014}:
 \[
     P(\bm{\rho} = (n_1, \ldots, n_M))
