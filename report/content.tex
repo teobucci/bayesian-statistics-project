@@ -67,7 +67,6 @@ The Beta distribution is conjugate to the prior for $\bm{G}$, and can be integra
 \end{equation}
 $S_{uv}$ is the number of existing edges between the nodes from cluster $u$ and the nodes from cluster $v$ and $S^{\star}_{uv}$ is the number of all possible edges between the clusters $u$ and $v$, minus the already existing ones. 
 
-\subsection{Prior for the partition}
 %Sezione changepoint prior
 \paragraph*{Choosing a prior for the partition}
 Given this model, our goal is to propose a prior distribution for $\bm{z}$ which account for the ordering constraint on the nodes, assigning a probability law over the space of admissible partitions.
@@ -89,7 +88,8 @@ where $x_{n\uparrow}$ is the rising factorial (or Pochhammer function), namely
 x_{n\uparrow} = \overbrace{x(x+1)(x+2)\cdots(x+n-1)}^{n\text{ factors}} \qquad x_{0\uparrow}=1.
 \end{equation*}
 $\theta$ and $\sigma$ are hyperparameters such that $\sigma\in[0,1)$ with $\theta>-\sigma$ or $\sigma<0$ with $\theta=m|\sigma|$ for some positive integer $m$. We will work with the case $\sigma\in[0,1)$.
-\subsection{Final model}
+
+\paragraph*{Final model}
 We can rewrite the model as
  \begin{align*}
     \bm{Y}_1,\ldots,\bm{Y}_n \mid \bm{K} & \overset{\mathrm{iid}}{\sim} \mathcal{N}_p(0,\bm{K}) \\
