@@ -2,87 +2,34 @@
 
 \section{Introduction}
 %First paragraph introducing GGM
-\gls{ggm} are probabilistic models where undirected graphs are used to express the conditional dependence structure among variables with a joint Gaussian distribution. The vertexes of the graph represent the variables of the model, whereas the edges model the dependency between them. A crucial concept in \gls{ggm} is the one of conditional independence: given a p-dimensional random vector $\mathbf{Y}$ distributed as a multivariate normal with zero mean and precision matrix $\mathbf{K}$, the random variables $Y_i$ and $Y_j$ are independent, conditionally on all the others, if and only if the corresponding entry in precision matrix $\mathbf{K}$ is null. This translates into the absence of an undirected edge linking nodes $i$ and $j$ in the graph. 
+\gls{ggm} are probabilistic models where undirected graphs are used to express the conditional dependence structure among variables with a joint Gaussian distribution. The nodes of the graph represent the variables of the model, whereas the edges model the dependency between them. A crucial concept in \gls{ggm} is the one of conditional independence: given a $p$-dimensional random vector $\bm{Y}$ distributed as a multivariate normal with zero mean and precision matrix $\bm{K}$, the random variables $Y_i$ and $Y_j$ are independent, conditionally on all the others, if and only if the corresponding entry in precision matrix $\bm{K}$ is null. This translates into the absence of an undirected edge linking nodes $i$ and $j$ in the graph. 
+\[
+    Y_i \indep Y_j \mid \bm{Y}_{-(i j)} \iff(i, j) \notin E \iff K_{i j}=0
+\]
+where $\bm{Y}_{-(i j)}$ is the random vector containing all elements in $\bm{Y}$ except the $i$-th and the $j$-th.
 
-The graph is usually unknown and must be learnt from the data. Following a Bayesian approach, the graph itself is considered a random variable, which can assume values in the space of all possible undirected graphs with p nodes. A common choice is to place a uniform prior distribution over such space. Furthermore, a prior on the precision matrix conditionally on the graph must also be introduced. Due to its conjugacy property, a G-Wishart distribution is often selected as a prior for the precision matrix.
+The graph is usually unknown and must be learnt from the data. Following a Bayesian approach, the graph itself is considered a random variable, which can assume values in the space of all possible undirected graphs with $p$ nodes. A common choice is to place a uniform prior distribution over such space. Furthermore, a prior on the precision matrix conditionally on the graph must also be introduced. Due to its conjugacy property, a G-Wishart distribution is often selected as a prior for the precision matrix.
 
 %Use SBM as prior to inducing a block structure 
 In many real-life applications, the variables of interest can be grouped into clusters. This is a well-known and studied problem in network analysis, where the network of dependencies is observed and one only aim is to study the properties. In such a context, the most widely used model is the \gls{sbm}. More in detail, \gls{sbm} is a generative model for random networks with wide applications in the context of community detection, allowing to cluster the nodes of a graph into mutually exclusive groups that share similar connectivity patterns and are not known a priori. Most importantly, in an \gls{sbm}, the probability of having an edge between two nodes only depends on the group membership of the nodes. Recently, there is a growing literature which aims to extend this reasoning also to problems where the network is latent, not observed. If so, the idea is to exploit \gls{sbm} as a prior for the graph to simultaneously perform structural learning and the clustering of the nodes.
 
 %Additional specification on the order of the partition - IN PROGRESS -
-One assumption for clustering often made in the literature is that the nodes' names can be relabeled. This is equivalent to assuming that there is a lack of ordering among the variables. However, we argue that this assumption may fail in some contexts, especially those related to spatial statistics, where the localization of the variables imposes a natural ordering constraint. For instance, several biological problems require the identification of groups of genes which regulate specific cellular functions; in this case, respecting the order of alignment of genomic loci along the chromosome might yield additional important information. Another situation where the variables' order may play a significant role is imaging, where any reasonable grouping of variables should consider the underlying 3-D structure of data.
+One assumption for clustering often made in the literature is that the nodes' names can be relabeled. This is equivalent to assuming that there is a lack of ordering among the variables. However, we argue that this assumption may fail in some contexts, especially those related to spatial statistics, where the localization of the variables imposes a \textbf{natural ordering constraint}. For instance, several biological problems require the identification of groups of genes which regulate specific cellular functions; in this case, respecting the order of alignment of genomic loci along the chromosome might yield additional important information. Another situation where the variables' order may play a significant role is imaging, where any reasonable grouping of variables should consider the underlying 3-D structure of data.
 
 %Introduce the goal of the project
 In this project, we propose a flexible prior that allows us to infer a block-structured graph while respecting an ordering constraint on the nodes. To do so, we build upon the theory of changepoint models from the works of \textcite{bensonAdaptiveMCMCMultiple2018} and \textcite{martinezNonparametricChangePoint2014}, borrowing some ideas concerning the prior on the partition and relying on an adaptive approach. 
 
 %Details on the structure
-In the next two sections, we introduce the proposed model and describe the sampling strategy, which relies on a two-block Gibbs sampler to update the graph and the partition. Then, we present the main results of our simulations. Finally, we perform a critical analysis of our results and discuss the limitations of the current work while also identifying potential directions for future investigation.
+In the next two sections, we introduce the proposed model and describe the sampling strategy, which relies on a two-block Gibbs sampling to update the graph and the partition. Then, we present the main results of our simulations. Finally, we perform a critical analysis of our results and discuss the limitations of the current work while also identifying potential directions for future investigation.
 
 
 %THE MODEL---------------------------------------------------------------
 \section{Proposed Model}
 
-We consider an independent and identically distributed sample of size $n$ with $p$ variables from a multivariate Normal distribution. Without any loss of generality, we assume that the distribution has zero-mean and covariance matrix $\mathbf{K}^{-1}$ QUESTION: IS IT BETTER TO WRITE DIRECTLY "PRECISION MATRIX K"? As anticipated, each variable corresponds to a node on the underlying graph. Our goal is to simultaneously infer the conditional dependence structure of such variables and their clustering, keeping in mind that the partition on the nodes must respect the original order of the variables. We set a G-Wishart prior distribution for the precision matrix $\mathbf{K}$, and we rely on SBM for the prior on $G$, which is identified by its adjacency matrix.
+We consider an independent and identically distributed sample of size $n$ with $p$ variables from a multivariate Normal distribution. Without any loss of generality, we assume that the distribution has zero-mean and precision matrix $\bm{K}$. As anticipated, each variable corresponds to a node on the underlying graph. Our goal is to simultaneously infer the conditional dependence structure of such variables and their clustering, keeping in mind that the partition on the nodes must respect the original order of the variables. We set a G-Wishart prior distribution for the precision matrix $\bm{K}$, and we rely on \gls{sbm} for the prior on $\bm{G}$, which is identified by its adjacency matrix.
 
 %SBM
-Let $M$ be the number of groups, which is not known a priori, and $\mathbf{z} \in \mathbb{R}^p$ be the vector of group membership so that $z_i \in \left \{1,\ldots,M \right \}$ denotes the group node $i$ belongs to. In SBM, the probability of having an edge from node $i$ to node $j$ only depends on their group membership. The probability that edge $(i,j)$ belongs to the set of edges $E$ is
-\begin{align*}
-P((i,j)\in E|\mathbf{z},Q)=Q_{z_i,z_j}, \text{independent}
-\end{align*}
-where $Q$ is a symmetric probability matrix and $Q_{uv}$ is the probability of having an edge between any node in cluster $u$ and any other node in cluster $v$. The standard choice for the prior of $Q$ given the group membership vector is a beta distribution QUESTION: DO WE REMOVE THE FORMULA AND JUST SAY $Q_UV$ IS A BETA WITH PARAMETER A AND B, OR IS IT BETTER TO LEAVE IT LIKE THAT?
-\begin{align*}
-    Q_{uv} \mid \mathbf{z} & \overset{\mathrm{iid}}{\sim} Beta(a,b),\, 1\leq u \leq v \leq M
-\end{align*}
-The Beta distribution is conjugate to the prior for $G$, and can be integrated out. After this step, the prior for the graph conditionally on the vector of group membership becomes
-\[
-    P(G\mid \mathbf{z})
-    =
-    \prod_{u=1}^{M}\prod_{v=u}^{M}
-    \frac{B(\alpha + S_{uv}, \beta+ S^{\star}_{uv})}{B(\alpha,\beta)}
-\]
-$S^{\star}_{uv}$ is the sum of the ``non-edges'', namely $S^{\star}_{uv} = T_{uv} - S_{uv}$ and $T_{uv}$is the number of possible edges. \\       
-
-%Sezione changepoint prior
-Given this model, our goal is to propose a prior distribution of z which account for the ordering constraint on the nodes, assigning a probability law over the space of admissible partitions. To do so, we introduce an equivalent formulation for the vector of cluster memberships $\mathbf{z}$, introducing the partition vector $\rho_p=\{C_1,\ldots,C_M\}$ representing the partition of the $p$ nodes into $m$ groups, where $C_i$ is the cardinality of group $i$ for $i=1,...,m$. The relationship with $\mathbf{z}$ is given by 
-\[
-z_i=m \iff i \in C_m, \quad i=1, \ldots, p, \quad m=1, \ldots, M.
-\]
-Choosing a law for $\mathbf{z}$ is therefore equivalent to specifying a law for $\rho_p$, which will be the focus of the next paragraphs. From this Section onwards, we will switch from one representation to the other accordingly to the context. To introduce an ordering constraint on the law of $\rho_p$, we need to restrict to the space of partition to the admissible ones.
-We say that $\rho_p$ is admissible if, for each $i<j$, each element of $C_i$ is strictly smaller than each element of $C_j$. 
-As a prior for our model, we use the Exchangeable Partition Probability Function (EPPF)induced by the two-parameter Poisson-Dirichlet process (Pitman-Yor process) from \textcite[830]{martinezNonparametricChangePoint2014}:
-\[
-    P(\bm{\rho} = (n_1, \ldots, n_M))
-    =
-    \begin{cases}
-        \frac{p!}{M!} \frac{ \prod_{i=1}^{M-1}{(\theta +i\sigma)} }{(\theta+1)_{(p-1)\uparrow}} \prod_{j=1}^{M}{\frac{(1-\sigma)_{(n_{j}-1)\uparrow}}{n_{j\uparrow}} }, & \bm{\rho} \text{ admissible}\\
-                0, & \bm{\rho} \text{ not admissible.}
-    \end{cases}
-\]
-where $x_{n\uparrow}$ is the rising factorial (or Pochhammer function), namely
-\begin{equation*}
-x_{n\uparrow} = \overbrace{x(x+1)(x+2)\cdots(x+n-1)}^{n\text{ factors}} \qquad x_{0\uparrow}=1.
-\end{equation*}
-
-$\theta$ and $\sigma$ are hyperparameters such that $\sigma\in[0,1)$ with $\theta>-\sigma$ or $\sigma<0$ with $\theta=m|\sigma|$ for some positive integer $m$. We will work with the case $\sigma\in[0,1)$.\\
-
-Finally, we can rewrite the model as
- \begin{align*}
-    \mathbf{y}_1,\ldots,\mathbf{y}_n \mid \mathbf{K} & \overset{\mathrm{iid}}{\sim} \mathcal{N}_p(0,\mathbf{K}) \\
-    \mathbf{K} \mid G & \sim G-Wishart(b,D) \\
-    G \mid \mathbf{z} & \sim f_G(G\mid\mathbf{z})\\
-    \rho_p & \sim \mathcal{L}(\rho_p)
-\end{align*}
-
-where $f_G(G\mid\mathbf{z})$ is given by NUMERO EQ and $\sim \mathcal{L}(\rho_p)$ is given by NUMERO EQ
-
-
-\section{Sampling strategy}
-We propose a Block Gibbs sampling strategy divided into two steps: 
-\begin{enumerate}
-    \item sampling of the graph $\bm{G}$ and the precision matrix $\bm{K}$, conditionally to the partition $\bm{z}$ and the data $\bm{Y}$,
-    \item sampling of the partition $\bm{z}$, conditionally to the graph $\bm{G}$, the precision matrix $\bm{K}$ and the data $\bm{Y}$.
-\end{enumerate}
-We adopt three possible ways to express the partition depending on the aspect is most convenient and we wish to highlight. In the following we will always denote by $M$ the number of groups the nodes have been partitioned into, with $C_{1}, \dotsc, C_{M}$ the groups, with $n_{j} = |C_{j}|$ and with $p$ the number of nodes.
+We adopt three possible ways to express the partition depending on the aspect is most convenient and we wish to highlight. In the following we will always denote by $M$ the number of groups the nodes have been partitioned into, which is not known a priori, with $C_{1}, \dotsc, C_{M}$ the groups, with $n_{j} = |C_{j}|$ and with $p$ the number of nodes (i.e. number of variables).
 \begin{itemize}
 \item $\bm{\rho} =( |C_{1}| ,\dotsc ,|C_{M}|) =( n_{1} ,\dotsc ,n_{M})$ is the vector of groups cardinalities. Since we have a constraint on the ordering of the nodes, it's enough to specify the cardinalities of each group.
 \item $\bm{z} =( z_{1} ,\dotsc ,z_{p})$ is a $p$-dimensional vector of memberships, $z_{j} =m$ if node $j$ belongs to group $C_{m}$
@@ -97,10 +44,70 @@ then we have
 \bm{\rho} =( 1,3,2,2) \ \ \iff \ \ \bm{z} =( 1,2,2,2,3,3,4,4) \ \ \iff \ \ \bm{r} =( 1,0,0,1,0,1,0)
 \end{equation*}
 
+
+In \gls{sbm}, the probability of having an edge from node $i$ to node $j$ only depends on their group membership. The probability that edge $(i,j)$ belongs to the set of edges $E$ is
+\begin{align*}
+P((i,j)\in E\mid\bm{z},\bm{Q})=Q_{z_i,z_j} \qquad i,j=1,\ldots,p \quad \text{independent}
+\end{align*}
+where $\bm{Q}$ is a symmetric probability matrix and $Q_{uv}$ is the probability of having an edge between any node in cluster $u$ and any other node in cluster $v$. The standard choice for the prior of $\bm{Q}$ given the group membership vector is a Beta distribution QUESTION: DO WE REMOVE THE FORMULA AND JUST SAY $Q_UV$ IS A BETA WITH PARAMETER A AND B, OR IS IT BETTER TO LEAVE IT LIKE THAT?
+\begin{align*}
+    Q_{uv} \mid \bm{z} & \overset{\mathrm{iid}}{\sim} \operatorname{Beta}(\alpha,\beta),\quad 1\leq u \leq v \leq M
+\end{align*}
+The Beta distribution is conjugate to the prior for $\bm{G}$, and can be integrated out. After this step, the prior for the graph conditionally on the vector of group membership becomes
+\begin{equation}
+    P(\bm{G}\mid \bm{z})
+    =
+    \prod_{u=1}^{M}\prod_{v=u}^{M}
+    \frac{B(\alpha + S_{uv}, \beta+ S^{\star}_{uv})}{B(\alpha,\beta)}
+    \label{eq:graphlikelihood}
+\end{equation}
+
+$S_{uv}$ is the number of existing edges between the nodes from cluster $u$ and the nodes from cluster $v$ and $S^{\star}_{uv}$ is the number of all possible edges between the clusters $u$ and $v$, minus the already existing ones. 
+
+%Sezione changepoint prior
+Given this model, our goal is to propose a prior distribution of $\bm{z}$ which account for the ordering constraint on the nodes, assigning a probability law over the space of admissible partitions.
+Choosing a law for $\bm{z}$ is therefore equivalent to specifying a law for $\bm{\rho}$, which will be the focus of the next paragraphs. From this Section onwards, we will switch from one representation to the other accordingly to the context. To introduce an ordering constraint on the law of $\bm{\rho}$, we need to restrict to the space of partition to the admissible ones.
+We say that $\bm{\rho}$ is admissible if, for each $i<j$, each element of $C_i$ is strictly smaller than each element of $C_j$. 
+
+As a prior for our model, we use the \gls{eppf} induced by the two-parameter Poisson-Dirichlet process (Pitman-Yor process) from \textcite[830]{martinezNonparametricChangePoint2014}:
+\begin{equation}
+    P(\bm{\rho} = (n_1, \ldots, n_M))
+    =
+    \begin{cases}
+        \frac{p!}{M!} \frac{ \prod_{i=1}^{M-1}{(\theta +i\sigma)} }{(\theta+1)_{(p-1)\uparrow}} \prod_{j=1}^{M}{\frac{(1-\sigma)_{(n_{j}-1)\uparrow}}{n_{j\uparrow}} }, & \bm{\rho} \text{ admissible}\\
+                0, & \bm{\rho} \text{ not admissible.}
+    \end{cases}
+    \label{eq:prior}
+\end{equation}
+where $x_{n\uparrow}$ is the rising factorial (or Pochhammer function), namely
+\begin{equation*}
+x_{n\uparrow} = \overbrace{x(x+1)(x+2)\cdots(x+n-1)}^{n\text{ factors}} \qquad x_{0\uparrow}=1.
+\end{equation*}
+
+$\theta$ and $\sigma$ are hyperparameters such that $\sigma\in[0,1)$ with $\theta>-\sigma$ or $\sigma<0$ with $\theta=m|\sigma|$ for some positive integer $m$. We will work with the case $\sigma\in[0,1)$.\\
+
+Finally, we can rewrite the model as
+ \begin{align*}
+    \bm{Y}_1,\ldots,\bm{Y}_n \mid \bm{K} & \overset{\mathrm{iid}}{\sim} \mathcal{N}_p(0,\bm{K}) \\
+    \bm{K} \mid \bm{G} & \sim \operatorname{G-Wishart}(b,D) \\
+    \bm{G} \mid \bm{z} & \sim P(\bm{G}\mid\bm{z})\\
+    \bm{\rho} & \sim P(\bm{\rho})
+\end{align*}
+
+where $P(\bm{G}\mid\bm{z})$ is given by \eqref{eq:graphlikelihood} and $P(\bm{\rho})$ is given by \eqref{eq:prior}.
+
+
+\section{Sampling strategy}
+We propose a Block Gibbs sampling strategy divided into two steps: 
+\begin{enumerate}
+    \item sampling of the graph $\bm{G}$ and the precision matrix $\bm{K}$, conditionally to the partition $\bm{z}$ and the data $\bm{Y}$,
+    \item sampling of the partition $\bm{z}$, conditionally to the graph $\bm{G}$, the precision matrix $\bm{K}$ and the data $\bm{Y}$.
+\end{enumerate}
+
 \subsection{Graph sampling}
 The conditional distribution used to sample the graph is:
 \[
-    P(\bm{K},G \mid \bm{Y},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G}) P(G \mid \bm{z})
+    P(\bm{K},\bm{G} \mid \bm{Y},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid \bm{G}) P(\bm{G} \mid \bm{z})
 \]
 Given the membership vector $\bm{z}$, a Birth-and-Death approach is used to sample the graph, as suggested in the work of \textcite{mohammadiBayesianStructureLearning2015a}.
 The Birth-and-Death algorithm decides at every iteration of the Gibbs sampling whether to add a new edge to the graph (birth) or delete an already existing one (death).
@@ -110,10 +117,7 @@ For this purpose, we modified the \texttt{R} and \texttt{C++} package \texttt{BD
 \quad
 \text{Death rate} \propto \frac{P(\bm{G}^{- e}\mid \bm{z})}{P(\bm{G}\mid \bm{z})} \frac{S^{\star}_{uv} + \beta}{S_{uv} + \alpha}
 \]
-
-$S_{uv}$ is the number of existing edges between the nodes from cluster $u$ and the nodes from cluster $v$ and $S^{\star}_{uv}$ is the number of all possible edges between the clusters $u$ and $v$, minus the already existing ones. 
-
-$\alpha$ and $\beta$ are the parameters of the Beta distribution of $Q_{uv}\vert \bm{z}$.
+$\alpha$ and $\beta$ are the parameters of the Beta distribution of $Q_{uv}\mid \bm{z}$.
 
 \subsection{Random partition sampling}
 After the graph update, the random partition is sampled conditionally on the graph $\bm{G}$ using the conditional distribution:
