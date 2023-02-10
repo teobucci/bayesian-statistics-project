@@ -104,7 +104,7 @@ The conditional distribution used to sample the graph is:
 \]
 Given the membership vector $\bm{z}$, a Birth-and-Death approach is used to sample the graph, as suggested in the work of \textcite{mohammadiBayesianStructureLearning2015a}.
 The Birth-and-Death algorithm decides at every iteration of the Gibbs sampling whether to add a new edge to the graph (birth) or delete an already existing one (death).
-For this purpose, we modified the \texttt{R} and \texttt{C++} package \texttt{BDgraph} to take into account the dependency from membership vector $\bm{z}$, updating the target distribution and the birth and death rates as follows: (TODO : dovremmo aggiungere i numeri alle formule?)
+For this purpose, we modified the \texttt{R} and \texttt{C++} package \texttt{BDgraph} to take into account the dependency from membership vector $\bm{z}$, updating the target distribution and the birth and death rates as follows:
 \[
 \text{Birth rate} \propto \frac{P(\bm{G}^{+ e}\mid \bm{z})}{P(\bm{G}\mid \bm{z})} = \frac{S_{uv} + \alpha}{S^{\star}_{uv} + \beta}
 \quad
@@ -128,10 +128,10 @@ Suppose the current partition at iteration $t$ is $\bm{z}$.
 We propose a new candidate partition $\bm{z}'$ and we either accept it or reject it using Metropolis-Hastings and update the partition accordingly for the next iteration $t+1$.
 
 The proposal distribution $Q(\bm{z},\bm{z}')$ exploits the property that the nodes are ordered.
-Depending on the move we choose with some probability a group from the current partition to be split into two groups or two groups to be merged into one.
+Depending on the move, we choose with some probability a group from the current partition to be split into two groups or two groups to be merged into one.
 To this extent, we consider the $\bm{r}$ representation of the partition.
 
-Unless we are forced by extreme cases to choose a split move (case with all the nodes belong to the same group, we can only split) or a merge move (all nodes are in their own group, we can only merge) the algorithm works as follows.
+Unless we are forced by extreme cases to choose a split move (\emph{i.e.}, all the nodes belong to the same group) or a merge move (\emph{i.e.}, all the nodes are in their own single-node group), the algorithm works as follows.
 
 \begin{enumerate}
     \item Perform either a split or a merge move, with probability $\alpha_{\text{split}}$ and $1-\alpha_{\text{split}}$, respectively, usually set to $0.5$.
