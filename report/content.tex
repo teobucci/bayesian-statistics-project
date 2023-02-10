@@ -27,9 +27,10 @@ In the next two sections, we introduce the proposed model and describe the sampl
 \section{Proposed Model}
 
 \paragraph*{Notation}
-We consider an independent and identically distributed sample of size $n$ with $p$ variables from a multivariate Normal distribution. Without any loss of generality, we assume that the distribution has zero-mean and precision matrix $\bm{K}$. As anticipated, each variable corresponds to a node on the underlying graph. 
+We consider an independent and identically distributed sample of size $n$ with $p$ variables from a multivariate Normal distribution. Without any loss of generality, we assume that the distribution has zero-mean and precision matrix $\bm{K}$. As anticipated, each variable corresponds to a node on the underlying graph.
 
-We adopt three possible ways to express the partition depending on the aspect is most convenient and we wish to highlight. In the following we will always denote by $M$ the number of groups the nodes have been partitioned into, which is not known a priori, with $C_{1}, \dotsc, C_{M}$ the groups, with $n_{j} = |C_{j}|$ and with $p$ the number of nodes (i.e. number of variables).
+%SBM
+As concerns the group memberships, we adopt three equivalent ways to express the partition, depending on the aspect is most convenient and we wish to highlight. In the following, we will always denote by $M$ the number of groups the nodes have been partitioned into, which is not known a priori, with $C_{1}, \dotsc, C_{M}$ the groups, with $n_{j} = |C_{j}|$ and with $p$ the number of nodes (i.e. number of variables).
 \begin{itemize}
     \item $\bm{\rho} =( |C_{1}| ,\dotsc ,|C_{M}|) =( n_{1} ,\dotsc ,n_{M})$ is the vector of groups cardinalities. Since we have a constraint on the ordering of the nodes, it's enough to specify the cardinalities of each group.
     \item $\bm{z} =( z_{1} ,\dotsc ,z_{p})$ is a $p$-dimensional vector of memberships, $z_{j} =m$ if node $j$ belongs to group $C_{m}$
@@ -44,7 +45,7 @@ then we have
 \bm{\rho} =( 1,3,2,2) \ \ \iff \ \ \bm{z} =( 1,2,2,2,3,3,4,4) \ \ \iff \ \ \bm{r} =( 1,0,0,1,0,1,0)
 \end{equation*}
 
-\paragraph*{Modeling the graph}
+\paragraph*{Stochastic Block model}
 Our goal is to simultaneously infer the conditional dependence structure of such variables and their clustering, keeping in mind that the partition on the nodes must respect the original order of the variables. We set a G-Wishart prior distribution for the precision matrix $\bm{K}$, and we rely on \gls{sbm} for the prior on $\bm{G}$, which is identified by its adjacency matrix.
 
 %SBM
@@ -52,7 +53,7 @@ In \gls{sbm}, the probability of having an edge from node $i$ to node $j$ only d
 \begin{align*}
 P((i,j)\in E\mid\bm{z},\bm{Q})=Q_{z_i,z_j} \qquad i,j=1,\ldots,p \quad \text{independent}
 \end{align*}
-where $\bm{Q}$ is a symmetric probability matrix and $Q_{uv}$ is the probability of having an edge between any node in cluster $u$ and any other node in cluster $v$. The standard choice for the prior of $\bm{Q}$ given the group membership vector is a Beta distribution QUESTION: DO WE REMOVE THE FORMULA AND JUST SAY $Q_UV$ IS A BETA WITH PARAMETER A AND B, OR IS IT BETTER TO LEAVE IT LIKE THAT?
+where $\bm{Q}$ is a symmetric probability matrix and $Q_{uv}$ is the probability of having an edge between any node in cluster $u$ and any other node in cluster $v$. The standard choice for the prior of $\bm{Q}$ conditionally on $\mathbf{z}$ is a Beta distribution QUESTION: DO WE REMOVE THE FORMULA AND JUST SAY $Q_UV$ IS A BETA WITH PARAMETER A AND B, OR IS IT BETTER TO LEAVE IT LIKE THAT?
 \begin{align*}
     Q_{uv} \mid \bm{z} & \overset{\mathrm{iid}}{\sim} \operatorname{Beta}(\alpha,\beta),\quad 1\leq u \leq v \leq M
 \end{align*}
@@ -66,6 +67,7 @@ The Beta distribution is conjugate to the prior for $\bm{G}$, and can be integra
 \end{equation}
 $S_{uv}$ is the number of existing edges between the nodes from cluster $u$ and the nodes from cluster $v$ and $S^{\star}_{uv}$ is the number of all possible edges between the clusters $u$ and $v$, minus the already existing ones. 
 
+\subsection{Prior for the partition}
 %Sezione changepoint prior
 \paragraph*{Choosing a prior for the partition}
 Given this model, our goal is to propose a prior distribution for $\bm{z}$ which account for the ordering constraint on the nodes, assigning a probability law over the space of admissible partitions.
@@ -87,7 +89,7 @@ where $x_{n\uparrow}$ is the rising factorial (or Pochhammer function), namely
 x_{n\uparrow} = \overbrace{x(x+1)(x+2)\cdots(x+n-1)}^{n\text{ factors}} \qquad x_{0\uparrow}=1.
 \end{equation*}
 $\theta$ and $\sigma$ are hyperparameters such that $\sigma\in[0,1)$ with $\theta>-\sigma$ or $\sigma<0$ with $\theta=m|\sigma|$ for some positive integer $m$. We will work with the case $\sigma\in[0,1)$.
-\paragraph*{Final model}
+\subsection{Final model}
 We can rewrite the model as
  \begin{align*}
     \bm{Y}_1,\ldots,\bm{Y}_n \mid \bm{K} & \overset{\mathrm{iid}}{\sim} \mathcal{N}_p(0,\bm{K}) \\
