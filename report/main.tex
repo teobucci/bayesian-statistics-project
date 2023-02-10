@@ -15,11 +15,9 @@
 \usepackage{siunitx}
 \setcounter{secnumdepth}{6} 
 %\usepackage[toc]{appendix}
-\usepackage{multirow}
 
 \usepackage{booktabs}
 \usepackage{multirow}
-\usepackage{xcolor}
 \usepackage{colortbl}
 
 \usepackage{multicol}
@@ -51,8 +49,8 @@
 \usepackage[font=footnotesize]{caption}
 \usepackage{booktabs}
 
-\usepackage{fontawesome}
-\usepackage{authblk}
+\usepackage{fontawesome} % to have git icon
+\usepackage{authblk} % to manage author affiliations in title
 
 \usepackage{bookmark}% loads hyperref too
     \hypersetup{
@@ -66,6 +64,12 @@
         pdfpagemode=UseOutlines, %Determines how the file is opening in Acrobat; the possibilities are UseNone, UseThumbs (show thumbnails), UseOutlines (show bookmarks), FullScreen, UseOC (PDF 1.5), and UseAttachments (PDF 1.6). If no mode if explicitly chosen, but the bookmarks option is set, UseOutlines is used.
     }
 
+% numerate equations only in ref (load after hyperref)
+% https://tex.stackexchange.com/a/4729/214267
+\usepackage{mathtools}
+\mathtoolsset{showonlyrefs=true}
+
+% glossary
 \usepackage[acronym]{glossaries}
 \setacronymstyle{long-short} 
 \makenoidxglossaries
