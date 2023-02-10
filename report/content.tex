@@ -365,13 +365,25 @@ Moreover, $S$ is the index of the cluster that is being split into two, thus
     \end{cases}
 \]
 
+\begin{table}[H]
+\centering
+\begin{tabular}{l|c|c|c|c|c|c}
+\toprule
+current  & $C_1$ & $\ldots$ & \multicolumn{2}{c|}{$C_S$} & $\ldots$ & $C_M$    \\
+\hline
+proposed & $C_1^\prime$ & $\ldots$ & $C_S^\prime$       & $C_{S+1}^\prime$      & $\ldots$ & $C_{M+1}^\prime$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \subsection{Graph ratio shuffle}\label{sec:graphratioshuffle}
 
+After simplifying common factors, the resulting expression in the split case is
 \begin{align*}
     \frac{P(\bm{G}\mid \bm{z}')}{P(\bm{G}\mid \bm{z})}
-    &= \frac{\prod_{l=1}^{S-1} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime)}{\prod_{l=1}^{S-1} f_B(C_l, C_S) f_B(C_l, C_{S+1})} \\
-    & \quad \times \frac{\prod_{l=S+2}^{M} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime)}{\prod_{l=S+2}^{M} f_B(C_l, C_S) f_B(C_l, C_{S+1})} \\
-    & \quad \times \frac{f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{f_B(C_S, C_{S+1}) f_B(C_S, C_S) f_B(C_{S+1}, C_{S+1})}
+    &= \frac{\prod_{l=1}^{S-1} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime)}{\prod_{l=1}^{S-1} f_B(C_l, C_S) f_B(C_l, C_{S+1})} & \text{interactions with terms before}\\
+    & \quad \times \frac{\prod_{l=S+2}^{M} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime)}{\prod_{l=S+2}^{M} f_B(C_l, C_S) f_B(C_l, C_{S+1})} & \text{interactions with terms after}\\
+    & \quad \times \frac{f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{f_B(C_S, C_{S+1}) f_B(C_S, C_S) f_B(C_{S+1}, C_{S+1})} & \text{internal interactions}
 \end{align*}
 
 
