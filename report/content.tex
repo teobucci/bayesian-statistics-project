@@ -13,14 +13,67 @@ In many real-life applications, the variables of interest can be grouped into cl
 One assumption for clustering often made in the literature is that the nodes' names can be relabeled. This is equivalent to assuming that there is a lack of ordering among the variables. However, we argue that this assumption may fail in some contexts, especially those related to spatial statistics, where the localization of the variables imposes a natural ordering constraint. For instance, several biological problems require the identification of groups of genes which regulate specific cellular functions; in this case, respecting the order of alignment of genomic loci along the chromosome might yield additional important information. Another situation where the variables' order may play a significant role is imaging, where any reasonable grouping of variables should consider the underlying 3-D structure of data.
 
 %Introduce the goal of the project
-In this project, we propose a flexible prior that allows us to infer a block-structured graph while respecting an ordering constraint on the nodes. To do so, we build upon the theory of changepoint models from the works of \textcite{bensonAdaptiveMCMCMultiple2018} and \parencite{martinezNonparametricChangePoint2014}, borrowing some ideas concerning the prior on the partition and relying on an adaptive approach. 
+In this project, we propose a flexible prior that allows us to infer a block-structured graph while respecting an ordering constraint on the nodes. To do so, we build upon the theory of changepoint models from the works of \textcite{bensonAdaptiveMCMCMultiple2018} and \textcite{martinezNonparametricChangePoint2014}, borrowing some ideas concerning the prior on the partition and relying on an adaptive approach. 
 
 %Details on the structure
 In the next two sections, we introduce the proposed model and describe the sampling strategy, which relies on a two-block Gibbs sampler to update the graph and the partition. Then, we present the main results of our simulations. Finally, we perform a critical analysis of our results and discuss the limitations of the current work while also identifying potential directions for future investigation.
 
- 
 
+%THE MODEL---------------------------------------------------------------
 \section{Proposed Model}
+
+We consider an independent and identically distributed sample of size $n$ with $p$ variables from a multivariate Normal distribution. Without any loss of generality, we assume that the distribution has zero-mean and covariance matrix $\mathbf{K}^{-1}$ QUESTION: IS IT BETTER TO WRITE DIRECTLY "PRECISION MATRIX K"? As anticipated, each variable corresponds to a node on the underlying graph. Our goal is to simultaneously infer the conditional dependence structure of such variables and their clustering, keeping in mind that the partition on the nodes must respect the original order of the variables. We set a G-Wishart prior distribution for the precision matrix $\mathbf{K}$, and we rely on SBM for the prior on $G$, which is identified by its adjacency matrix.
+
+%SBM
+Let $M$ be the number of groups, which is not known a priori, and $\mathbf{z} \in \mathbb{R}^p$ be the vector of group membership so that $z_i \in \left \{1,\ldots,M \right \}$ denotes the group node $i$ belongs to. In SBM, the probability of having an edge from node $i$ to node $j$ only depends on their group membership. The probability that edge $(i,j)$ belongs to the set of edges $E$ is
+\begin{align*}
+P((i,j)\in E|\mathbf{z},Q)=Q_{z_i,z_j}, \text{independent}
+\end{align*}
+where $Q$ is a symmetric probability matrix and $Q_{uv}$ is the probability of having an edge between any node in cluster $u$ and any other node in cluster $v$. The standard choice for the prior of $Q$ given the group membership vector is a beta distribution QUESTION: DO WE REMOVE THE FORMULA AND JUST SAY $Q_UV$ IS A BETA WITH PARAMETER A AND B, OR IS IT BETTER TO LEAVE IT LIKE THAT?
+\begin{align*}
+    Q_{uv} \mid \mathbf{z} & \overset{\mathrm{iid}}{\sim} Beta(a,b),\, 1\leq u \leq v \leq M
+\end{align*}
+The Beta distribution is conjugate to the prior for $G$, and can be integrated out. After this step, the prior for the graph conditionally on the vector of group membership becomes
+\[
+    P(G\mid \mathbf{z})
+    =
+    \prod_{u=1}^{M}\prod_{v=u}^{M}
+    \frac{B(\alpha + S_{uv}, \beta+ S^{\star}_{uv})}{B(\alpha,\beta)}
+\]
+$S^{\star}_{uv}$ is the sum of the ``non-edges'', namely $S^{\star}_{uv} = T_{uv} - S_{uv}$ and $T_{uv}$is the number of possible edges. \\       
+
+%Sezione changepoint prior
+Given this model, our goal is to propose a prior distribution of z which account for the ordering constraint on the nodes, assigning a probability law over the space of admissible partitions. To do so, we introduce an equivalent formulation for the vector of cluster memberships $\mathbf{z}$, introducing the partition vector $\rho_p=\{C_1,\ldots,C_M\}$ representing the partition of the $p$ nodes into $m$ groups, where $C_i$ is the cardinality of group $i$ for $i=1,...,m$. The relationship with $\mathbf{z}$ is given by 
+\[
+z_i=m \iff i \in C_m, \quad i=1, \ldots, p, \quad m=1, \ldots, M.
+\]
+Choosing a law for $\mathbf{z}$ is therefore equivalent to specifying a law for $\rho_p$, which will be the focus of the next paragraphs. From this Section onwards, we will switch from one representation to the other accordingly to the context. To introduce an ordering constraint on the law of $\rho_p$, we need to restrict to the space of partition to the admissible ones.
+We say that $\rho_p$ is admissible if, for each $i<j$, each element of $C_i$ is strictly smaller than each element of $C_j$. 
+As a prior for our model, we use the Exchangeable Partition Probability Function (EPPF)induced by the two-parameter Poisson-Dirichlet process (Pitman-Yor process) from \textcite[830]{martinezNonparametricChangePoint2014}:
+\[
+    P(\bm{\rho} = (n_1, \ldots, n_M))
+    =
+    \begin{cases}
+        \frac{p!}{M!} \frac{ \prod_{i=1}^{M-1}{(\theta +i\sigma)} }{(\theta+1)_{(p-1)\uparrow}} \prod_{j=1}^{M}{\frac{(1-\sigma)_{(n_{j}-1)\uparrow}}{n_{j\uparrow}} }, & \bm{\rho} \text{ admissible}\\
+                0, & \bm{\rho} \text{ not admissible.}
+    \end{cases}
+\]
+where $x_{n\uparrow}$ is the rising factorial (or Pochhammer function), namely
+\begin{equation*}
+x_{n\uparrow} = \overbrace{x(x+1)(x+2)\cdots(x+n-1)}^{n\text{ factors}} \qquad x_{0\uparrow}=1.
+\end{equation*}
+
+$\theta$ and $\sigma$ are hyperparameters such that $\sigma\in[0,1)$ with $\theta>-\sigma$ or $\sigma<0$ with $\theta=m|\sigma|$ for some positive integer $m$. We will work with the case $\sigma\in[0,1)$.\\
+
+Finally, we can rewrite the model as
+ \begin{align*}
+    \mathbf{y}_1,\ldots,\mathbf{y}_n \mid \mathbf{K} & \overset{\mathrm{iid}}{\sim} \mathcal{N}_p(0,\mathbf{K}) \\
+    \mathbf{K} \mid G & \sim G-Wishart(b,D) \\
+    G \mid \mathbf{z} & \sim f_G(G\mid\mathbf{z})\\
+    \rho_p & \sim \mathcal{L}(\rho_p)
+\end{align*}
+
+where $f_G(G\mid\mathbf{z})$ is given by NUMERO EQ and $\sim \mathcal{L}(\rho_p)$ is given by NUMERO EQ
 
 
 \section{Sampling strategy}
@@ -132,26 +185,10 @@ The proposal ratio in \eqref{eq:alphaaccept} becomes
     \frac{\frac{d_{i}^{(t)}}{d^{\star}+d_{i}^{(t)}}}{\frac{a_{i}^{(t)}}{a^{\star}}}
 \]
 The first term is the ratio of the probabilities of choosing one move over the other. In the second ratio we have at the denominator the probability of choosing exactly the node $i$ for the split, at the numerator the probability of going back after the split  by choosing the same node $i$ for a merge.
+
 \paragraph{Target ratio}
-TODO capire se è detto anche prima o no
-As a prior, we use an EPPF induced by the two-parameter Poisson-Dirichlet process (Pitman-Yor process) from \textcite[830]{martinezNonparametricChangePoint2014}.
+MODIFICATO DA FLAVIA, HO SPOSTATO SOPRA
 
-Recall that $M$ and $p$ are the number of groups and nodes, respectively, and $n_{j}$, for $j=1,\ldots,M$, are the cardinalities of the groups.
-$\theta$ and $\sigma$ are hyperparameters such that $\sigma\in[0,1)$ with $\theta>-\sigma$ or $\sigma<0$ with $\theta=m|\sigma|$ for some positive integer $m$. We will work with the case $\sigma\in[0,1)$.
-\[
-    P(\bm{\rho} = (n_1, \ldots, n_M))
-    =
-    \begin{cases}
-        \frac{p!}{M!} \frac{ \prod_{i=1}^{M-1}{(\theta +i\sigma)} }{(\theta+1)_{(p-1)\uparrow}} \prod_{j=1}^{M}{\frac{(1-\sigma)_{(n_{j}-1)\uparrow}}{n_{j\uparrow}} }, & \bm{\rho} \text{ admissible}\\
-                0, & \bm{\rho} \text{ not admissible.}
-    \end{cases}
-\]
-where $x_{n\uparrow}$ is the rising factorial (or Pochhammer function), namely
-\begin{equation*}
-x_{n\uparrow} = \overbrace{x(x+1)(x+2)\cdots(x+n-1)}^{n\text{ factors}} \qquad x_{0\uparrow}=1.
-\end{equation*}
-
-In the split case, after simplifying common factors, the partition ratio in \eqref{eq:alphaaccept} is suitably expressed in the $\bm{\rho}$ representation:
 
 \begin{equation*}
     \frac{P(\bm{z}')}{P(\bm{z})}
