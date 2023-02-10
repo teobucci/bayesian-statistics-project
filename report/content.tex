@@ -47,7 +47,7 @@ then we have
 \subsection{Graph sampling}
 The conditional distribution used to sample the graph is:
 \[
-    \small P(\bm{K},G \mid \bm{Y},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G}) P(G \mid \bm{z})
+    P(\bm{K},G \mid \bm{Y},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G}) P(G \mid \bm{z})
 \]
 Given the membership vector $\bm{z}$, a Birth-and-Death approach is used to sample the graph, as suggested in the work of \textcite{mohammadiBayesianStructureLearning2015a}.
 The Birth-and-Death algorithm decides at every iteration of the Gibbs sampling whether to add a new edge to the graph (birth) or delete an already existing one (death).
@@ -65,7 +65,7 @@ $\alpha$ and $\beta$ are the parameters of the Beta distribution of $Q_{uv}\vert
 \subsection{Random partition sampling}
 After the graph update, the random partition is sampled conditionally on the graph $\bm{G}$ using the conditional distribution:
 \begin{equation*}
-    \small P(\bm{z} \mid \bm{Y},\bm{K},\bm{G}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid \bm{G})P(\bm{G} \mid \bm{z})P(\bm{z}) \propto P(\bm{G} \mid \bm{z})P(\bm{z})
+    P(\bm{z} \mid \bm{Y},\bm{K},\bm{G}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid \bm{G})P(\bm{G} \mid \bm{z})P(\bm{z}) \propto P(\bm{G} \mid \bm{z})P(\bm{z})
 \end{equation*}
 To sample from $\bm{z}$, an adaptive split and merge was built from scratch using \texttt{R}.
 
