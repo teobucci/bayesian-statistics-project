@@ -2,12 +2,12 @@
 
 \section{Introduction}
 %First paragraph introducing GGM
-Gaussian graphical models (GGM) are probabilistic models where undirected graphs are used to express the conditional dependence structure among variables with a joint Gaussian distribution. The vertexes of the graph represent the variables of the model, whereas the edges model the dependency between them. A crucial concept in GGM is the one of conditional independence: given a p-dimensional random vector $\mathbf{Y}$ distributed as a multivariate normal with zero mean and precision matrix $\mathbf{K}$, the random variables $Y_i$ and $Y_j$ are independent, conditionally on all the others, if and only if the corresponding entry in precision matrix $\mathbf{K}$ is null. This translates into the absence of an undirected edge linking nodes $i$ and $j$ in the graph. 
+\gls{ggm} are probabilistic models where undirected graphs are used to express the conditional dependence structure among variables with a joint Gaussian distribution. The vertexes of the graph represent the variables of the model, whereas the edges model the dependency between them. A crucial concept in \gls{ggm} is the one of conditional independence: given a p-dimensional random vector $\mathbf{Y}$ distributed as a multivariate normal with zero mean and precision matrix $\mathbf{K}$, the random variables $Y_i$ and $Y_j$ are independent, conditionally on all the others, if and only if the corresponding entry in precision matrix $\mathbf{K}$ is null. This translates into the absence of an undirected edge linking nodes $i$ and $j$ in the graph. 
 
 The graph is usually unknown and must be learnt from the data. Following a Bayesian approach, the graph itself is considered a random variable, which can assume values in the space of all possible undirected graphs with p nodes. A common choice is to place a uniform prior distribution over such space. Furthermore, a prior on the precision matrix conditionally on the graph must also be introduced. Due to its conjugacy property, a G-Wishart distribution is often selected as a prior for the precision matrix.
 
 %Use SBM as prior to inducing a block structure 
-In many real-life applications, the variables of interest can be grouped into clusters. This is a well-known and studied problem in network analysis, where the network of dependencies is observed and one only aim is to study the properties. In such a context, the most widely used model is the Stochastic Block Model (SBM). More in detail, SBM is a generative model for random networks with wide applications in the context of community detection, allowing to cluster the nodes of a graph into mutually exclusive groups that share similar connectivity patterns and are not known a priori. Most importantly, in an SBM, the probability of having an edge between two nodes only depends on the group membership of the nodes. Recently, there is a growing literature which aims to extend this reasoning also to problems where the network is latent, not observed. If so, the idea is to exploit SBM as a prior for the graph to simultaneously perform structural learning and the clustering of the nodes.
+In many real-life applications, the variables of interest can be grouped into clusters. This is a well-known and studied problem in network analysis, where the network of dependencies is observed and one only aim is to study the properties. In such a context, the most widely used model is the \gls{sbm}. More in detail, \gls{sbm} is a generative model for random networks with wide applications in the context of community detection, allowing to cluster the nodes of a graph into mutually exclusive groups that share similar connectivity patterns and are not known a priori. Most importantly, in an \gls{sbm}, the probability of having an edge between two nodes only depends on the group membership of the nodes. Recently, there is a growing literature which aims to extend this reasoning also to problems where the network is latent, not observed. If so, the idea is to exploit \gls{sbm} as a prior for the graph to simultaneously perform structural learning and the clustering of the nodes.
 
 %Additional specification on the order of the partition - IN PROGRESS -
 One assumption for clustering often made in the literature is that the nodes' names can be relabeled. This is equivalent to assuming that there is a lack of ordering among the variables. However, we argue that this assumption may fail in some contexts, especially those related to spatial statistics, where the localization of the variables imposes a natural ordering constraint. For instance, several biological problems require the identification of groups of genes which regulate specific cellular functions; in this case, respecting the order of alignment of genomic loci along the chromosome might yield additional important information. Another situation where the variables' order may play a significant role is imaging, where any reasonable grouping of variables should consider the underlying 3-D structure of data.
@@ -257,7 +257,7 @@ We can obtain point estimates of the partition by exploiting a decision theoreti
 \]
 where $\tilde{\bm{\rho}}$ is the \emph{true} partition, $\mathcal{C}$ is the space of all possible partitions, and $L(\cdot, \cdot): \mathcal{C} \times \mathcal{C} \rightarrow \mathbb{R}$ denotes a loss function.
 
-Different choices can be made for the loss function, such as the Binder loss function. Here, we resort to the Variation of Information (VI) loss function \parencite{Meila2007Comparing}.
+Different choices can be made for the loss function, such as the Binder loss function. Here, we resort to the \gls{vi} loss function \parencite{Meila2007Comparing}.
 
 It is unfeasible to scan the entire space $\mathcal{C}$. We restrict the optimization problem to a sub-optimal solution within the space $\mathcal{C}^T \subseteq \mathcal{C}$ of the orders visited in $T$ steps of the MCMC sampling.
 
@@ -385,13 +385,6 @@ After simplifying common factors, the resulting expression in the split case is
     & \quad \times \frac{\prod_{l=S+2}^{M} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime)}{\prod_{l=S+2}^{M} f_B(C_l, C_S) f_B(C_l, C_{S+1})} & \text{interactions with terms after}\\
     & \quad \times \frac{f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{f_B(C_S, C_{S+1}) f_B(C_S, C_S) f_B(C_{S+1}, C_{S+1})} & \text{internal interactions}
 \end{align*}
-
-
-
-
-
-
-
 
 
 
