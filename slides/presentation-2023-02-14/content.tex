@@ -63,7 +63,7 @@ where
 
     \pause 
 
-    We implement a Block Gibbs-Sampler strategy:
+    We implement a block Gibbs sampling strategy:
     \begin{enumerate}
         \item \alert{Sampling Graph and Precision Matrix}\\
         $\bm{G}$ and $\bm{K}$ - given $\bm{z}$ - are sampled using a modified version of a Birth-and-Death chain (\cite{mohammadiBayesianStructureLearning2015a}), changing one link at a time. The modified Birth and Death rates take into account the dependency on the random partition.
