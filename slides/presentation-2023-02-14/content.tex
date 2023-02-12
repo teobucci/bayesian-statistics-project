@@ -649,17 +649,17 @@ Their traceplots are similar throughout all the simulations.
         \toprule
         & Target distribution & B/D rates \\
         \hline
-        \textbf{Before} & $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L} (\bm{K} \mid {G})P(G)$ & $\cfrac{P(G')}{P(G)}$ \\
-        \textbf{After}  & $P(G,\bm{K} \mid \bm{Y}, \textcolor{sleekRed}{\bm{z}}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G})P(G \mid \textcolor{sleekRed}{\bm{z}})$ & $\cfrac{P(G' \mid \textcolor{sleekRed}{\bm{z}})}{P(G \mid \textcolor{sleekRed}{\bm{z}})}$ \\
+        \textbf{Before} & $P(\bm{G},\bm{K} \mid \bm{Y}) \propto P(\bm{Y} \mid \bm{K})P (\bm{K} \mid \bm{G})P(\bm{G})$ & $\cfrac{P(\bm{G}')}{P(\bm{G})}$ \\
+        \textbf{After}  & $P(\bm{G},\bm{K} \mid \bm{Y}, \textcolor{sleekRed}{\bm{z}}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid \bm{G})P(\bm{G} \mid \textcolor{sleekRed}{\bm{z}})$ & $\cfrac{P(\bm{G}' \mid \textcolor{sleekRed}{\bm{z}})}{P(\bm{G} \mid \textcolor{sleekRed}{\bm{z}})}$ \\
         \bottomrule
         \end{tabular}
     \end{table}
-    where $G' = G^{\pm e}$ and $e$ is an edge.
+    where $\bm{G}' = \bm{G}^{\pm e}$ and $e$ is an edge.
     \pause
     \[
-        \text{Birth rate} \propto \frac{P(G^{+ e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{S_{uv} + \alpha}{S^{\star}_{uv} + \beta}
+        \text{Birth rate} \propto \frac{P(\bm{G}^{+ e}\mid \bm{z})}{P(\bm{G}\mid \bm{z})} = \frac{S_{uv} + \alpha}{S^{\star}_{uv} + \beta}
         \quad
-        \text{Death rate} \propto \frac{P(G^{- e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{S^{\star}_{uv} + \beta}{S_{uv} + \alpha}
+        \text{Death rate} \propto \frac{P(\bm{G}^{- e}\mid \bm{z})}{P(\bm{G}\mid \bm{z})} = \frac{S^{\star}_{uv} + \beta}{S_{uv} + \alpha}
     \]
     
 \end{frame}
