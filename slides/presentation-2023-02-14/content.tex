@@ -12,15 +12,13 @@
 \pause
 \begin{align*}
     \bm{y}_1, \ldots, \bm{y}_n \mid \bm{K} & \iid \mathcal{N}_p(\mathbf{0}, \bm{K}^{-1} ) \\
-    \bm{K} \mid G & \sim \GWish(b, D)\\
-    P((i,j)&\in E\mid \bm{z},Q) = Q_{z_{i} z_{j}},\,\text{independent}\\
+    \bm{K} \mid \bm{G} & \sim \GWish(b, D)\\
+    P((i,j)&\in E\mid \bm{z},\bm{Q}) = Q_{z_{i} z_{j}},\,\text{independent}\\
         Q_{rs} \mid \bm{z} &\ind \Beta(\alpha,\beta), 1\leq r\leq s\leq M\\
-    \rho & \sim f_{\rho} \left(\rho\right)
+    \bm{z} & \sim P\left(\bm{z}\right)
 \end{align*}
 
-Notation for the partition: $\rho$ vector of cardinalities, $\bm{z}$ vector of groups memberships.
-
-The prior for the \alert{partition} $f_{\rho}(\rho)$ is (5) from \cite{martinezNonparametricChangePoint2014}.
+The prior for the \alert{partition} $P(\bm{z})$ is (5) from \cite{martinezNonparametricChangePoint2014}.
 
 \end{frame}
 
@@ -31,7 +29,7 @@ $Q$ is marginalized out.
 
 The prior for the \alert{graph} given the vector of group memberships is
 \[
-    P(G\mid \bm{z})
+    P(\bm{G}\mid \bm{z})
     =
     \prod_{u=1}^{M}\prod_{v=u}^{M}
     \frac{B(\alpha + S_{uv}, \beta+ S^{\star}_{uv})}{B(\alpha,\beta)}
@@ -56,9 +54,9 @@ where
         \centering
         \begin{tabular}{ll}
         \toprule
-        Graph and Precision & $\small P(\bm{K},G \mid \bm{Y},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G}) P(G \mid \bm{z})$ \\
+        Graph and Precision & $\small P(\bm{K},\bm{G} \mid \bm{Y},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid \bm{G}) P(\bm{G} \mid \bm{z})$ \\
         \hline
-        Random Partition & $\small P(\bm{z} \mid \bm{Y},\bm{K},G) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z}) \propto P(G \mid \bm{z})P(\bm{z}) $ \\
+        Random Partition & $\small P(\bm{z} \mid \bm{Y},\bm{K},\bm{G}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid \bm{G})P(\bm{G} \mid \bm{z})P(\bm{z}) \propto P(\bm{G} \mid \bm{z})P(\bm{z}) $ \\
         \bottomrule
         \end{tabular}
     \end{table}
@@ -68,9 +66,9 @@ where
     We implement a Block Gibbs-Sampler strategy:
     \begin{enumerate}
         \item \alert{Sampling Graph and Precision Matrix}\\
-        $G$ and $\bm{K}$ - given $\bm{z}$ - are sampled using a modified version of a Birth-and-Death chain (\cite{mohammadiBayesianStructureLearning2015a}), changing one link at a time. The modified Birth and Death rates take into account the dependency on the random partition.
+        $\bm{G}$ and $\bm{K}$ - given $\bm{z}$ - are sampled using a modified version of a Birth-and-Death chain (\cite{mohammadiBayesianStructureLearning2015a}), changing one link at a time. The modified Birth and Death rates take into account the dependency on the random partition.
         \item \alert{Sampling the Random Partition}\\
-        Conditionally on $G$, we can sample $\bm{z}$ through an adaptive split and merge\vphantom{changepoint} sampler.
+        Conditionally on $\bm{G}$, we can sample $\bm{z}$ through an adaptive split and merge sampler. \textcolor{white}{changepoints everywhere}
     \end{enumerate}
 \end{frame}
 
@@ -88,18 +86,18 @@ where
         \begin{enumerate}
             \item Propose a new partition by splitting one group into two or merging two adjacent, using two vectors of \alert{weights}, $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$, to choose where to perform the move.
             \item Accept or reject using\vphantom{un banale} Metropolis Hastings. The target is:
-            $f(\rho \mid G) \approx f_G(G \mid \rho) f_{\rho}(\rho)$
+            $f(\bm{z} \mid \bm{G}) \approx P(\bm{G} \mid \bm{z}) P(\bm{z})$
             \pause
-            \[
+            \begin{equation*}
                 \alpha_{\text{accept}} = \min
                 \bigg\{1,
                 \overbrace{
-                \underbrace{\frac{f_G\left(G \mid \rho'\right)}{f_G(G \mid \rho)}}_{\substack{\text{graph}\\\text{ratio}}}
-                \underbrace{\frac{f_\rho\left(\rho'\right)}{f_\rho(\rho)}}_{\substack{\text{partition}\\\text{ratio}}}
+                \underbrace{\frac{P(\bm{G} \mid \bm{z}')}{P(\bm{G} \mid \bm{z})}}_{\substack{\text{graph}\\\text{ratio}}}
+                \underbrace{\frac{P(\bm{z}')}{P(\bm{z})}}_{\substack{\text{partition}\\\text{ratio}}}
                 }^{\text{target ratio}}
-                \underbrace{\frac{Q(\rho',\rho)}{Q(\rho,\rho')}}_{\substack{\text{proposal}\\\text{ratio}}}
+                \underbrace{\frac{Q(\bm{z}',\bm{z})}{Q(\bm{z},\bm{z}')}}_{\substack{\text{proposal}\\\text{ratio}}}
                 \bigg\}
-            \]
+            \end{equation*}
         \end{enumerate}
         
     \end{enumerate}
@@ -115,45 +113,27 @@ where
                 \item[2.1] Propose a new partition by moving some nodes from a group to an adjacent one.
                 \item[2.2] Accept or reject using Metropolis Hastings.
             \end{enumerate}
+
+        \fg{0.4}{Images/update_partition_shuffle.pdf}
+        \vspace*{0.5cm}
+        \item[3.] The two weights vectors $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$ are updated at each iteration $t$ as in \cite{bensonAdaptiveMCMCMultiple2018}.
     \end{enumerate}
 
-    \fg{0.4}{Images/update_partition_shuffle.pdf}
 \end{frame}
-
-
-\begin{frame}{Adaptive step}
-    The two weights vectors $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$ are updated at each iteration $t$ as in \cite{bensonAdaptiveMCMCMultiple2018} using the following \textbf{adaptation scheme}.
-    \pause
-    
-    \begin{itemize}
-        \item If a \alert{split} move at node $i$ has been accepted, then update:
-        \[
-            \log (a_i^{(t+1)})=\log (a_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{split}}-\alpha_{\text{target}}) .
-        \]
-        \item If a \alert{merge} move at node $i$ has been accepted, then update:
-        \[
-            \log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{merge}}-\alpha_{\text{target}}) .
-        \]
-    \end{itemize}
-Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number of nodes $(p)$, $\alpha_{\text{target}}$ is the target MH acceptance rate and $\alpha_{\text{merge}} = 1 - \alpha_{\text{split}}$.
-
-\end{frame}
-
-
 
 \section{Simulations}
 
 \begin{frame}{Simulations structure}
-We ran a total of 42 simulations, varying different hyperparameters. 
+We ran a total of 41 simulations, varying different hyperparameters. 
 The simulations are subdivided in groups, depending on which parameter was tuned:
     \begin{enumerate}
         \item Data generating \alert{seed}
         \item Variance of the Beta prior \texttt{beta\_sig2}
         \item Initial partition
         \item Generating partition's \alert{cluster numerosities}
-        \item Number of observations n
-        \item Number of \alert{nodes p}
-        \item Using \alert{noised block structure} as data generator
+        \item Number of observations $n$
+        \item Number of \alert{nodes} $p$
+        \item Using \alert{noised} block structure as data generator
     \end{enumerate}
 
 \begin{table}[H]
@@ -216,7 +196,7 @@ Results are consistent for every seed:
 \begin{itemize}
     \item Selected partition is the true underlying partition
     \item Estimated p-links matrix is close to the true graph adjacency
-    \item KL-distance converges to 0.187
+    \item KL distance converges to 0.187
 \end{itemize}
 \end{frame}
 
@@ -233,17 +213,17 @@ Results are consistent for every seed:
 \texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
-\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{red!50}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
 \bottomrule
 \end{tabular}}
 \end{table}
 \begin{figure}
 \begin{minipage}[c]{0.49\linewidth}
-\fg{0.82}{../../output/data/simulation_02/comparison_G_true_est.pdf}
+\fg{1.05}{../../output/data/simulation_02/comparison_G_true_est.pdf}
 \end{minipage}
 \hfill
 \begin{minipage}[c]{0.49\linewidth}
-\fg{0.82}{../../output/data/simulation_02/comparison_K_true_est.pdf}
+\fg{1.05}{../../output/data/simulation_02/comparison_K_true_est.pdf}
 \end{minipage}%
 \end{figure}
 \end{frame}
@@ -259,7 +239,7 @@ Results are consistent for every seed:
 \texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
-\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{red!50}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -277,11 +257,11 @@ Results are consistent for every seed:
 \texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
-\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{red!50}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
 \bottomrule
 \end{tabular}}
 \end{table}
-\fg{0.65}{../../output/data/simulation_02/indexes.pdf}
+\fg{0.97}{../../output/data/simulation_02/indexes.pdf}
 \end{frame}
 
 
@@ -312,7 +292,7 @@ Results are consistent for every seed:
 \end{tabular}}
 \end{table}
 
-Varying Beta\_sig2 does not yield significant changes in posterior analysis.
+Varying \texttt{beta\_sig2} does not yield significant changes in posterior analysis.
 
 \end{frame}
 
@@ -367,7 +347,7 @@ Starting from different initial partitions (i.e. one single partition or all sin
 \end{tabular}}
 \end{table}
 
-Changing the generating partition's cluster numerosities does not generally influence the result. The only exception comes with small and numerous clusters, as in simulation 22
+Changing the generating partition's cluster numerosities does not generally influence the result. The only exception comes with small and numerous clusters, as in simulation 22.
 \end{frame}
 
 
@@ -391,11 +371,11 @@ Changing the generating partition's cluster numerosities does not generally infl
 
 \begin{figure}
 \begin{minipage}[c]{0.49\linewidth}
-\fg{1.01}{../../output/data/simulation_22/comparison_G_true_est.pdf}
+\fg{1.05}{../../output/data/simulation_22/comparison_G_true_est.pdf}
 \end{minipage}
 \hfill
 \begin{minipage}[c]{0.49\linewidth}
-\fg{1.01}{../../output/data/simulation_22/comparison_K_true_est.pdf}
+\fg{1.05}{../../output/data/simulation_22/comparison_K_true_est.pdf}
 \end{minipage}%
 \end{figure}
 \end{frame}
@@ -421,7 +401,7 @@ Changing the generating partition's cluster numerosities does not generally infl
 \end{tabular}}
 \end{table}
 
-\fg{0.6}{../../output/data/simulation_22/indexes.pdf}
+\fg{0.97}{../../output/data/simulation_22/indexes.pdf}
 
 \end{frame}
 
@@ -458,7 +438,7 @@ Changing the generating partition's cluster numerosities does not generally infl
 \end{tabular}}
 \end{table}
 
-As $n$ diminishes and becomes comparable to $p$, we notice that the KL-distance plateus on progressively higher values, and \texttt{VI} and \texttt{RI} behave accordingly.
+As $n$ diminishes and becomes comparable to $p$, we notice that the KL distance plateaus on progressively higher values, and \texttt{VI} and \texttt{RI} behave accordingly.
 The acceptance rates rises in \textit{more difficult} situations.
 \end{frame}
 
@@ -521,18 +501,18 @@ Increasing $p$ yields consequences comparable to diminishing $n$.
 \texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
-\cellcolor{gray!6}{\hspace{1em}41} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{B} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.013} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.176} & \cellcolor{gray!6}{1.03100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}41} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{B} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.013} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.176} & \cellcolor{gray!6}{1.03100 mins}\\
 \bottomrule
 \end{tabular}}
 \end{table}
 
 \begin{figure}
 \begin{minipage}[c]{0.49\linewidth}
-\fg{0.82}{../../output/data/simulation_41/comparison_G_true_est.pdf}
+\fg{1.05}{../../output/data/simulation_41/comparison_G_true_est.pdf}
 \end{minipage}
 \hfill
 \begin{minipage}[c]{0.49\linewidth}
-\fg{0.82}{../../output/data/simulation_41/comparison_K_true_est.pdf}
+\fg{1.05}{../../output/data/simulation_41/comparison_K_true_est.pdf}
 \end{minipage}%
 \end{figure}
 
@@ -552,13 +532,13 @@ Increasing $p$ yields consequences comparable to diminishing $n$.
 \texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
-\cellcolor{gray!6}{\hspace{1em}41} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{B} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.013} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.176} & \cellcolor{gray!6}{1.03100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}41} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{B} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.013} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.176} & \cellcolor{gray!6}{1.03100 mins}\\
 \bottomrule
 \end{tabular}}
 \end{table}
 
 
-\fg{0.55}{../../output/data/simulation_41/graph.pdf}
+\fg{0.65}{../../output/data/simulation_41/graph.pdf}
 
 \end{frame}
 
@@ -580,13 +560,13 @@ Increasing $p$ yields consequences comparable to diminishing $n$.
 \texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
-\cellcolor{gray!6}{\hspace{1em}41} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{B} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.013} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.176} & \cellcolor{gray!6}{1.03100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}41} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{B} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.013} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.176} & \cellcolor{gray!6}{1.03100 mins}\\
 \bottomrule
 \end{tabular}}
 \end{table}
 
 
-\fg{0.6}{../../output/data/simulation_41/indexes.pdf}
+\fg{0.9}{../../output/data/simulation_41/indexes.pdf}
 
 \end{frame}
 
@@ -603,12 +583,12 @@ Increasing $p$ yields consequences comparable to diminishing $n$.
 
 
 \begin{frame}{Theta and Sigma traceplots}
-$\theta$ and $\sigma$ are updated according to \textcite[835-836]{martinezNonparametricChangePoint2014}.
+$\theta$ and $\sigma$ are updated according to \textcite[835-836]{martinezNonparametricChangePoint2014}, to improve the mixing of the chain.
+\textcolor{white}{A perfect mixing of the chain is to be appreciated.}
 
 Their traceplots are similar throughout all the simulations.
-A good mixing of the chain is to be appreciated:
 
-\fg{0.7}{../../output/data/simulation_41/theta_sigma_prior.pdf}
+\fg{0.6}{../../output/data/simulation_41/theta_sigma_prior.pdf}
 
 \end{frame}
 
@@ -682,4 +662,23 @@ A good mixing of the chain is to be appreciated:
         \text{Death rate} \propto \frac{P(G^{- e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{S^{\star}_{uv} + \beta}{S_{uv} + \alpha}
     \]
     
+\end{frame}
+
+
+
+\begin{frame}{Adaptive step}
+    The two weights vectors $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$ are updated at each iteration $t$ as in \cite{bensonAdaptiveMCMCMultiple2018} using the following \textbf{adaptation scheme}.
+    \pause
+    
+    \begin{itemize}
+        \item If a \alert{split} move at node $i$ has been accepted, then update:
+        \[
+            \log (a_i^{(t+1)})=\log (a_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{split}}-\alpha_{\text{target}}) .
+        \]
+        \item If a \alert{merge} move at node $i$ has been accepted, then update:
+        \[
+            \log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{merge}}-\alpha_{\text{target}}) .
+        \]
+    \end{itemize}
+Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number of nodes $(p)$, $\alpha_{\text{target}}$ is the target MH acceptance rate and $\alpha_{\text{merge}} = 1 - \alpha_{\text{split}}$.
 \end{frame}
