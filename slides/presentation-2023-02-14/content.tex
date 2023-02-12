@@ -46,8 +46,6 @@ where
 
 \section{The sampling strategy}
 
-\subsection{Overview of the sampling strategy}
-
 \begin{frame}{Block Gibbs Sampler}
     Conditional distributions for our model:
     \begin{table}[tb]
@@ -72,54 +70,6 @@ where
     \end{enumerate}
 \end{frame}
 
-
-
-\subsection{Updating the partition}
-
-\begin{frame}{General steps for updating the partition}
-    
-    We perform an adaptive \alert{split and merge}.
-
-    \fg{0.4}{Images/update_partition_splitmerge.pdf}
-    \begin{enumerate}
-        \item With probability $\alpha_{\text{split}}$, usually $0.5$, choose an \alert{split move}, otherwise a \alert{merge move}. Unless we are forced by extreme cases.
-        \begin{enumerate}
-            \item Propose a new partition by splitting one group into two or merging two adjacent, using two vectors of \alert{weights}, $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$, to choose where to perform the move.
-            \item Accept or reject using\vphantom{un banale} Metropolis Hastings. The target is:
-            $f(\bm{z} \mid \bm{G}) \approx P(\bm{G} \mid \bm{z}) P(\bm{z})$
-            \pause
-            \begin{equation*}
-                \alpha_{\text{accept}} = \min
-                \bigg\{1,
-                \overbrace{
-                \underbrace{\frac{P(\bm{G} \mid \bm{z}')}{P(\bm{G} \mid \bm{z})}}_{\substack{\text{graph}\\\text{ratio}}}
-                \underbrace{\frac{P(\bm{z}')}{P(\bm{z})}}_{\substack{\text{partition}\\\text{ratio}}}
-                }^{\text{target ratio}}
-                \underbrace{\frac{Q(\bm{z}',\bm{z})}{Q(\bm{z},\bm{z}')}}_{\substack{\text{proposal}\\\text{ratio}}}
-                \bigg\}
-            \end{equation*}
-        \end{enumerate}
-        
-    \end{enumerate}
-
-\end{frame}
-
-
-
-\begin{frame}{Shuffle move}
-    \begin{enumerate}
-        \item[2.] To improve the mixing of the chain we also perform a \alert{shuffle move}.
-            \begin{enumerate}
-                \item[2.1] Propose a new partition by moving some nodes from a group to an adjacent one.
-                \item[2.2] Accept or reject using Metropolis Hastings.
-            \end{enumerate}
-
-        \fg{0.4}{Images/update_partition_shuffle.pdf}
-        \vspace*{0.5cm}
-        \item[3.] The two weights vectors $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$ are updated at each iteration $t$ as in \cite{bensonAdaptiveMCMCMultiple2018}.
-    \end{enumerate}
-
-\end{frame}
 
 \section{Simulations}
 
@@ -662,6 +612,53 @@ Their traceplots are similar throughout all the simulations.
         \text{Death rate} \propto \frac{P(\bm{G}^{- e}\mid \bm{z})}{P(\bm{G}\mid \bm{z})} = \frac{S^{\star}_{uv} + \beta}{S_{uv} + \alpha}
     \]
     
+\end{frame}
+
+\subsection{Updating the partition}
+
+\begin{frame}{General steps for updating the partition}
+    
+    We perform an adaptive \alert{split and merge}.
+
+    \fg{0.4}{Images/update_partition_splitmerge.pdf}
+    \begin{enumerate}
+        \item With probability $\alpha_{\text{split}}$, usually $0.5$, choose an \alert{split move}, otherwise a \alert{merge move}. Unless we are forced by extreme cases.
+        \begin{enumerate}
+            \item Propose a new partition by splitting one group into two or merging two adjacent, using two vectors of \alert{weights}, $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$, to choose where to perform the move.
+            \item Accept or reject using\vphantom{un banale} Metropolis Hastings. The target is:
+            $f(\bm{z} \mid \bm{G}) \approx P(\bm{G} \mid \bm{z}) P(\bm{z})$
+            \pause
+            \begin{equation*}
+                \alpha_{\text{accept}} = \min
+                \bigg\{1,
+                \overbrace{
+                \underbrace{\frac{P(\bm{G} \mid \bm{z}')}{P(\bm{G} \mid \bm{z})}}_{\substack{\text{graph}\\\text{ratio}}}
+                \underbrace{\frac{P(\bm{z}')}{P(\bm{z})}}_{\substack{\text{partition}\\\text{ratio}}}
+                }^{\text{target ratio}}
+                \underbrace{\frac{Q(\bm{z}',\bm{z})}{Q(\bm{z},\bm{z}')}}_{\substack{\text{proposal}\\\text{ratio}}}
+                \bigg\}
+            \end{equation*}
+        \end{enumerate}
+        
+    \end{enumerate}
+
+\end{frame}
+
+
+
+\begin{frame}{Shuffle move}
+    \begin{enumerate}
+        \item[2.] To improve the mixing of the chain we also perform a \alert{shuffle move}.
+            \begin{enumerate}
+                \item[2.1] Propose a new partition by moving some nodes from a group to an adjacent one.
+                \item[2.2] Accept or reject using Metropolis Hastings.
+            \end{enumerate}
+
+        \fg{0.4}{Images/update_partition_shuffle.pdf}
+        \vspace*{0.5cm}
+        \item[3.] The two weights vectors $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$ are updated at each iteration $t$ as in \cite{bensonAdaptiveMCMCMultiple2018}.
+    \end{enumerate}
+
 \end{frame}
 
 
