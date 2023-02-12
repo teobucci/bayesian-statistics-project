@@ -46,6 +46,383 @@ where
 \end{frame}
 
 
+\section{The sampling strategy}
+
+\subsection{Overview of the sampling strategy}
+
+\begin{frame}{Block Gibbs Sampler}
+    Conditional distributions for our model:
+    \begin{table}[tb]
+        \centering
+        \begin{tabular}{ll}
+        \toprule
+        Graph and Precision & $\small P(\bm{K},G \mid \bm{Y},\bm{z}) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G}) P(G \mid \bm{z})$ \\
+        \hline
+        Random Partition & $\small P(\bm{z} \mid \bm{Y},\bm{K},G) \propto P(\bm{Y} \mid \bm{K})P(\bm{K} \mid {G})P(G \mid \bm{z})P(\bm{z}) \propto P(G \mid \bm{z})P(\bm{z}) $ \\
+        \bottomrule
+        \end{tabular}
+    \end{table}
+
+    \pause 
+
+    We implement a Block Gibbs-Sampler strategy:
+    \begin{enumerate}
+        \item \alert{Sampling Graph and Precision Matrix}\\
+        $G$ and $\bm{K}$ - given $\bm{z}$ - are sampled using a modified version of a Birth-and-Death chain (\cite{mohammadiBayesianStructureLearning2015a}), changing one link at a time. The modified Birth and Death rates take into account the dependency on the random partition.
+        \item \alert{Sampling the Random Partition}\\
+        Conditionally on $G$, we can sample $\bm{z}$ through an adaptive split and merge\vphantom{changepoint} sampler.
+    \end{enumerate}
+\end{frame}
+
+
+
+\subsection{Updating the partition}
+
+\begin{frame}{General steps for updating the partition}
+    
+    We perform an adaptive \alert{split and merge}.
+
+    \fg{0.4}{Images/update_partition_splitmerge.pdf}
+    \begin{enumerate}
+        \item With probability $\alpha_{\text{split}}$, usually $0.5$, choose an \alert{split move}, otherwise a \alert{merge move}. Unless we are forced by extreme cases.
+        \begin{enumerate}
+            \item Propose a new partition by splitting one group into two or merging two adjacent, using two vectors of \alert{weights}, $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$, to choose where to perform the move.
+            \item Accept or reject using\vphantom{un banale} Metropolis Hastings. The target is:
+            $f(\rho \mid G) \approx f_G(G \mid \rho) f_{\rho}(\rho)$
+            \pause
+            \[
+                \alpha_{\text{accept}} = \min
+                \bigg\{1,
+                \overbrace{
+                \underbrace{\frac{f_G\left(G \mid \rho'\right)}{f_G(G \mid \rho)}}_{\substack{\text{graph}\\\text{ratio}}}
+                \underbrace{\frac{f_\rho\left(\rho'\right)}{f_\rho(\rho)}}_{\substack{\text{partition}\\\text{ratio}}}
+                }^{\text{target ratio}}
+                \underbrace{\frac{Q(\rho',\rho)}{Q(\rho,\rho')}}_{\substack{\text{proposal}\\\text{ratio}}}
+                \bigg\}
+            \]
+        \end{enumerate}
+        
+    \end{enumerate}
+
+\end{frame}
+
+
+
+\begin{frame}{Shuffle move}
+    \begin{enumerate}
+        \item[2.] To improve the mixing of the chain we also perform a \alert{shuffle move}.
+            \begin{enumerate}
+                \item[2.1] Propose a new partition by moving some nodes from a group to an adjacent one.
+                \item[2.2] Accept or reject using Metropolis Hastings.
+            \end{enumerate}
+    \end{enumerate}
+
+    \fg{0.4}{Images/update_partition_shuffle.pdf}
+\end{frame}
+
+
+\begin{frame}{Adaptive step}
+    The two weights vectors $\bm{a}^{(t)}$ and $\bm{d}^{(t)}$ are updated at each iteration $t$ as in \cite{bensonAdaptiveMCMCMultiple2018} using the following \textbf{adaptation scheme}.
+    \pause
+    
+    \begin{itemize}
+        \item If a \alert{split} move at node $i$ has been accepted, then update:
+        \[
+            \log (a_i^{(t+1)})=\log (a_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{split}}-\alpha_{\text{target}}) .
+        \]
+        \item If a \alert{merge} move at node $i$ has been accepted, then update:
+        \[
+            \log (d_i^{(t+1)})=\log (d_i^{(t)})+\frac{h}{t/p}(\alpha_{\text{merge}}-\alpha_{\text{target}}) .
+        \]
+    \end{itemize}
+Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number of nodes $(p)$, $\alpha_{\text{target}}$ is the target MH acceptance rate and $\alpha_{\text{merge}} = 1 - \alpha_{\text{split}}$.
+
+\end{frame}
+
+
+
+\section{Simulations}
+
+\begin{frame}{Simulations structure}
+We ran a total of 42 simulations, varying different parameters for our model. 
+The simulations are subdivided in groups, depending on which parameter was tuned:
+    \begin{enumerate}
+        \item Data generating \alert{seed}
+        \item Beta\_sig2
+        \item Initial partition
+        \item Starting partition's alert{cluster numerosities}
+        \item Number of observations n
+        \item Number of \alert{nodes p}
+        \item Using \alert{noised block structure} as data generator
+    \end{enumerate}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lllllll}
+\cmidrule(l{3pt}r{3pt}){1-7} 
+$n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ \\
+\midrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}{Posterior analysis}
+We performed posterior analysis using the following metrics and plots:
+    \begin{enumerate}
+        \item Estimated \alert{p-links} matrix vs true adjacency matrix
+        \item Estimated \alert{precision matrix} vs true precision matrix
+        \item \alert{Changepoint frequency} distribution (estimated vs true partition)
+        \item Random index traceplot
+        \item \alert{Kullback-Leibler} distance curve
+        \item $\theta$ and $\sigma$ prior
+        \item Mean acceptance rate
+    \end{enumerate}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llllll}
+\cmidrule(l{3pt}r{3pt}){1-6} 
+$\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+
+\begin{frame}{Group 1: varying data generating seed}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\cellcolor{gray!6}{\hspace{1em}01} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{22111996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21400 mins}\\
+\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}03} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}04} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{29061999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}05} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{12091997} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}06} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27091999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21500 mins}\\
+\cellcolor{gray!6}{\hspace{1em}07} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21700 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{figure}
+\begin{minipage}[c]{0.49\linewidth}
+\fg{0.82}{Images/group_1/comparison_G_true_est.pdf}
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.49\linewidth}
+\fg{0.82}{Images/group_1/comparison_K_true_est.pdf}
+\end{minipage}%
+\end{figure}
+\end{frame}
+
+
+
+
+
+
+\begin{frame}{Group 1: varying data generating seed}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+\fg{0.65}{Images/group_1/graph.pdf}
+\end{frame}
+
+
+
+
+\begin{frame}{Group 2}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{14}{l}{\textbf{Group 2: varying beta\_sig2}}\\
+\cellcolor{gray!6}{\hspace{1em}08} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.062} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.066} & \cellcolor{gray!6}{0.034} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.191} & \cellcolor{gray!6}{1.22400 mins}\\
+\cellcolor{gray!6}{\hspace{1em}09} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.078} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.080} & \cellcolor{gray!6}{0.043} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.186} & \cellcolor{gray!6}{1.20700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}10} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.093} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.075} & \cellcolor{gray!6}{0.039} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}11} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.108} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.079} & \cellcolor{gray!6}{0.049} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}12} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.124} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.067} & \cellcolor{gray!6}{0.040} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}13} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.139} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.060} & \cellcolor{gray!6}{0.035} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20200 mins}\\
+\cellcolor{gray!6}{\hspace{1em}14} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.154} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.056} & \cellcolor{gray!6}{0.030} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.193} & \cellcolor{gray!6}{1.20000 mins}\\
+\cellcolor{gray!6}{\hspace{1em}15} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.169} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.047} & \cellcolor{gray!6}{0.024} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.191} & \cellcolor{gray!6}{1.20100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}16} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.185} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.034} & \cellcolor{gray!6}{0.022} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.189} & \cellcolor{gray!6}{1.20000 mins}\\
+\cellcolor{gray!6}{\hspace{1em}17} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.16200 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+\end{frame}
+
+
+\begin{frame}{Group 2}
+\fg{0.8}{Images/kl_dist_comparison_beta_sig2-1.pdf}
+
+\end{frame}
+
+
+\begin{frame}{Group 3}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{14}{l}{\textbf{Group 3: varying initial partition}}\\
+\cellcolor{gray!6}{\hspace{1em}18} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.16300 mins}\\
+\cellcolor{gray!6}{\hspace{1em}19} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{singletons} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.020} & \cellcolor{gray!6}{0.015} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.189} & \cellcolor{gray!6}{1.24800 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+\end{frame}
+
+
+
+
+\begin{frame}{Group 4}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{14}{l}{\textbf{Group 4: varying group numerosities}}\\
+\cellcolor{gray!6}{\hspace{1em}20} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.16000 mins}\\
+\cellcolor{gray!6}{\hspace{1em}21} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{1,10,2,9,3} & \cellcolor{gray!6}{1,10,2,9,3} & \cellcolor{gray!6}{0.072} & \cellcolor{gray!6}{0.109} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.181} & \cellcolor{gray!6}{1.25500 mins}\\
+\cellcolor{gray!6}{\hspace{1em}22} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.02} & \cellcolor{gray!6}{1,3,2,4,2,3,3,4,3} & \cellcolor{gray!6}{18,7} & \cellcolor{gray!6}{0.397} & \cellcolor{gray!6}{1.020} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.126} & \cellcolor{gray!6}{1.10700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}23} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{12,13} & \cellcolor{gray!6}{12,13} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.073} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.255} & \cellcolor{gray!6}{1.36700 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+\end{frame}
+
+
+
+\begin{frame}{Group 5}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{14}{l}{\textbf{Group 5: varying n}}\\
+\cellcolor{gray!6}{\hspace{1em}24} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.082} & \cellcolor{gray!6}{0.046} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.17300 mins}\\
+\cellcolor{gray!6}{\hspace{1em}25} & \cellcolor{gray!6}{400} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.072} & \cellcolor{gray!6}{0.036} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.221} & \cellcolor{gray!6}{1.15900 mins}\\
+\cellcolor{gray!6}{\hspace{1em}26} & \cellcolor{gray!6}{300} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.070} & \cellcolor{gray!6}{0.041} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.336} & \cellcolor{gray!6}{1.16800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}27} & \cellcolor{gray!6}{200} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.074} & \cellcolor{gray!6}{0.045} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.532} & \cellcolor{gray!6}{1.15400 mins}\\
+\cellcolor{gray!6}{\hspace{1em}28} & \cellcolor{gray!6}{100} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.111} & \cellcolor{gray!6}{0.241} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{1.487} & \cellcolor{gray!6}{1.11800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}29} & \cellcolor{gray!6}{50} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{20,5} & \cellcolor{gray!6}{0.236} & \cellcolor{gray!6}{0.539} & \cellcolor{gray!6}{0.273} & \cellcolor{gray!6}{4.212} & \cellcolor{gray!6}{1.09000 mins}\\
+\cellcolor{gray!6}{\hspace{1em}30} & \cellcolor{gray!6}{20} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.280} & \cellcolor{gray!6}{0.241} & \cellcolor{gray!6}{0.000} & \cellcolor{gray!6}{11.854} & \cellcolor{gray!6}{1.07600 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+\end{frame}
+
+
+
+\begin{frame}{Group 6}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{14}{l}{\textbf{Group 6: varying p}}\\
+\cellcolor{gray!6}{\hspace{1em}31} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{3,2} & \cellcolor{gray!6}{3,2} & \cellcolor{gray!6}{0.543} & \cellcolor{gray!6}{0.752} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.006} & \cellcolor{gray!6}{0.79960 mins}\\
+\cellcolor{gray!6}{\hspace{1em}32} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5} & \cellcolor{gray!6}{5,5} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{0.115} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.028} & \cellcolor{gray!6}{0.85055 mins}\\
+\cellcolor{gray!6}{\hspace{1em}33} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{15} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{15} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5} & \cellcolor{gray!6}{5,5,5} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.087} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.045} & \cellcolor{gray!6}{1.09400 mins}\\
+\cellcolor{gray!6}{\hspace{1em}34} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{20} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{20} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5} & \cellcolor{gray!6}{5,5,5,5} & \cellcolor{gray!6}{0.103} & \cellcolor{gray!6}{0.070} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.118} & \cellcolor{gray!6}{1.20100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}35} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{0.074} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.170} & \cellcolor{gray!6}{1.33600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}36} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{30} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{30} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,5} & \cellcolor{gray!6}{0.080} & \cellcolor{gray!6}{0.061} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.140} & \cellcolor{gray!6}{1.49600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}37} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{35} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{35} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,5,5} & \cellcolor{gray!6}{0.066} & \cellcolor{gray!6}{0.149} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.205} & \cellcolor{gray!6}{1.71700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}38} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{40} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{40} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{0.061} & \cellcolor{gray!6}{0.384} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.282} & \cellcolor{gray!6}{1.99900 mins}\\
+\cellcolor{gray!6}{\hspace{1em}39} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{45} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{45} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,10,10} & \cellcolor{gray!6}{0.071} & \cellcolor{gray!6}{0.761} & \cellcolor{gray!6}{0.756} & \cellcolor{gray!6}{0.396} & \cellcolor{gray!6}{2.45600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}40} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{50} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{50} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{25,5,5,5,5,5} & \cellcolor{gray!6}{0.059} & \cellcolor{gray!6}{0.853} & \cellcolor{gray!6}{0.364} & \cellcolor{gray!6}{0.367} & \cellcolor{gray!6}{3.05700 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+\end{frame}
+
+
+
+
+\begin{frame}{Group 7}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\multicolumn{14}{l}{\textbf{Group 7: using noised block structure}}\\
+\cellcolor{gray!6}{\hspace{1em}41} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{B} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.013} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.176} & \cellcolor{gray!6}{1.03100 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+\end{frame}
+
+
+\begin{frame}{Theta and Sigma traceplots}
+The traceplots for $\theta$ and $\sigma$ are similar throughout all the simulations.
+We can notice a good mixing of the chain:
+
+[TODO]
+
+\end{frame}
+
+
+
+\section{Conclusions}
+\begin{frame}{Conclusions}
+
+\end{frame}
+
+\begin{frame}{Future developments}
+
+
+\end{frame}
+
+
 
 
 \begin{frame}{Main references}
@@ -69,4 +446,38 @@ where
     \hspace*{1cm}{\Large Thank you!}\\
     \vspace*{0.6cm}
     \hspace*{1cm}{\Huge \alert{Any questions?}}
+\end{frame}
+
+
+
+
+
+\section{Extra}
+
+\begin{frame}{Birth and death algorithm for updating the graph}
+
+    \texttt{BDGraph} is an algorithm that follows a Birth-and-Death approach to decide whether to \alert{add} a new edge to the graph or \alert{delete} an already existing one.
+
+    \pause
+    
+    % https://people.inf.ethz.ch/markusp/teaching/guides/guide-tables.pdf
+    \begin{table}[tb]
+        \centering
+        \begin{tabular}{lcc}
+        \toprule
+        & Target distribution & B/D rates \\
+        \hline
+        \textbf{Before} & $P(G,\bm{K} \mid \bm{Y}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L} (\bm{K} \mid {G})P(G)$ & $\cfrac{P(G')}{P(G)}$ \\
+        \textbf{After}  & $P(G,\bm{K} \mid \bm{Y}, \textcolor{sleekRed}{\bm{z}}) \propto \mathcal{L}(\bm{Y} \mid \bm{K})\mathcal{L}(\bm{K} \mid {G})P(G \mid \textcolor{sleekRed}{\bm{z}})$ & $\cfrac{P(G' \mid \textcolor{sleekRed}{\bm{z}})}{P(G \mid \textcolor{sleekRed}{\bm{z}})}$ \\
+        \bottomrule
+        \end{tabular}
+    \end{table}
+    where $G' = G^{\pm e}$ and $e$ is an edge.
+    \pause
+    \[
+        \text{Birth rate} \propto \frac{P(G^{+ e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{S_{uv} + \alpha}{S^{\star}_{uv} + \beta}
+        \quad
+        \text{Death rate} \propto \frac{P(G^{- e}\mid \bm{z})}{P(G\mid \bm{z})} = \frac{S^{\star}_{uv} + \beta}{S_{uv} + \alpha}
+    \]
+    
 \end{frame}
