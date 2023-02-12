@@ -83,7 +83,7 @@ The simulations are subdivided in groups, depending on which parameter was tuned
         \item Variance of the Beta prior \texttt{beta\_sig2}
         \item Initial partition
         \item Generating partition's \alert{cluster numerosities}
-        \item Number of observations $n$
+        \item Number of \alert{observations} $n$
         \item Number of \alert{nodes} $p$
         \item Using \alert{noised} block structure as data generator
     \end{enumerate}
@@ -148,7 +148,7 @@ Results are consistent for every seed:
 \begin{itemize}
     \item Selected partition is the true underlying partition
     \item Estimated p-links matrix is close to the true graph adjacency
-    \item KL distance converges to 0.187
+    \item KL distance converges to \alert{0.187}
 \end{itemize}
 \end{frame}
 
@@ -547,14 +547,25 @@ Their traceplots are similar throughout all the simulations.
 
 
 \section{Conclusions}
-\begin{frame}{Conclusions}
+\begin{frame}{Conclusions and future directions}
+
+
+\alert{Final considerations}
+\begin{itemize}
+\item Effective choice of the prior distribution for the partition
+\item Good performance (rand index, VI, KL), across a wide range of parameter perturbations
+\end{itemize}
+
+\pause 
+
+\alert{Limitations and future directions}
+\begin{itemize}
+\item Refine hyperparameter tuning
+\item Apply the model to real data
+\end{itemize}
 
 \end{frame}
 
-\begin{frame}{Future developments}
-
-
-\end{frame}
 
 
 
