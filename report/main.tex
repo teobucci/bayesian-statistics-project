@@ -16,6 +16,12 @@
 \setcounter{secnumdepth}{6} 
 %\usepackage[toc]{appendix}
 
+\usepackage[english]{varioref}
+\renewcommand{\ref}{\vref}
+
+\usepackage{placeins} % \FloatBarrier
+\usepackage{flafter}  % The flafter package ensures that floats don't appear until after they appear in the code.
+
 \usepackage{booktabs}
 \usepackage{multirow}
 \usepackage{colortbl}
@@ -44,7 +50,6 @@
 \usepackage{transparent}
 \usepackage{xcolor}
 \usepackage{graphicx}
-\graphicspath{ {./images/} } % Path relative to the main .tex file
 \usepackage{float}
 \usepackage[font=footnotesize]{caption}
 \usepackage{booktabs}
@@ -81,6 +86,21 @@
 \newacronym{eppf}{EPPF}{Exchangeable Partition Probability Function}
 
 \setlength{\marginparwidth}{3.4cm}
+
+%---------------------------
+% INCLUSIONE FIGURE
+%---------------------------
+
+\newcommand{\fg}[3][\relax]{%
+  \begin{figure}[H]%[htp]%
+    \centering
+    \captionsetup{width=0.7\textwidth}
+      \includegraphics[width = #2\textwidth]{#3}%
+      \ifx\relax#1\else\caption{#1}\fi
+      \label{#3}
+  \end{figure}%
+  %\FloatBarrier%
+}
 
 %#########################################################
 
