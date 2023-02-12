@@ -79,7 +79,7 @@ posterior_analysis <- function(i){
     z_est = z[best_partition_index,]
 
     if(options$comparison_G_true_est){
-        pdf(file=file.path(output_path,"comparison_G_true_est.pdf"), width = 16, height = 9)
+        pdf(file=file.path(output_path,"comparison_G_true_est.pdf"), width = 7, height = 4)
         par(mfrow=c(1,2))
         
         ACutils::ACheatmap(
@@ -106,7 +106,7 @@ posterior_analysis <- function(i){
     }
     
     if(options$comparison_K_true_est){
-        pdf(file=file.path(output_path,"comparison_K_true_est.pdf"), width = 16, height = 9)
+        pdf(file=file.path(output_path,"comparison_K_true_est.pdf"), width = 7, height = 4)
         par(mfrow=c(1,2))
         ACutils::ACheatmap(
             sim$true_precision,
@@ -154,15 +154,15 @@ posterior_analysis <- function(i){
 
         ggraph(lay) + 
             geom_edge_arc(edge_colour = "grey") + 
-            geom_node_point(aes(color=clust_true, shape = clust_est), size = 4) +
+            geom_node_point(aes(color=clust_true, shape = clust_est), size = 6) +
             geom_node_text(aes(label = name), repel=TRUE) +
             facet_edges(~graph)
-        ggsave(file.path(output_path,"graph.pdf"), device = "pdf", width=16, height=9)
+        ggsave(file.path(output_path,"graph.pdf"), device = "pdf", width=8, height=4)
     }
     
     
     if(options$changepoint_kl){
-        pdf(file=file.path(output_path,"indexes.pdf"), width = 16, height = 9)
+        pdf(file=file.path(output_path,"indexes.pdf"), width = 8, height = 3)
         par(mfrow=c(1,3))
         bar_heights = colSums(r)
         cp_true = which(r_true==1)
@@ -175,11 +175,13 @@ posterior_analysis <- function(i){
             space = 0,
             yaxt = "n",
             main = "\nChangepoint\n frequency distribution",
-            cex.names=.6,
-            las=2
+            cex.names = .6,
+            las = 2,
+            col = "lightgray",
+            xlab = "Nodes"
         )
         
-        abline(v=cp_true-0.5, col="red", lwd=2)
+        abline(v=cp_true-0.5, col="red", lwd=1)
         legend("topright", legend=c("True"), col=c("red"),
                bty = "n",
                lty = 1,
@@ -251,7 +253,7 @@ posterior_analysis <- function(i){
     }
     
     if(options$numgroups_frequency){
-        pdf(file=file.path(output_path,"numgroups_frequency.pdf"), width = 16, height = 9)
+        pdf(file=file.path(output_path,"numgroups_frequency.pdf"), width = 10, height = 4)
         barplot(
             prop.table(table(num_clusters)),
             xlab = "Number of groups",
@@ -270,7 +272,7 @@ posterior_analysis <- function(i){
     }
     
     if(options$numgroups_traceplot){
-        pdf(file=file.path(output_path,"numgroups_traceplot.pdf"), width = 16, height = 9)
+        pdf(file=file.path(output_path,"numgroups_traceplot.pdf"), width = 10, height = 5)
         plot(
             x = seq_along(num_clusters),
             y = num_clusters,
