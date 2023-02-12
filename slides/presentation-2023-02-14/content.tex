@@ -144,13 +144,13 @@ Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number
 \section{Simulations}
 
 \begin{frame}{Simulations structure}
-We ran a total of 42 simulations, varying different parameters for our model. 
+We ran a total of 42 simulations, varying different hyperparameters. 
 The simulations are subdivided in groups, depending on which parameter was tuned:
     \begin{enumerate}
         \item Data generating \alert{seed}
-        \item Beta\_sig2
+        \item Variance of the Beta prior \texttt{beta\_sig2}
         \item Initial partition
-        \item Starting partition's alert{cluster numerosities}
+        \item Generating partition's \alert{cluster numerosities}
         \item Number of observations n
         \item Number of \alert{nodes p}
         \item Using \alert{noised block structure} as data generator
@@ -170,12 +170,12 @@ $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_s
 \begin{frame}{Posterior analysis}
 We performed posterior analysis using the following metrics and plots:
     \begin{enumerate}
-        \item Estimated \alert{p-links} matrix vs true adjacency matrix
-        \item Estimated \alert{precision matrix} vs true precision matrix
-        \item \alert{Changepoint frequency} distribution (estimated vs true partition)
-        \item Random index traceplot
+        \item Estimated \alert{p-links} matrix vs generating adjacency matrix
+        \item Estimated \alert{precision matrix} vs generating precision matrix
+        \item Estimated vs generating partition, i.e. \alert{changepoint frequency} distribution
+        \item Rand Index traceplot
         \item \alert{Kullback-Leibler} distance curve
-        \item $\theta$ and $\sigma$ prior
+        \item $\theta$ and $\sigma$ prior traceplot
         \item Mean acceptance rate
     \end{enumerate}
 
@@ -201,29 +201,24 @@ $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
-\cellcolor{gray!6}{\hspace{1em}01} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{22111996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21400 mins}\\
-\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
-\cellcolor{gray!6}{\hspace{1em}03} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21700 mins}\\
-\cellcolor{gray!6}{\hspace{1em}04} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{29061999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21700 mins}\\
-\cellcolor{gray!6}{\hspace{1em}05} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{12091997} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21600 mins}\\
-\cellcolor{gray!6}{\hspace{1em}06} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27091999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21500 mins}\\
-\cellcolor{gray!6}{\hspace{1em}07} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}01} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{red!50}{22111996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21400 mins}\\
+\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{red!50}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}03} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{red!50}{27051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}04} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{red!50}{29061999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}05} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{red!50}{12091997} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}06} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{red!50}{27091999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21500 mins}\\
+\cellcolor{gray!6}{\hspace{1em}07} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{red!50}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21700 mins}\\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-\begin{figure}
-\begin{minipage}[c]{0.49\linewidth}
-\fg{0.82}{Images/group_1/comparison_G_true_est.pdf}
-\end{minipage}
-\hfill
-\begin{minipage}[c]{0.49\linewidth}
-\fg{0.82}{Images/group_1/comparison_K_true_est.pdf}
-\end{minipage}%
-\end{figure}
+Results are consistent for every seed:
+\begin{itemize}
+    \item Selected partition is the true underlying partition
+    \item Estimated p-links matrix is close to the true graph adjacency
+    \item KL-distance converges to 0.187
+\end{itemize}
 \end{frame}
-
-
 
 
 
@@ -238,17 +233,61 @@ $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
-\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{red!50}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
 \bottomrule
 \end{tabular}}
 \end{table}
-\fg{0.65}{Images/group_1/graph.pdf}
+\begin{figure}
+\begin{minipage}[c]{0.49\linewidth}
+\fg{0.82}{../../output/data/simulation_02/comparison_G_true_est.pdf}
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.49\linewidth}
+\fg{0.82}{../../output/data/simulation_02/comparison_K_true_est.pdf}
+\end{minipage}%
+\end{figure}
+\end{frame}
+
+
+\begin{frame}{Group 1: varying data generating seed}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{red!50}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+\fg{0.65}{../../output/data/simulation_02/graph.pdf}
+\end{frame}
+
+
+\begin{frame}{Group 1: varying data generating seed}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{red!50}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+\fg{0.65}{../../output/data/simulation_02/indexes.pdf}
 \end{frame}
 
 
 
 
-\begin{frame}{Group 2}
+\begin{frame}{Group 2: VARYING BETA\_SIG2}
 \begin{table}[H]
 \centering
 \resizebox{\linewidth}{!}{
@@ -259,30 +298,32 @@ $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
-\multicolumn{14}{l}{\textbf{Group 2: varying beta\_sig2}}\\
-\cellcolor{gray!6}{\hspace{1em}08} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.062} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.066} & \cellcolor{gray!6}{0.034} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.191} & \cellcolor{gray!6}{1.22400 mins}\\
-\cellcolor{gray!6}{\hspace{1em}09} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.078} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.080} & \cellcolor{gray!6}{0.043} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.186} & \cellcolor{gray!6}{1.20700 mins}\\
-\cellcolor{gray!6}{\hspace{1em}10} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.093} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.075} & \cellcolor{gray!6}{0.039} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20600 mins}\\
-\cellcolor{gray!6}{\hspace{1em}11} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.108} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.079} & \cellcolor{gray!6}{0.049} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20800 mins}\\
-\cellcolor{gray!6}{\hspace{1em}12} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.124} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.067} & \cellcolor{gray!6}{0.040} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20100 mins}\\
-\cellcolor{gray!6}{\hspace{1em}13} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.139} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.060} & \cellcolor{gray!6}{0.035} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20200 mins}\\
-\cellcolor{gray!6}{\hspace{1em}14} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.154} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.056} & \cellcolor{gray!6}{0.030} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.193} & \cellcolor{gray!6}{1.20000 mins}\\
-\cellcolor{gray!6}{\hspace{1em}15} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.169} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.047} & \cellcolor{gray!6}{0.024} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.191} & \cellcolor{gray!6}{1.20100 mins}\\
-\cellcolor{gray!6}{\hspace{1em}16} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.185} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.034} & \cellcolor{gray!6}{0.022} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.189} & \cellcolor{gray!6}{1.20000 mins}\\
-\cellcolor{gray!6}{\hspace{1em}17} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.16200 mins}\\
+\cellcolor{gray!6}{\hspace{1em}08} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.062} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.066} & \cellcolor{gray!6}{0.034} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.191} & \cellcolor{gray!6}{1.22400 mins}\\
+\cellcolor{gray!6}{\hspace{1em}09} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.078} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.080} & \cellcolor{gray!6}{0.043} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.186} & \cellcolor{gray!6}{1.20700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}10} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.093} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.075} & \cellcolor{gray!6}{0.039} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}11} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.108} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.079} & \cellcolor{gray!6}{0.049} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}12} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.124} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.067} & \cellcolor{gray!6}{0.040} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}13} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.139} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.060} & \cellcolor{gray!6}{0.035} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20200 mins}\\
+\cellcolor{gray!6}{\hspace{1em}14} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.154} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.056} & \cellcolor{gray!6}{0.030} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.193} & \cellcolor{gray!6}{1.20000 mins}\\
+\cellcolor{gray!6}{\hspace{1em}15} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.169} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.047} & \cellcolor{gray!6}{0.024} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.191} & \cellcolor{gray!6}{1.20100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}16} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.185} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.034} & \cellcolor{gray!6}{0.022} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.189} & \cellcolor{gray!6}{1.20000 mins}\\
+\cellcolor{gray!6}{\hspace{1em}17} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.16200 mins}\\
 \bottomrule
 \end{tabular}}
 \end{table}
-\end{frame}
 
-
-\begin{frame}{Group 2}
-\fg{0.8}{Images/kl_dist_comparison_beta_sig2-1.pdf}
+Varying Beta\_sig2 does not yield significant changes in posterior analysis.
 
 \end{frame}
 
 
-\begin{frame}{Group 3}
+\begin{frame}{Group 2: VARYING BETA\_SIG2}
+\fg{0.8}{../../output/kl_dist_comparison_beta_sig2-1.pdf}
+
+\end{frame}
+
+
+\begin{frame}{Group 3: VARYING INITIAL PARTITION}
 \begin{table}[H]
 \centering
 \resizebox{\linewidth}{!}{
@@ -293,18 +334,21 @@ $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
-\multicolumn{14}{l}{\textbf{Group 3: varying initial partition}}\\
-\cellcolor{gray!6}{\hspace{1em}18} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.16300 mins}\\
-\cellcolor{gray!6}{\hspace{1em}19} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{singletons} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.020} & \cellcolor{gray!6}{0.015} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.189} & \cellcolor{gray!6}{1.24800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}18} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{red!50}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.16300 mins}\\
+\cellcolor{gray!6}{\hspace{1em}19} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{red!50}{singletons} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.020} & \cellcolor{gray!6}{0.015} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.189} & \cellcolor{gray!6}{1.24800 mins}\\
 \bottomrule
 \end{tabular}}
 \end{table}
+
+Starting from different initial partitions (i.e. one single partition or all singletons) does not affect the final result.
+
 \end{frame}
 
 
 
 
-\begin{frame}{Group 4}
+
+\begin{frame}{Group 4: VARYING GENERATING PARTITION'S CLUSTER NUMEROSITIES}
 \begin{table}[H]
 \centering
 \resizebox{\linewidth}{!}{
@@ -315,19 +359,21 @@ $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
-\multicolumn{14}{l}{\textbf{Group 4: varying group numerosities}}\\
-\cellcolor{gray!6}{\hspace{1em}20} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.16000 mins}\\
-\cellcolor{gray!6}{\hspace{1em}21} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{1,10,2,9,3} & \cellcolor{gray!6}{1,10,2,9,3} & \cellcolor{gray!6}{0.072} & \cellcolor{gray!6}{0.109} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.181} & \cellcolor{gray!6}{1.25500 mins}\\
-\cellcolor{gray!6}{\hspace{1em}22} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.02} & \cellcolor{gray!6}{1,3,2,4,2,3,3,4,3} & \cellcolor{gray!6}{18,7} & \cellcolor{gray!6}{0.397} & \cellcolor{gray!6}{1.020} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.126} & \cellcolor{gray!6}{1.10700 mins}\\
-\cellcolor{gray!6}{\hspace{1em}23} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{12,13} & \cellcolor{gray!6}{12,13} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.073} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.255} & \cellcolor{gray!6}{1.36700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}20} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{red!50}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.16000 mins}\\
+\cellcolor{gray!6}{\hspace{1em}21} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{red!50}{1,10,2,9,3} & \cellcolor{gray!6}{1,10,2,9,3} & \cellcolor{gray!6}{0.072} & \cellcolor{gray!6}{0.109} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.181} & \cellcolor{gray!6}{1.25500 mins}\\
+\cellcolor{gray!6}{\hspace{1em}22} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.02} & \cellcolor{red!50}{1,3,2,4,2,3,3,4,3} & \cellcolor{gray!6}{18,7} & \cellcolor{gray!6}{0.397} & \cellcolor{gray!6}{1.020} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.126} & \cellcolor{gray!6}{1.10700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}23} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{red!50}{12,13} & \cellcolor{gray!6}{12,13} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.073} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.255} & \cellcolor{gray!6}{1.36700 mins}\\
 \bottomrule
 \end{tabular}}
 \end{table}
+
+Changing the generating partition's cluster numerosities does not generally influence the result. The only exception comes with small and numerous clusters, as in simulation 22
 \end{frame}
 
 
 
-\begin{frame}{Group 5}
+
+\begin{frame}{Group 4: VARYING GENERATING PARTITION'S CLUSTER NUMEROSITIES}
 \begin{table}[H]
 \centering
 \resizebox{\linewidth}{!}{
@@ -338,22 +384,28 @@ $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
-\multicolumn{14}{l}{\textbf{Group 5: varying n}}\\
-\cellcolor{gray!6}{\hspace{1em}24} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.082} & \cellcolor{gray!6}{0.046} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.17300 mins}\\
-\cellcolor{gray!6}{\hspace{1em}25} & \cellcolor{gray!6}{400} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.072} & \cellcolor{gray!6}{0.036} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.221} & \cellcolor{gray!6}{1.15900 mins}\\
-\cellcolor{gray!6}{\hspace{1em}26} & \cellcolor{gray!6}{300} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.070} & \cellcolor{gray!6}{0.041} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.336} & \cellcolor{gray!6}{1.16800 mins}\\
-\cellcolor{gray!6}{\hspace{1em}27} & \cellcolor{gray!6}{200} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.074} & \cellcolor{gray!6}{0.045} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.532} & \cellcolor{gray!6}{1.15400 mins}\\
-\cellcolor{gray!6}{\hspace{1em}28} & \cellcolor{gray!6}{100} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.111} & \cellcolor{gray!6}{0.241} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{1.487} & \cellcolor{gray!6}{1.11800 mins}\\
-\cellcolor{gray!6}{\hspace{1em}29} & \cellcolor{gray!6}{50} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{20,5} & \cellcolor{gray!6}{0.236} & \cellcolor{gray!6}{0.539} & \cellcolor{gray!6}{0.273} & \cellcolor{gray!6}{4.212} & \cellcolor{gray!6}{1.09000 mins}\\
-\cellcolor{gray!6}{\hspace{1em}30} & \cellcolor{gray!6}{20} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.280} & \cellcolor{gray!6}{0.241} & \cellcolor{gray!6}{0.000} & \cellcolor{gray!6}{11.854} & \cellcolor{gray!6}{1.07600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}22} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.02} & \cellcolor{red!50}{1,3,2,4,2,3,3,4,3} & \cellcolor{blue!50}{18,7} & \cellcolor{gray!6}{0.397} & \cellcolor{gray!6}{1.020} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.126} & \cellcolor{gray!6}{1.10700 mins}\\
 \bottomrule
 \end{tabular}}
 \end{table}
+
+\begin{figure}
+\begin{minipage}[c]{0.49\linewidth}
+\fg{1.01}{../../output/data/simulation_22/comparison_G_true_est.pdf}
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.49\linewidth}
+\fg{1.01}{../../output/data/simulation_22/comparison_K_true_est.pdf}
+\end{minipage}%
+\end{figure}
 \end{frame}
 
 
 
-\begin{frame}{Group 6}
+
+
+
+\begin{frame}{Group 4: VARYING GENERATING PARTITION'S CLUSTER NUMEROSITIES}
 \begin{table}[H]
 \centering
 \resizebox{\linewidth}{!}{
@@ -364,26 +416,27 @@ $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
-\multicolumn{14}{l}{\textbf{Group 6: varying p}}\\
-\cellcolor{gray!6}{\hspace{1em}31} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{3,2} & \cellcolor{gray!6}{3,2} & \cellcolor{gray!6}{0.543} & \cellcolor{gray!6}{0.752} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.006} & \cellcolor{gray!6}{0.79960 mins}\\
-\cellcolor{gray!6}{\hspace{1em}32} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5} & \cellcolor{gray!6}{5,5} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{0.115} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.028} & \cellcolor{gray!6}{0.85055 mins}\\
-\cellcolor{gray!6}{\hspace{1em}33} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{15} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{15} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5} & \cellcolor{gray!6}{5,5,5} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.087} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.045} & \cellcolor{gray!6}{1.09400 mins}\\
-\cellcolor{gray!6}{\hspace{1em}34} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{20} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{20} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5} & \cellcolor{gray!6}{5,5,5,5} & \cellcolor{gray!6}{0.103} & \cellcolor{gray!6}{0.070} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.118} & \cellcolor{gray!6}{1.20100 mins}\\
-\cellcolor{gray!6}{\hspace{1em}35} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{0.074} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.170} & \cellcolor{gray!6}{1.33600 mins}\\
-\cellcolor{gray!6}{\hspace{1em}36} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{30} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{30} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,5} & \cellcolor{gray!6}{0.080} & \cellcolor{gray!6}{0.061} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.140} & \cellcolor{gray!6}{1.49600 mins}\\
-\cellcolor{gray!6}{\hspace{1em}37} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{35} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{35} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,5,5} & \cellcolor{gray!6}{0.066} & \cellcolor{gray!6}{0.149} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.205} & \cellcolor{gray!6}{1.71700 mins}\\
-\cellcolor{gray!6}{\hspace{1em}38} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{40} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{40} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{0.061} & \cellcolor{gray!6}{0.384} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.282} & \cellcolor{gray!6}{1.99900 mins}\\
-\cellcolor{gray!6}{\hspace{1em}39} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{45} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{45} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,10,10} & \cellcolor{gray!6}{0.071} & \cellcolor{gray!6}{0.761} & \cellcolor{gray!6}{0.756} & \cellcolor{gray!6}{0.396} & \cellcolor{gray!6}{2.45600 mins}\\
-\cellcolor{gray!6}{\hspace{1em}40} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{50} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{50} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{25,5,5,5,5,5} & \cellcolor{gray!6}{0.059} & \cellcolor{gray!6}{0.853} & \cellcolor{gray!6}{0.364} & \cellcolor{gray!6}{0.367} & \cellcolor{gray!6}{3.05700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}22} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.02} & \cellcolor{red!50}{1,3,2,4,2,3,3,4,3} & \cellcolor{blue!50}{18,7} & \cellcolor{gray!6}{0.397} & \cellcolor{gray!6}{1.020} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.126} & \cellcolor{gray!6}{1.10700 mins}\\
 \bottomrule
 \end{tabular}}
 \end{table}
+
+\fg{0.6}{../../output/data/simulation_22/indexes.pdf}
+
 \end{frame}
 
 
 
 
-\begin{frame}{Group 7}
+
+
+
+
+
+
+
+
+\begin{frame}{Group 5: varying number of observations}
 \begin{table}[H]
 \centering
 \resizebox{\linewidth}{!}{
@@ -394,19 +447,168 @@ $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \addlinespace[0.3em]
-\multicolumn{14}{l}{\textbf{Group 7: using noised block structure}}\\
-\cellcolor{gray!6}{\hspace{1em}41} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{B} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.013} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.176} & \cellcolor{gray!6}{1.03100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}24} & \cellcolor{red!50}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.082} & \cellcolor{gray!6}{0.046} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.17300 mins}\\
+\cellcolor{gray!6}{\hspace{1em}25} & \cellcolor{red!50}{400} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.072} & \cellcolor{gray!6}{0.036} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.221} & \cellcolor{gray!6}{1.15900 mins}\\
+\cellcolor{gray!6}{\hspace{1em}26} & \cellcolor{red!50}{300} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.070} & \cellcolor{gray!6}{0.041} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.336} & \cellcolor{gray!6}{1.16800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}27} & \cellcolor{red!50}{200} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.074} & \cellcolor{gray!6}{0.045} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.532} & \cellcolor{gray!6}{1.15400 mins}\\
+\cellcolor{gray!6}{\hspace{1em}28} & \cellcolor{red!50}{100} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.111} & \cellcolor{gray!6}{0.241} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{1.487} & \cellcolor{gray!6}{1.11800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}29} & \cellcolor{red!50}{50} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{20,5} & \cellcolor{gray!6}{0.236} & \cellcolor{gray!6}{0.539} & \cellcolor{gray!6}{0.273} & \cellcolor{gray!6}{4.212} & \cellcolor{gray!6}{1.09000 mins}\\
+\cellcolor{gray!6}{\hspace{1em}30} & \cellcolor{red!50}{20} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.280} & \cellcolor{gray!6}{0.241} & \cellcolor{gray!6}{0.000} & \cellcolor{gray!6}{11.854} & \cellcolor{gray!6}{1.07600 mins}\\
 \bottomrule
 \end{tabular}}
 \end{table}
+
+As $n$ diminishes and becomes comparable to $p$, we notice that the KL-distance plateus on progressively higher values, and \texttt{VI} and \texttt{RI} behave accordingly.
+The acceptance rates rises in \textit{more difficult} situations.
 \end{frame}
+
+
+
+
+
+\begin{frame}{Group 5: varying number of observations}
+\fg{0.8}{../../output/kl_dist_comparison_n-1.pdf}
+\end{frame}
+
+
+
+
+
+
+\begin{frame}{Group 6: VARYING NUMBER OF NODES}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\cellcolor{gray!6}{\hspace{1em}31} & \cellcolor{gray!6}{500} & \cellcolor{red!50}{5} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{3,2} & \cellcolor{gray!6}{3,2} & \cellcolor{gray!6}{0.543} & \cellcolor{gray!6}{0.752} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.006} & \cellcolor{gray!6}{0.79960 mins}\\
+\cellcolor{gray!6}{\hspace{1em}32} & \cellcolor{gray!6}{500} & \cellcolor{red!50}{10} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5} & \cellcolor{gray!6}{5,5} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{0.115} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.028} & \cellcolor{gray!6}{0.85055 mins}\\
+\cellcolor{gray!6}{\hspace{1em}33} & \cellcolor{gray!6}{500} & \cellcolor{red!50}{15} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{15} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5} & \cellcolor{gray!6}{5,5,5} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.087} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.045} & \cellcolor{gray!6}{1.09400 mins}\\
+\cellcolor{gray!6}{\hspace{1em}34} & \cellcolor{gray!6}{500} & \cellcolor{red!50}{20} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{20} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5} & \cellcolor{gray!6}{5,5,5,5} & \cellcolor{gray!6}{0.103} & \cellcolor{gray!6}{0.070} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.118} & \cellcolor{gray!6}{1.20100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}35} & \cellcolor{gray!6}{500} & \cellcolor{red!50}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{0.074} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.170} & \cellcolor{gray!6}{1.33600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}36} & \cellcolor{gray!6}{500} & \cellcolor{red!50}{30} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{30} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,5} & \cellcolor{gray!6}{0.080} & \cellcolor{gray!6}{0.061} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.140} & \cellcolor{gray!6}{1.49600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}37} & \cellcolor{gray!6}{500} & \cellcolor{red!50}{35} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{35} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,5,5} & \cellcolor{gray!6}{0.066} & \cellcolor{gray!6}{0.149} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.205} & \cellcolor{gray!6}{1.71700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}38} & \cellcolor{gray!6}{500} & \cellcolor{red!50}{40} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{40} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{0.061} & \cellcolor{gray!6}{0.384} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.282} & \cellcolor{gray!6}{1.99900 mins}\\
+\cellcolor{gray!6}{\hspace{1em}39} & \cellcolor{gray!6}{500} & \cellcolor{red!50}{45} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{45} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{5,5,5,5,5,10,10} & \cellcolor{gray!6}{0.071} & \cellcolor{gray!6}{0.761} & \cellcolor{gray!6}{0.756} & \cellcolor{gray!6}{0.396} & \cellcolor{gray!6}{2.45600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}40} & \cellcolor{gray!6}{500} & \cellcolor{red!50}{50} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{50} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5,5,5,5,5,5,5,5} & \cellcolor{gray!6}{25,5,5,5,5,5} & \cellcolor{gray!6}{0.059} & \cellcolor{gray!6}{0.853} & \cellcolor{gray!6}{0.364} & \cellcolor{gray!6}{0.367} & \cellcolor{gray!6}{3.05700 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Increasing $p$ yields consequences comparable to diminishing $n$. 
+
+\end{frame}
+
+
+\begin{frame}{Group 6: VARYING NUMBER OF NODES}
+\fg{0.8}{../../output/kl_dist_comparison_p-1.pdf}
+\end{frame}
+
+
+\begin{frame}{Group 7: Using noised block structure as data generator}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\cellcolor{gray!6}{\hspace{1em}41} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{B} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.013} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.176} & \cellcolor{gray!6}{1.03100 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{figure}
+\begin{minipage}[c]{0.49\linewidth}
+\fg{0.82}{../../output/data/simulation_41/comparison_G_true_est.pdf}
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.49\linewidth}
+\fg{0.82}{../../output/data/simulation_41/comparison_K_true_est.pdf}
+\end{minipage}%
+\end{figure}
+
+\end{frame}
+
+
+
+
+\begin{frame}{Group 7: Using noised block structure as data generator}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\cellcolor{gray!6}{\hspace{1em}41} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{B} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.013} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.176} & \cellcolor{gray!6}{1.03100 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+
+\fg{0.55}{../../output/data/simulation_41/graph.pdf}
+
+\end{frame}
+
+
+
+
+
+
+
+
+\begin{frame}{Group 7: Using noised block structure as data generator}
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\cellcolor{gray!6}{\hspace{1em}41} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{B} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.013} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.176} & \cellcolor{gray!6}{1.03100 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+
+\fg{0.6}{../../output/data/simulation_41/indexes.pdf}
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
 
 
 \begin{frame}{Theta and Sigma traceplots}
-The traceplots for $\theta$ and $\sigma$ are similar throughout all the simulations.
-We can notice a good mixing of the chain:
+$\theta$ and $\sigma$ are updated according to \textcite[835-836]{martinezNonparametricChangePoint2014}.
 
-[TODO]
+Their traceplots are similar throughout all the simulations.
+A good mixing of the chain is to be appreciated:
+
+\fg{0.7}{../../output/data/simulation_41/theta_sigma_prior.pdf}
 
 \end{frame}
 
