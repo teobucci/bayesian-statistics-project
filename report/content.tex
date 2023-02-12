@@ -33,7 +33,7 @@ As concerns the group memberships, we adopt three equivalent ways to express the
 \begin{itemize}
     \item $\bm{\rho} =( |C_{1}| ,\dotsc ,|C_{M}|) =( n_{1} ,\dotsc ,n_{M})$ is the vector of groups cardinalities. Since we have a constraint on the ordering of the nodes, it's enough to specify the cardinalities of each group.
     \item $\bm{z} =( z_{1} ,\dotsc ,z_{p})$ is a $p$-dimensional vector of memberships, $z_{j} =m$ if node $j$ belongs to group $C_{m}$
-    \item $\bm{r} =( r_{1} ,\dotsc ,r_{p-1})$ is a $( p-1)$-dimensional vector which tells us if a node is the right end of a group. The last node is, by definition, always the end of a group, thus by convention can be thought of as $1$.
+    \item $\bm{r} =( r_{1} ,\dotsc ,r_{p-1})$ is a $( p-1)$-dimensional vector in which $r_j=1$ if node $j$ is the right end of a group, and $0$ otherwise. The last node is, by definition, always the end of a group, thus by convention can be thought of as $1$.
 \end{itemize}
 For example, when $p=8$ and $M=4$, let us consider the partition
 \[
