@@ -198,10 +198,9 @@ In the split case, after simplifying common factors, the partition ratio in \eqr
     =
     \frac{1}{M}(\theta+M\sigma)\frac{(1-\sigma)_{(n_{s}'-1)\uparrow}(1-\sigma)_{(n_{s}'+1)\uparrow}}{(1-\sigma)_{(n_{s}-1)\uparrow}}\frac{n_{s}!}{n'_{s}!n'_{s+1}!}
 \end{equation*}
-As for the graph ratio in \eqref{eq:alphaaccept}, supposing a split move, the likelihood is given by
+As for the graph ratio in \eqref{eq:alphaaccept}, the likelihood is given by
 \begin{align*}
-    P(\bm{G}\mid \bm{z}) &= \prod_{l=1}^M \prod_{l=m}^M \frac{B(\alpha+S_{uv},\beta+S^{\star}_{uv})}{B(\alpha,\beta)} \\
-    &= \left(\frac{1}{B(\alpha,\beta)}\right)^\frac{M(M+1)}{2}\prod_{l=1}^M \prod_{l=m}^M B(\alpha+S_{uv},\beta+S^{\star}_{uv})
+    P(\bm{G}\mid \bm{z}) &= \prod_{l=1}^M \prod_{l=m}^M \frac{B(\alpha+S_{uv},\beta+S^{\star}_{uv})}{B(\alpha,\beta)} = \left(\frac{1}{B(\alpha,\beta)}\right)^\frac{M(M+1)}{2}\prod_{l=1}^M \prod_{l=m}^M B(\alpha+S_{uv},\beta+S^{\star}_{uv})
 \end{align*}
 It's enough to compute it both with the current partition $\bm{z}$ and with the proposed one $\bm{z}'$ and compute the ratio simplifying common factors. For further details about the resulting expression see \ref{sec:graphratio}.
 
