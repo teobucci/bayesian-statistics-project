@@ -117,7 +117,7 @@ For this purpose, we modified the \texttt{R} and \texttt{C++} package \texttt{BD
 \quad
 \text{Death rate} \propto \frac{P(\bm{G}^{- e}\mid \bm{z})}{P(\bm{G}\mid \bm{z})} = \frac{S^{\star}_{uv} + \beta}{S_{uv} + \alpha}
 \]
-$\alpha$ and $\beta$ are the parameters of the Beta distribution of $Q_{uv}\mid \bm{z}$.
+where $\alpha$ and $\beta$ are the parameters of the Beta distribution of $Q_{uv}\mid \bm{z}$ and where $\bm{G}^{\pm e}$ denotes graph $\bm{G}$ with the added/removed edge $e$.
 
 \subsection{Random partition sampling}
 After the graph update, the random partition is sampled conditionally on the graph $\bm{G}$ using the conditional distribution:
