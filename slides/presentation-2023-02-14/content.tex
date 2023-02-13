@@ -725,7 +725,7 @@ Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number
     
     Given the estimated p-links matrix $\hat{p}_{j k}$ the Bayesian False Discovery rate is
     \[
-        \operatorname{BFDR}=\frac{\sum_{j<k}\left(1-\hat{p}_{j k}\right) \mathbbm{1}_{\left(\hat{p}_{j k} \geq s\right)}}{\sum_{j<k} \mathbbm{1}_{\left(\hat{p}_{j k} \geq s\right)}}
+        \operatorname{BFDR}(s)=\frac{\sum_{j<k}\left(1-\hat{p}_{j k}\right) \mathbbm{1}_{\left(\hat{p}_{j k} \geq s\right)}}{\sum_{j<k} \mathbbm{1}_{\left(\hat{p}_{j k} \geq s\right)}}
     \]
     and the threshold $s$ is selected so that BFDR is below $0.05$.
 \end{frame}
