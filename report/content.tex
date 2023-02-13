@@ -29,7 +29,7 @@ In the next two sections, we introduce the proposed model and describe the sampl
 We consider an independent and identically distributed sample of size $n$ with $p$ variables from a multivariate normal distribution. Without any loss of generality, we assume that the distribution has zero-mean and precision matrix $\bm{K}$. As anticipated, each variable corresponds to a node on the underlying graph.
 
 %SBM
-As concerns the group memberships, we adopt three equivalent ways to express the partition, depending on the aspect is most convenient and we wish to highlight. In the following, we will always denote by $M$ the number of groups the nodes have been partitioned into, which is not known a priori, with $C_{1}, \dotsc, C_{M}$ the groups, with $n_{j} = |C_{j}|$ and with $p$ the number of nodes (i.e. number of variables).
+As concerns the group memberships, we adopt three equivalent ways to express the partition, depending on the aspect that is most convenient and we wish to highlight. In the following, we will always denote by $M$ the number of groups the nodes have been partitioned into, which is not known a priori, with $C_{1}, \dotsc, C_{M}$ the groups, with $n_{j} = |C_{j}|$ and with $p$ the number of nodes (i.e. number of variables).
 \begin{itemize}
     \item $\bm{\rho} =( |C_{1}| ,\dotsc ,|C_{M}|) =( n_{1} ,\dotsc ,n_{M})$ is the vector of groups cardinalities. Since we have a constraint on the ordering of the nodes, it's enough to specify the cardinalities of each group.
     \item $\bm{z} =( z_{1} ,\dotsc ,z_{p})$ is a $p$-dimensional vector of memberships, $z_{j} =m$ if node $j$ belongs to group $C_{m}$
@@ -139,8 +139,8 @@ Unless we are forced by extreme cases to choose a split move (\emph{i.e.}, all t
 
 \begin{enumerate}
     \item Perform either a split or a merge move, with probability $\alpha_{\text{split}}$ and $1-\alpha_{\text{split}}$, respectively, usually set to $0.5$.
-    \item For a split (merge) move, consider all the \num{0} (\num{1}) only in the partition $\bm{r}$, one of which will be drawn as candidate to become a \num{1} (\num{0}), thus splitting a group into two (merging two groups into one).
-    The draw of such candidate is made according to two weights vector as explained in \ref{par:proposalratio}.
+    \item For a split (merge) move, consider all the \num{0} (\num{1}) only in the partition $\bm{r}$, one of which will be drawn as a candidate to become a \num{1} (\num{0}), thus splitting a group into two (merging two groups into one).
+    The draw of such a candidate is made according to two weights vectors as explained in \ref{par:proposalratio}.
     \item Accept or reject using Metropolis-Hastings.
     The acceptance probability is the minimum between $1$ and the product of the graph ratio, the partition ratio, and the proposal ratio. Namely
     \begin{equation}
@@ -164,8 +164,8 @@ Using \textcite{bensonAdaptiveMCMCMultiple2018} approach we introduce two $( p-1
 \end{equation*}
 where
 \begin{itemize}
-\item $a_{j}^{( t)}$ is the probability that node $j$ is chosen as candidate for splitting a group at iteration $t$
-\item $d_{j}^{( t)}$ is the probability that node $j$ is chosen as candidate for merging a group at iteration $t$
+\item $a_{j}^{( t)}$ is the probability that node $j$ is chosen as a candidate for splitting a group at iteration $t$
+\item $d_{j}^{( t)}$ is the probability that node $j$ is chosen as a candidate for merging a group at iteration $t$
 \end{itemize}
 They are unnormalized discrete densities that are used to choose the node to perform the split or the merge, namely where to add or remove a $1$ from the $\bm{r}$ partition representation.
 
@@ -188,7 +188,7 @@ The proposal ratio in \eqref{eq:alphaaccept} becomes
     \cdot
     \frac{\frac{d_{i}^{(t)}}{d^{\star}+d_{i}^{(t)}}}{\frac{a_{i}^{(t)}}{a^{\star}}}
 \]
-The first term is the ratio of the probabilities of choosing one move over the other. In the second ratio we have at the denominator the probability of choosing exactly the node $i$ for the split, at the numerator the probability of going back after the split  by choosing the same node $i$ for a merge.
+The first term is the ratio of the probabilities of choosing one move over the other. In the second ratio, we have at the denominator the probability of choosing exactly the node $i$ for the split, and at the numerator the probability of going back after the split  by choosing the same node $i$ for a merge.
 
 \paragraph{Target ratio}
 
@@ -218,7 +218,7 @@ The adaptive step consists of updating the two weights vectors $\bm{a}^{(t)}$ (i
         \]
     \end{itemize}
 
-Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number of nodes $(p)$, $\alpha_{\text{target}}$ is the target Metropolis-Hastings acceptance rate and $\alpha_{\text{merge}} = 1 - \alpha_{\text{split}}$.
+Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number of nodes $(p)$, $\alpha_{\text{target}}$ is the target Metropolis-Hastings acceptance rate, and $\alpha_{\text{merge}} = 1 - \alpha_{\text{split}}$.
 
 
 \subsubsection{Shuffle move}
@@ -332,7 +332,7 @@ Simulations were divided into groups, depending on the parameter tuned, and post
  \begin{enumerate}
         \item $\bm{\rho}$ estimated by solving a minimization problem on the space of \emph{visited} partitions using Variation of Information (VI) loss function
         \item Mean acceptance rate
-        \item Rand index (RI) used to measure the similarity between partitions
+        \item Rand index (RI) was used to measure the similarity between partitions
         \item Kullback-Leibler (KL) distance to compare generating and estimated precision matrices
 \end{enumerate}
 
@@ -477,7 +477,7 @@ Changing the generating partition's cluster numerosities does not generally infl
 
 The graph is reconstructed accurately. The partition estimate, however, is far from the generating one. 
 It should be noted that this situation is highly unrepresentative of real data that would be meaningful to be studied with this kind of model.
-Moreover, most of the clusters are indeed recognised as shown in the barplot below: the problem lies in the criteria for selecting the clusters.
+Moreover, most of the clusters are indeed recognized as shown in the barplot below: the problem lies in the criteria for selecting the clusters.
 
 \begin{figure}
 \begin{minipage}[c]{0.49\linewidth}
