@@ -102,12 +102,12 @@ $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_s
 \begin{frame}{Posterior analysis}
 We performed posterior analysis using the following metrics and plots:
     \begin{enumerate}
+        \item $\theta$ and $\sigma$ traceplot
         \item Estimated \alert{p-links} matrix (probability that a link is included in the graph) vs generating adjacency matrix
         \item Estimated \alert{precision matrix} vs generating precision matrix
         \item Estimated vs generating partition, i.e. \alert{changepoint frequency} distribution
         \item Rand Index traceplot
         \item \alert{Kullback-Leibler} distance curve
-        \item $\theta$ and $\sigma$ prior traceplot
         \item Mean acceptance rate
     \end{enumerate}
 
@@ -119,6 +119,17 @@ $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
 \midrule
 \end{tabular}
 \end{table}
+\end{frame}
+
+
+\begin{frame}{Theta and Sigma traceplots}
+$\theta$ and $\sigma$ are updated according to \textcite[835-836]{martinezNonparametricChangePoint2014}, to improve the mixing of the chain.
+\textcolor{white}{A perfect mixing of the chain is to be appreciated.}
+
+Their traceplots are similar throughout all the simulations.
+
+\fg{0.65}{../../output/data/simulation_41/_theta_sigma_prior.pdf}
+
 \end{frame}
 
 
@@ -522,27 +533,6 @@ Increasing $p$ yields consequences comparable to diminishing $n$.
 
 \end{frame}
 
-
-
-
-
-
-
-
-
-
-
-
-
-\begin{frame}{Theta and Sigma traceplots}
-$\theta$ and $\sigma$ are updated according to \textcite[835-836]{martinezNonparametricChangePoint2014}, to improve the mixing of the chain.
-\textcolor{white}{A perfect mixing of the chain is to be appreciated.}
-
-Their traceplots are similar throughout all the simulations.
-
-\fg{0.65}{../../output/data/simulation_41/_theta_sigma_prior.pdf}
-
-\end{frame}
 
 
 
