@@ -102,6 +102,16 @@
   %\FloatBarrier%
 }
 
+% Removes the header from odd empty pages at the end of chapters
+\makeatletter
+\renewcommand{\cleardoublepage}{
+\clearpage\ifodd\c@page\else
+\hbox{}
+\vspace*{\fill}
+\thispagestyle{empty}
+\newpage
+\fi}
+
 %#########################################################
 
 \title{
@@ -196,4 +206,5 @@ Gaussian graphical models are used to study the conditional dependence structure
 \nocite{*}
 \printbibliography[heading=bibintoc,title={References}]
 
+%\cleardoublepage
 \end{document}
