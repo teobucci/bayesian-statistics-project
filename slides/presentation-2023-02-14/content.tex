@@ -73,32 +73,7 @@ where
 \end{frame}
 
 
-\section{Simulations}
-
-\begin{frame}{Simulations structure}
-The Beta was reparametrized with mean and variance, with mean set to the graph density.
-
-We ran a total of 41 simulations, varying different hyperparameters. 
-Simulations divided into groups, depending on the parameter tuned:
-    \begin{enumerate}
-        \item Data generating \alert{seed}
-        \item \alert{Variance} of the Beta prior \texttt{beta\_sig2}
-        \item \alert{Initial partition} $\rho_0$
-        \item Generating partition's \alert{cluster numerosities}
-        \item Number of \alert{observations} $n$
-        \item Number of \alert{nodes} $p$
-        \item Using \alert{noised} block structure as data generator
-    \end{enumerate}
-
-\begin{table}[H]
-\centering
-\begin{tabular}{lllllll}
-\cmidrule(l{3pt}r{3pt}){1-7} 
-$n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ \\
-\midrule
-\end{tabular}
-\end{table}
-\end{frame}
+\section{Simulations and Posterior analysis}
 
 
 \begin{frame}{Posterior analysis}
@@ -127,8 +102,52 @@ $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL \\ % & \texttt{time}\\
         %\item Frequency barplot of how often a node was a splitting node
         %\item $\theta$ and $\sigma$ traceplot
 
-
 \end{frame}
+
+
+\begin{frame}{Simulations structure}
+The Beta was reparametrized with mean and variance, with mean set to the graph density.
+
+We ran a total of 41 simulations, varying different hyperparameters. 
+Simulations divided into groups, depending on the parameter tuned
+
+    % \begin{enumerate}
+    %    \item Data generating \alert{seed}
+    %    \item \alert{Variance} of the Beta prior \texttt{beta\_sig2}
+    %    \item \alert{Initial partition} $\rho_0$
+    %    \item Generating partition's \alert{cluster numerosities}
+    %    \item Number of \alert{observations} $n$
+    %    \item Number of \alert{nodes} $p$
+    %    \item Using \alert{noised} block structure as data generator
+    %\end{enumerate}
+
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{llllllllrrrr}
+\toprule
+\cmidrule(l{3pt}r{3pt}){1-7} \cmidrule(l{3pt}r{3pt}){8-12}
+$n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL\\
+\midrule
+\addlinespace[0.3em]
+\cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{22111996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187}\\
+\cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187}\\
+\cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+\end{frame}
+
+%\begin{table}[H]
+%\centering
+%\begin{tabular}{lllllll}
+%\cmidrule(l{3pt}r{3pt}){1-7} 
+%$n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\%text{true}}$ \\
+%\midrule
+%\end{tabular}
+%\end{table}
+
+
 
 
 \begin{frame}{Theta and Sigma traceplots}
@@ -167,10 +186,8 @@ Results are consistent for every seed:
     \item Estimated partition coincides with the generating partition
     \item KL distance converges to 0.187
     \item Estimated adjacency matrix is close to the generating adjacency matrix
-
 \end{itemize}
 \end{frame}
-
 
 
 
@@ -185,6 +202,7 @@ Results are consistent for every seed:
 \midrule
 \addlinespace[0.3em]
 \cellcolor{gray!6}{\hspace{1em}02} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{31051999} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.21800 mins}\\
+
 \bottomrule
 \end{tabular}}
 \end{table}
@@ -516,29 +534,26 @@ Increasing $p$ yields consequences comparable to diminishing $n$.
 
 
 
+%\begin{frame}{Group 7: Using noised block structure as data generator}
+%\begin{table}[H]
+%\centering
+%\resizebox{\linewidth}{!}{
+%\begin{tabular}{lllllllllrrrrl}
+%\toprule
+%\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
+%\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+%\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_%sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \%texttt{time}\\
+%\midrule
+%\addlinespace[0.3em]
+%\cellcolor{gray!6}{\hspace{1em}41} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{%gray!6}{B} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \%cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.013} & \cellcolor{%gray!6}{0.104} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.176} & \cellcolor{gray!6}{1.03100 %mins}\\
+%\bottomrule
+%\end{tabular}}
+%\end{table}
 
 
+%\fg{0.93}{../../output/data/simulation_41/indexes.pdf}
 
-\begin{frame}{Group 7: Using noised block structure as data generator}
-\begin{table}[H]
-\centering
-\resizebox{\linewidth}{!}{
-\begin{tabular}{lllllllllrrrrl}
-\toprule
-\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
-\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
-\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
-\midrule
-\addlinespace[0.3em]
-\cellcolor{gray!6}{\hspace{1em}41} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{B} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.013} & \cellcolor{gray!6}{0.104} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.176} & \cellcolor{gray!6}{1.03100 mins}\\
-\bottomrule
-\end{tabular}}
-\end{table}
-
-
-\fg{0.93}{../../output/data/simulation_41/indexes.pdf}
-
-\end{frame}
+%\end{frame}
 
 
 
@@ -716,9 +731,6 @@ Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number
 \end{frame}
 
 
-
-
-
 \begin{frame}{Performance indexes: BFDR}
     
     Given the estimated p-links matrix $\hat{p}_{j k}$ the Bayesian False Discovery rate is
@@ -726,4 +738,15 @@ Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number
         \operatorname{BFDR}(s)=\frac{\sum_{j<k}\left(1-\hat{p}_{j k}\right) \mathbbm{1}_{\left(\hat{p}_{j k} \geq s\right)}}{\sum_{j<k} \mathbbm{1}_{\left(\hat{p}_{j k} \geq s\right)}}
     \]
     and the threshold $s$ is selected so that BFDR is below $0.05$.
+\end{frame}
+
+
+
+\begin{frame}{Preliminary results on computational complexity}
+    
+\fg{0.43}{../../output/execution_time.pdf}
+
+
+The time complexity scales near quadratically with increasing p
+
 \end{frame}
