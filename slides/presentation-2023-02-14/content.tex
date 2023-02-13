@@ -709,3 +709,16 @@ Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number
     \]
     %Intuitively, $a+b$ can be considered as the number of agreements between $X$ and $Y$ and $c+d$ as the number of disagreements between $X$ and $Y$.
 \end{frame}
+
+
+
+
+
+\begin{frame}{Performance indexes: BFDR}
+    
+    Given the estimated p-links matrix $\hat{p}_{j k}$ the Bayesian False Discovery rate is
+    \[
+        \operatorname{BFDR}=\frac{\sum_{j<k}\left(1-\hat{p}_{j k}\right) \mathbbm{1}_{\left(\hat{p}_{j k} \geq s\right)}}{\sum_{j<k} \mathbbm{1}_{\left(\hat{p}_{j k} \geq s\right)}}
+    \]
+    and the threshold $s$ is selected so that BFDR is below $0.05$.
+\end{frame}
