@@ -260,20 +260,20 @@ Specifically, if $M>1$:
 
 \subsection{Updating the hyperparameters}
 
-Update $\theta$ and $\sigma$ according to \textcite[835-836]{martinezNonparametricChangePoint2014}.
+Update $\theta$ and $\sigma$ in \eqref{eq:prior} according to \textcite[835-836]{martinezNonparametricChangePoint2014}.
 
 
 \section{Posterior analysis}
 
 
-\subsection{Posterior Graph}
+\subsection{Posterior graph}\label{sec:posterior-graph}
 
 To select the posterior graph, a common approach is to choose the graph with the highest posterior probability. However, this method can be unreliable due to the large number of possible graphs and low frequency of occurrence of the same graph in a MCMC sampling. Our solution is to estimate the marginal posterior probabilities for each edge inclusion, which is calculated as:
 \[
     \hat{p}_{j k}=\frac{\sum_{t=1}^T \mathbbm{1}_{((j, k) \in E_t)} w(\boldsymbol{G}_t)}{\sum_{t=1}^T w(\boldsymbol{G}_t)}
 \]
 where $\mathbbm{1}_{\left((j, k) \in E_t\right)}$ is the indicator function for the existence of the edge linking node $j$ and node $k$ at iteration $t$ and $w(\boldsymbol{G}_t)$ is the graph weight (\emph{holding time}) at iteration $t$.
-Then the graph is selected based on the edges with posterior probabilities greater than a given threshold $s$. 
+Then the adjacency matrix of the graph is selected based on the edges with posterior probabilities greater than a given threshold $s$. 
 Two different thresholds can be considered:
 \begin{itemize}
     \item $s$ = 0.5, similar to the median probability model proposed by \textcite{Barbieri2004Optimal};
@@ -285,7 +285,9 @@ where $s$ is selected so that BFDR is below $0.05$.
 
 \end{itemize}
 
-\subsection{Posterior partition}
+Generally, we preferred the second criterion.
+
+\subsection{Posterior partition}\label{sec:posterior-partition}
 
 We can obtain point estimates of the partition by exploiting a decision theoretic approach based on a specific loss function, solving an optimization problem as
 \[
@@ -298,7 +300,10 @@ Different choices can be made for the loss function, such as the Binder loss fun
 It is unfeasible to scan the entire space $\mathcal{C}$. We restrict the optimization problem to a sub-optimal solution within the space $\mathcal{C}^T \subseteq \mathcal{C}$ of the orders visited in $T$ steps of the MCMC sampling.
 
 
-\subsection{Performance indexes: Kullback-Leibler}
+\subsection{Performance indexes: Kullback-Leibler}\label{sec:kl}
+
+We used the \gls{kl} distance to compare the inferred precision matrix from \texttt{BDgraph} with the generating precision matrix during the simulations with synthetic data. The definition of \gls{kl} distance is as follows.
+
 Suppose that we have two multivariate normal distributions, with means $\mu_0, \mu_1$ and with (non-singular) covariance matrices $\Sigma_0, \Sigma_1$. If the two distributions have the same dimension, $k$, then the relative entropy between the distributions is as follows:
     \[
         D_{\mathrm{KL}}\left(\mathcal{N}_0 \| \mathcal{N}_1\right)=\frac{1}{2}\left(\operatorname{tr}\left(\Sigma_1^{-1} \Sigma_0\right)-k+\left(\mu_1-\mu_0\right)^{\top} \Sigma_1^{-1}\left(\mu_1-\mu_0\right)+\ln \left(\frac{\operatorname{det} \Sigma_1}{\operatorname{det} \Sigma_0}\right)\right)
@@ -306,7 +311,10 @@ Suppose that we have two multivariate normal distributions, with means $\mu_0, \
 
 
 
-\subsection{Performance indexes: Rand index}
+\subsection{Performance indexes: Rand index}\label{sec:ri}
+
+We used the \gls{ri} to compare the estimated partition with the generating partition during the simulations with synthetic data. The \gls{ri} is defined as follows.
+
 Given a set of $n$ elements $S=\left\{o_1, \ldots, o_n\right\}$ and two partitions of $S$ to compare, $X=\left\{X_1, \ldots, X_r\right\}$, a partition of $S$ into $r$ subsets, and $Y=\left\{Y_1, \ldots, Y_s\right\}$, a partition of $S$ into $s$ subsets, define the following:
     \begin{itemize}
         \item $a$, the number of pairs of elements in $S$ that are in the same subset in $X$ and in the same subset in $Y$
@@ -327,14 +335,17 @@ Given a set of $n$ elements $S=\left\{o_1, \ldots, o_n\right\}$ and two partitio
 \newpage
 \section{Simulation study}
 
-We ran a total of 41 simulations, varying different hyperparameters. 
+We ran a total of 41 simulations, varying different hyperparameters, with 10000 iterations, of 2000 discarded as burnin, and $\alpha_{\text{target}}=0.234$
+The Beta was reparametrized with mean and variance, with mean set to the graph density.
 Simulations were divided into groups, depending on the parameter tuned, and posterior analysis was carried out on each simulation using the same plots and metrics:
- \begin{enumerate}
-        \item $\bm{\rho}$ estimated by solving a minimization problem on the space of \emph{visited} partitions using Variation of Information (VI) loss function
+ \begin{itemize}
+        \item $\bm{\rho}$ estimated as in \ref{sec:posterior-partition}
         \item Mean acceptance rate
-        \item Rand index (RI) was used to measure the similarity between partitions
-        \item Kullback-Leibler (KL) distance to compare generating and estimated precision matrices
-\end{enumerate}
+        \item \gls{ri} to measure the similarity between partitions as in \ref{sec:ri}
+        \item \gls{kl} distance to compare estimated and generating precision matrices as in \ref{sec:kl}
+        \item Plots of the posterior adjacency matrix as in \ref{sec:posterior-graph}
+        \item Execution time
+\end{itemize}
 
 
 
@@ -380,7 +391,7 @@ Simulations were divided into groups, depending on the parameter tuned, and post
 \cellcolor{gray!6}{\hspace{1em}22} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.02} & \cellcolor{gray!6}{1,3,2,4,2,3,3,4,3} & \cellcolor{gray!6}{18,7} & \cellcolor{gray!6}{0.397} & \cellcolor{gray!6}{1.020} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.126} & \cellcolor{gray!6}{1.10700 mins}\\
 \cellcolor{gray!6}{\hspace{1em}23} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.2} & \cellcolor{gray!6}{12,13} & \cellcolor{gray!6}{12,13} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.073} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.255} & \cellcolor{gray!6}{1.36700 mins}\\
 \addlinespace[0.3em]
-\multicolumn{14}{l}{\textbf{Group 5: varying n}}\\
+\multicolumn{14}{l}{\textbf{Group 5: varying $n$}}\\
 \cellcolor{gray!6}{\hspace{1em}24} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.082} & \cellcolor{gray!6}{0.046} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.17300 mins}\\
 \cellcolor{gray!6}{\hspace{1em}25} & \cellcolor{gray!6}{400} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.072} & \cellcolor{gray!6}{0.036} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.221} & \cellcolor{gray!6}{1.15900 mins}\\
 \cellcolor{gray!6}{\hspace{1em}26} & \cellcolor{gray!6}{300} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{0.070} & \cellcolor{gray!6}{0.041} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.336} & \cellcolor{gray!6}{1.16800 mins}\\
@@ -389,7 +400,7 @@ Simulations were divided into groups, depending on the parameter tuned, and post
 \cellcolor{gray!6}{\hspace{1em}29} & \cellcolor{gray!6}{50} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{20,5} & \cellcolor{gray!6}{0.236} & \cellcolor{gray!6}{0.539} & \cellcolor{gray!6}{0.273} & \cellcolor{gray!6}{4.212} & \cellcolor{gray!6}{1.09000 mins}\\
 \cellcolor{gray!6}{\hspace{1em}30} & \cellcolor{gray!6}{20} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.1} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{0.280} & \cellcolor{gray!6}{0.241} & \cellcolor{gray!6}{0.000} & \cellcolor{gray!6}{11.854} & \cellcolor{gray!6}{1.07600 mins}\\
 \addlinespace[0.3em]
-\multicolumn{14}{l}{\textbf{Group 6: varying p}}\\
+\multicolumn{14}{l}{\textbf{Group 6: varying $p$}}\\
 \cellcolor{gray!6}{\hspace{1em}31} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{5} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{3,2} & \cellcolor{gray!6}{3,2} & \cellcolor{gray!6}{0.543} & \cellcolor{gray!6}{0.752} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.006} & \cellcolor{gray!6}{0.79960 mins}\\
 \cellcolor{gray!6}{\hspace{1em}32} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{10} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5} & \cellcolor{gray!6}{5,5} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{0.115} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.028} & \cellcolor{gray!6}{0.85055 mins}\\
 \cellcolor{gray!6}{\hspace{1em}33} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{15} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{15} & \cellcolor{gray!6}{0.0625} & \cellcolor{gray!6}{5,5,5} & \cellcolor{gray!6}{5,5,5} & \cellcolor{gray!6}{0.129} & \cellcolor{gray!6}{0.087} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.045} & \cellcolor{gray!6}{1.09400 mins}\\
@@ -413,9 +424,9 @@ Simulations were divided into groups, depending on the parameter tuned, and post
 
 \subsection{Group 1: changing seed}
 A single full posterior analysis is reported below as example. 
-For following groups, only relevant plots highlighting differences are included.
+For all the following groups, only relevant plots highlighting differences are included.
 
-Results are consistent for every seed, with an estimated adjacency matrix of the graph close to the generating one.  The estimated partition coincide with the generating partition, and the KL-distances converge to 0.187 for all the simulations in the group.
+Results are consistent for every seed, with an estimated adjacency matrix of the graph close to the generating one. The estimated partition coincide with the generating partition, and the \gls{kl} distances converge to 0.187 for all the simulations in the group.
 
 \begin{figure}
 \begin{minipage}[c]{0.49\linewidth}
@@ -497,7 +508,7 @@ Moreover, most of the clusters are indeed recognized as shown in the barplot bel
 
 \newpage
 \subsection{Group 5: varying number of observations}
-As $n$ diminishes and becomes comparable to $p$, the KL distance plateaus on progressively higher values, and VI and RI behave accordingly.
+As $n$ diminishes and becomes comparable to $p$, the \gls{kl} distance plateaus on progressively higher values, and \gls{vi} and \gls{ri} behave accordingly.
 The acceptance rates rises in \textit{more difficult} situations.
 
 \fg{0.7}{../output/kl_dist_comparison_n-1.pdf}
@@ -510,7 +521,8 @@ Increasing $p$ yields consequences comparable to diminishing $n$.
 
 \newpage
 \subsection{Group 7: using noised block structure as data generator}
-The data generator for this simulation is a noised block structure.
+The data generator for this simulation is a noised block structure, namely with a small probability of having edges between groups and that some edges inside groups are missing.
+The results are good, since with few exceptions the correct block structure is retrieved.
 
 \begin{figure}[H]
 \begin{minipage}[c]{0.49\linewidth}
@@ -527,8 +539,8 @@ The data generator for this simulation is a noised block structure.
 
 
 
-\section{Conclusions}
-In this work, we have introduced a flexible prior to infer a block-structured graph under an ordering constraint on the nodes, borrowing concepts from the theory of changepoint models and using an adaptive approach. To carry out posterior inference, we have fully implemented a Block Gibbs sampling strategy which allowed us to simultaneously perform structural learning of the graph and clustering of the nodes. From the numerical simulations ran to test and evaluate the model, we obtained that the graph selection based on the BFDR led to a precise identification of the underlying graph structure and the variable clustering, as confirmed by the values of the indexes used to assess the model performance (\emph{i.e.}, VI, RI, KL).
+\section{Conclusions and further developments}
+In this work, we have introduced a flexible prior to infer a block-structured graph under an ordering constraint on the nodes, borrowing concepts from the theory of changepoint models and using an adaptive approach. To carry out posterior inference, we have fully implemented a Block Gibbs sampling strategy which allowed us to simultaneously perform structural learning of the graph and clustering of the nodes. From the numerical simulations ran to test and evaluate the model, we obtained that the graph selection based on the BFDR led to a precise identification of the underlying graph structure and the variable clustering, as confirmed by the values of the indexes used to assess the model performance (\emph{i.e.}, \gls{vi}, RI, \gls{kl}).
 
 Due to the nature of the work and the limitation of the project timeline to one semester, several challenges remain open for further investigation. One possible direction for future development is, for example, finer hyperparameter tuning. Indeed, for several aspects of the model (\emph{e.g.}, the hyperparameter of the prior for $\theta$ and $\sigma$ in the partition prior), we relied on hyperparameters validated in the literature. Even if the selected ones yielded results coherent with the nature of the problem, more structured approaches such as hyperpriors or Bayesian optimization could be introduced to tackle the problem. Furthermore, another crucial step will entail evaluating the model on existing data.
 
