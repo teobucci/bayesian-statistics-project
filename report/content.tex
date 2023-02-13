@@ -298,6 +298,32 @@ Different choices can be made for the loss function, such as the Binder loss fun
 It is unfeasible to scan the entire space $\mathcal{C}$. We restrict the optimization problem to a sub-optimal solution within the space $\mathcal{C}^T \subseteq \mathcal{C}$ of the orders visited in $T$ steps of the MCMC sampling.
 
 
+\subsection{Performance indexes: Kullback-Leibler}
+Suppose that we have two multivariate normal distributions, with means $\mu_0, \mu_1$ and with (non-singular) covariance matrices $\Sigma_0, \Sigma_1$. If the two distributions have the same dimension, $k$, then the relative entropy between the distributions is as follows:
+    \[
+        D_{\mathrm{KL}}\left(\mathcal{N}_0 \| \mathcal{N}_1\right)=\frac{1}{2}\left(\operatorname{tr}\left(\Sigma_1^{-1} \Sigma_0\right)-k+\left(\mu_1-\mu_0\right)^{\top} \Sigma_1^{-1}\left(\mu_1-\mu_0\right)+\ln \left(\frac{\operatorname{det} \Sigma_1}{\operatorname{det} \Sigma_0}\right)\right)
+    \]
+
+
+
+\subsection{Performance indexes: Rand index}
+Given a set of $n$ elements $S=\left\{o_1, \ldots, o_n\right\}$ and two partitions of $S$ to compare, $X=\left\{X_1, \ldots, X_r\right\}$, a partition of $S$ into $r$ subsets, and $Y=\left\{Y_1, \ldots, Y_s\right\}$, a partition of $S$ into $s$ subsets, define the following:
+    \begin{itemize}
+        \item $a$, the number of pairs of elements in $S$ that are in the same subset in $X$ and in the same subset in $Y$
+        \item $b$, the number of pairs of elements in $S$ that are in different subsets in $X$ and in different subsets in $Y$
+        \item c, the number of pairs of elements in $S$ that are in the same subset in $X$ and in different subsets in $Y$
+        \item $d$, the number of pairs of elements in $S$ that are in different subsets in $X$ and in the same subset in $Y$
+    \end{itemize}
+    The Rand index, $R$, is:
+    \[
+    R=\frac{a+b}{a+b+c+d}=\frac{a+b}{\binom{n}{2}}
+    \]
+    Intuitively, $a+b$ can be considered as the number of agreements between $X$ and $Y$ and $c+d$ as the number of disagreements between $X$ and $Y$.
+
+
+
+
+
 \newpage
 \section{Simulation study}
 
@@ -411,7 +437,7 @@ Results are consistent for every seed, with an estimated adjacency matrix of the
 
 The results for group 2 are similar to the ones of the first group. Changing the variance of the Beta prior does not yield significant changes in posterior analysis. The only notable difference is that an increase in variance yields a decrease in mean acceptance rate.
 
-\fg{1}{../output/kl_dist_comparison_beta_sig2-1.pdf}
+\fg{0.7}{../output/kl_dist_comparison_beta_sig2-1.pdf}
 
 \begin{table}[H]
 \centering
@@ -472,19 +498,19 @@ Moreover, most of the clusters are indeed recognised as shown in the barplot bel
 \newpage
 \subsection{Group 5: varying number of observations}
 As $n$ diminishes and becomes comparable to $p$, the KL distance plateaus on progressively higher values, and VI and RI behave accordingly.
-[TODO CAMBIARE QUESTA RIGA] The acceptance rates rises in \textit{more difficult} situations.
+The acceptance rates rises in \textit{more difficult} situations.
 
-\fg{0.8}{../output/kl_dist_comparison_n-1.pdf}
+\fg{0.7}{../output/kl_dist_comparison_n-1.pdf}
 
 
 
 \subsection{Group 6: varying number of nodes}
 Increasing $p$ yields consequences comparable to diminishing $n$. 
-\fg{0.8}{../output/kl_dist_comparison_p-1.pdf}
+\fg{0.7}{../output/kl_dist_comparison_p-1.pdf}
 
-
+\newpage
 \subsection{Group 7: using noised block structure as data generator}
-[TODO INSERIRE TESTO]
+The data generator for this simulation is a noised block structure.
 
 \begin{figure}[H]
 \begin{minipage}[c]{0.49\linewidth}
