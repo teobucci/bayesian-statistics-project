@@ -431,7 +431,29 @@ After simplifying common factors, the resulting expression in the split case is
     & \quad \times \frac{\prod_{l=S+2}^{M} f_B(C_l^\prime, C_S^\prime) f_B(C_l^\prime, C_{S+1}^\prime)}{\prod_{l=S+2}^{M} f_B(C_l, C_S) f_B(C_l, C_{S+1})} & \text{interactions with terms after}\\
     & \quad \times \frac{f_B(C_S^\prime, C_{S+1}^\prime) f_B(C_S^\prime, C_S^\prime) f_B(C_{S+1}^\prime, C_{S+1}^\prime)}{f_B(C_S, C_{S+1}) f_B(C_S, C_S) f_B(C_{S+1}, C_{S+1})} & \text{internal interactions}
 \end{align*}
+where with $C_{j}$ ($C_{j}^\prime$) we denote group $j$ in the current (proposed) partition and
+\[
+    f_B(C_u, C_v) = B(\alpha+S_{uv},\beta+S^{\star}_{uv})
+\]
+Moreover, $S$ is the index of the cluster that is being shuffled with the $(S+1)$-th, thus
+\[
+    \begin{cases}
+        C_{m} = C_{m}^\prime & \forall m<S\\
+        C_{S}\cup C_{S+1}  = C_{S}^\prime \cup C_{S+1}^\prime &\\
+        C_{m} = C_{m}^\prime & \forall m>S+1\\
+    \end{cases}
+\]
 
+\begin{table}[H]
+\centering
+\begin{tabular}{l|c|c|ccc|c|l}
+\hline
+current  & $C_1$        & $\ldots$ & \multicolumn{2}{c|}{$C_S$}     & $C_{S+1}$               & $\ldots$ & $C_M$    \\
+\hline
+proposed & $C_1^\prime$ & $\ldots$ & \hspace*{0.5cm}$C_S^\prime$\hspace*{0.5cm} & \multicolumn{2}{|l|}{$C_{S+1}^\prime$}      & $\ldots$ & $C_{M+1}^\prime$\\
+\hline
+\end{tabular}
+\end{table}
 
 
 
