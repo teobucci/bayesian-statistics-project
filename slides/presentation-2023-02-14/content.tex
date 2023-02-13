@@ -76,14 +76,14 @@ where
 \section{Simulations}
 
 \begin{frame}{Simulations structure}
-The Beta was reparametrized with mean and variance, and the mean was always set to the graph density.
+The Beta was reparametrized with mean and variance, with mean set to the graph density.
 
 We ran a total of 41 simulations, varying different hyperparameters. 
-The simulations are subdivided in groups, depending on which parameter was tuned:
+Simulations divided into groups, depending on the parameter tuned:
     \begin{enumerate}
         \item Data generating \alert{seed}
-        \item Variance of the Beta prior \texttt{beta\_sig2}
-        \item Initial partition
+        \item \alert{Variance} of the Beta prior for the graph \texttt{beta\_sig2}
+        \item \alert{Initial partition} $\rho_0$
         \item Generating partition's \alert{cluster numerosities}
         \item Number of \alert{observations} $n$
         \item Number of \alert{nodes} $p$
@@ -102,32 +102,40 @@ $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_s
 
 
 \begin{frame}{Posterior analysis}
-We performed posterior analysis using the following metrics and plots:
-    \begin{enumerate}
-        \item The partition $\bm{\rho}$ is estimated by solving a minimization problem using decision theory restricted to the space of visited partitions using the \alert{VI} loss function
-        \item Mean acceptance rate
-        \item The \alert{Rand index} to measure the similarity between partitions
-        \item The adjacency matrix is estimated by taking the \alert{p-links} matrix (probability that a link is included in the graph) and choosing a threshold value $s$ using BFDR
-        \item Plot of the estimated \alert{precision matrix} vs generating precision matrix
-        \item \alert{Kullback-Leibler} distance comparing the precision matrices
-        \item Frequency barplot of how often a node was a splitting node
-        \item $\theta$ and $\sigma$ traceplot
-    \end{enumerate}
 
-\begin{table}[H]
+\begin{table}[h]
 \centering
 \begin{tabular}{llllll}
-\cmidrule(l{3pt}r{3pt}){1-6} 
-$\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\cmidrule(l{1pt}r{1pt}){1-5}  %6
+$\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL \\ % & \texttt{time}\\
 \midrule
 \end{tabular}
 \end{table}
+
+    \begin{enumerate}
+        \item $\bm{\rho}$ estimated by solving a minimization problem on the space of \emph{visited} partitions using  \alert{Variation of Information} (\alert{VI}) loss function
+        \item Mean \alert{acceptance rate}
+        \item \alert{Rand index} (\alert{RI}) used to measure the similarity between partitions
+        \item \alert{Kullback-Leibler} (\alert{KL}) distance to compare generating and estimated precision matrixes
+    \end{enumerate}
+
+        \pause
+
+    \begin{itemize}
+        \item Adjacency matrix estimated by taking the \alert{p-links} matrix (probability that a link is included in the graph) and choosing a threshold value $s$ using BFDR
+
+        %\item Plot of the estimated \emph{vs} generating \alert{precision matrix} 
+        %\item Frequency barplot of how often a node was a splitting node
+        %\item $\theta$ and $\sigma$ traceplot
+    \end{itemize}
+
+
 \end{frame}
 
 
 \begin{frame}{Theta and Sigma traceplots}
 
-The traceplots of $\theta$ and $\sigma$ are similar throughout all the simulations.
+The traceplots of the prior parameters $\theta$ and $\sigma$ are similar throughout all the simulations.
 \fg{0.75}{../../output/data/simulation_41/_theta_sigma_prior.pdf}
 \textcolor{white}{A perfect mixing of the chain is to be appreciated.}
 
@@ -158,9 +166,10 @@ The traceplots of $\theta$ and $\sigma$ are similar throughout all the simulatio
 
 Results are consistent for every seed:
 \begin{itemize}
-    \item Estimated partition coincides with the generating partition
-    \item Estimated adjacency matrix is close to the generating graph adjacency
+    \item Estimated partition coincides with the generating partition (RI=1)
     \item KL distance converges to 0.187
+    \item Estimated adjacency matrix is close to the generating adjacency matrix
+
 \end{itemize}
 \end{frame}
 
@@ -191,6 +200,8 @@ Results are consistent for every seed:
 \end{minipage}%
 \end{figure}
 \end{frame}
+
+
 
 
 \begin{frame}{Group 1: varying data generating seed}
@@ -231,7 +242,7 @@ Results are consistent for every seed:
 
 
 
-\begin{frame}{Group 2: VARYING BETA\_SIG2}
+\begin{frame}{Group 2: Changing the variance of the Beta prior}
 \begin{table}[H]
 \centering
 \resizebox{\linewidth}{!}{
@@ -261,7 +272,7 @@ Varying \texttt{beta\_sig2} does not yield significant changes in posterior anal
 \end{frame}
 
 
-\begin{frame}{Group 2: VARYING BETA\_SIG2}
+\begin{frame}{Group 2: Changing the variance of the beta prior}
 \fg{0.8}{../../output/kl_dist_comparison_beta_sig2-1.pdf}
 
 \end{frame}
@@ -370,11 +381,6 @@ The result is actually not so bad, possible criteria improvement.
 \fg{0.8}{../../output/data/simulation_22/indexes.pdf}
 
 \end{frame}
-
-
-
-
-
 
 
 
