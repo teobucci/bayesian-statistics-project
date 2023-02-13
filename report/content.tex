@@ -298,10 +298,17 @@ Different choices can be made for the loss function, such as the Binder loss fun
 It is unfeasible to scan the entire space $\mathcal{C}$. We restrict the optimization problem to a sub-optimal solution within the space $\mathcal{C}^T \subseteq \mathcal{C}$ of the orders visited in $T$ steps of the MCMC sampling.
 
 
+\newpage
 \section{Simulation study}
 
-\fg{1}{../output/data/simulation_02/indexes.pdf}
-
+We ran a total of 41 simulations, varying different hyperparameters. 
+Simulations were divided into groups, depending on the parameter tuned, and posterior analysis was carried out on each simulation using the same plots and metrics:
+ \begin{enumerate}
+        \item $\bm{\rho}$ estimated by solving a minimization problem on the space of \emph{visited} partitions using Variation of Information (VI) loss function
+        \item Mean acceptance rate
+        \item Rand index (RI) used to measure the similarity between partitions
+        \item Kullback-Leibler (KL) distance to compare generating and estimated precision matrices
+\end{enumerate}
 
 
 
@@ -373,6 +380,126 @@ It is unfeasible to scan the entire space $\mathcal{C}$. We restrict the optimiz
 \bottomrule
 \end{tabular}}
 \end{table}
+
+
+
+\newpage
+
+\subsection{Group 1: changing seed}
+A single full posterior analysis is reported below as example. 
+For following groups, only relevant plots highlighting differences are included.
+
+Results are consistent for every seed, with an estimated adjacency matrix of the graph close to the generating one.  The estimated partition coincide with the generating partition, and the KL-distances converge to 0.187 for all the simulations in the group.
+
+\begin{figure}
+\begin{minipage}[c]{0.49\linewidth}
+\fg{1.05}{../output/data/simulation_02/comparison_G_true_est.pdf}
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.49\linewidth}
+\fg{1.05}{../output/data/simulation_02/comparison_K_true_est.pdf}
+\end{minipage}%
+\end{figure}
+
+\fg{0.75}{../output/data/simulation_02/graph.pdf}
+
+\fg{1}{../output/data/simulation_02/indexes.pdf}
+
+
+
+\subsection{Group 2: changing the variance of the Beta prior}
+
+The results for group 2 are similar to the ones of the first group. Changing the variance of the Beta prior does not yield significant changes in posterior analysis. The only notable difference is that an increase in variance yields a decrease in mean acceptance rate.
+
+\fg{1}{../output/kl_dist_comparison_beta_sig2-1.pdf}
+
+\begin{table}[H]
+\centering
+\resizebox{\linewidth}{!}{
+\begin{tabular}{lllllllllrrrrl}
+\toprule
+\multicolumn{1}{c}{ } & \multicolumn{7}{c}{Data} & \multicolumn{6}{c}{Analysis} \\
+\cmidrule(l{3pt}r{3pt}){2-8} \cmidrule(l{3pt}r{3pt}){9-14}
+\texttt{sim\_id} & $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_sig2} & $\bm{\rho}_{\text{true}}$ & $\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL & \texttt{time}\\
+\midrule
+\addlinespace[0.3em]
+\cellcolor{gray!6}{\hspace{1em}08} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.062} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{green!50}{0.066} & \cellcolor{gray!6}{0.034} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.191} & \cellcolor{gray!6}{1.22400 mins}\\
+\cellcolor{gray!6}{\hspace{1em}09} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.078} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{green!50}{0.080} & \cellcolor{gray!6}{0.043} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.186} & \cellcolor{gray!6}{1.20700 mins}\\
+\cellcolor{gray!6}{\hspace{1em}10} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.093} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{green!50}{0.075} & \cellcolor{gray!6}{0.039} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20600 mins}\\
+\cellcolor{gray!6}{\hspace{1em}11} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.108} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{green!50}{0.079} & \cellcolor{gray!6}{0.049} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20800 mins}\\
+\cellcolor{gray!6}{\hspace{1em}12} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.124} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{green!50}{0.067} & \cellcolor{gray!6}{0.040} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}13} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.139} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{green!50}{0.060} & \cellcolor{gray!6}{0.035} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.188} & \cellcolor{gray!6}{1.20200 mins}\\
+\cellcolor{gray!6}{\hspace{1em}14} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.154} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{green!50}{0.056} & \cellcolor{gray!6}{0.030} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.193} & \cellcolor{gray!6}{1.20000 mins}\\
+\cellcolor{gray!6}{\hspace{1em}15} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.169} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{green!50}{0.047} & \cellcolor{gray!6}{0.024} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.191} & \cellcolor{gray!6}{1.20100 mins}\\
+\cellcolor{gray!6}{\hspace{1em}16} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.185} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{green!50}{0.034} & \cellcolor{gray!6}{0.022} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.189} & \cellcolor{gray!6}{1.20000 mins}\\
+\cellcolor{gray!6}{\hspace{1em}17} & \cellcolor{gray!6}{500} & \cellcolor{gray!6}{25} & \cellcolor{gray!6}{BD} & \cellcolor{gray!6}{27121996} & \cellcolor{gray!6}{25} & \cellcolor{red!50}{0.2} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{gray!6}{8,4,8,5} & \cellcolor{green!50}{0.019} & \cellcolor{gray!6}{0.017} & \cellcolor{gray!6}{1.000} & \cellcolor{gray!6}{0.187} & \cellcolor{gray!6}{1.16200 mins}\\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+
+
+
+
+\subsection{Group 3: varying initial partition}
+Starting from different initial partitions (i.e. one single partition or all singletons) provide results consistent with the simulation shown in group 1.
+
+\newpage
+
+\subsection{Group 4: varying generating partition's cluster numerosities}
+Changing the generating partition's cluster numerosities does not generally influence the result. The only exception comes with small and numerous clusters, as in simulation 22.
+
+The graph is reconstructed accurately. The partition estimate, however, is far from the generating one. 
+It should be noted that this situation is highly unrepresentative of real data that would be meaningful to be studied with this kind of model.
+Moreover, most of the clusters are indeed recognised as shown in the barplot below: the problem lies in the criteria for selecting the clusters.
+
+\begin{figure}
+\begin{minipage}[c]{0.49\linewidth}
+\fg{1.05}{../output/data/simulation_22/comparison_G_true_est.pdf}
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.49\linewidth}
+\fg{1.05}{../output/data/simulation_22/comparison_K_true_est.pdf}
+\end{minipage}%
+\end{figure}
+
+
+\fg{0.75}{../output/data/simulation_22/graph.pdf}
+
+\fg{1}{../output/data/simulation_22/indexes.pdf}
+
+
+\newpage
+\subsection{Group 5: varying number of observations}
+As $n$ diminishes and becomes comparable to $p$, the KL distance plateaus on progressively higher values, and VI and RI behave accordingly.
+[TODO CAMBIARE QUESTA RIGA] The acceptance rates rises in \textit{more difficult} situations.
+
+\fg{0.8}{../output/kl_dist_comparison_n-1.pdf}
+
+
+
+\subsection{Group 6: varying number of nodes}
+Increasing $p$ yields consequences comparable to diminishing $n$. 
+\fg{0.8}{../output/kl_dist_comparison_p-1.pdf}
+
+
+\subsection{Group 7: using noised block structure as data generator}
+[TODO INSERIRE TESTO]
+
+\begin{figure}[H]
+\begin{minipage}[c]{0.49\linewidth}
+\fg{1.05}{../output/data/simulation_41/comparison_G_true_est.pdf}
+\end{minipage}
+\hfill
+\begin{minipage}[c]{0.49\linewidth}
+\fg{1.05}{../output/data/simulation_41/comparison_K_true_est.pdf}
+\end{minipage}%
+\end{figure}
+
+
+\fg{0.75}{../output/data/simulation_41/graph.pdf}
+
+
 
 \section{Conclusions}
 In this work, we have introduced a flexible prior to infer a block-structured graph under an ordering constraint on the nodes, borrowing concepts from the theory of changepoint models and using an adaptive approach. To carry out posterior inference, we have fully implemented a Block Gibbs sampling strategy which allowed us to simultaneously perform structural learning of the graph and clustering of the nodes. From the numerical simulations ran to test and evaluate the model, we obtained that the graph selection based on the BFDR led to a precise identification of the underlying graph structure and the variable clustering, as confirmed by the values of the indexes used to assess the model performance (\emph{i.e.}, VI, RI, KL).
