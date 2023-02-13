@@ -614,6 +614,21 @@ Increasing $p$ yields consequences comparable to diminishing $n$.
 
 \section{Extra}
 
+\begin{frame}{Prior for the partition}
+    As a prior, we use an EPPF induced by the \alert{two-parameter Poisson-Dirichlet} process (Pitman-Yor process) from \textcite{martinezNonparametricChangePoint2014}.
+
+    Let $M$ and $p$ be the number of groups and nodes, respectively, and $n_{j}$ with $j=1,\ldots,M$ the cardinalities of the groups, $\theta$ and $\sigma$ are parameters.
+    \begin{equation*}
+        P(\bm{\rho} = \{n_1, \ldots, n_M\})
+        =
+        \begin{cases}
+            \frac{p!}{M!} \frac{ \prod_{i=1}^{M-1}{(\theta +i\sigma)} }{(\theta+1)_{(p-1)\uparrow}} \prod_{j=1}^{M}{\frac{(1-\sigma)_{(n_{j}-1)\uparrow}}{n_{j\uparrow}} }, & \bm{\rho} \text{ admissible} \\
+            0, & \bm{\rho} \text{ not admissible.}
+        \end{cases}
+    \end{equation*}
+    $\sigma$ is assigned a prior Beta$(a,b)$ while $\theta$ is assigned a prior ShiftedGamma$(c,d,-\sigma)$.
+\end{frame}
+
 \begin{frame}{Birth and death algorithm for updating the graph}
 
     \texttt{BDGraph} is an algorithm that follows a Birth-and-Death approach to decide whether to \alert{add} a new edge to the graph or \alert{delete} an already existing one.
