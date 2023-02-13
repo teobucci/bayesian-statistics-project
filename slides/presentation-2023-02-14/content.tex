@@ -690,3 +690,29 @@ Their traceplots are similar throughout all the simulations.
     \end{itemize}
 Where $h>0$ is the initial adaptation, $t/p$ are the iterations $(t)$ per number of nodes $(p)$, $\alpha_{\text{target}}$ is the target MH acceptance rate and $\alpha_{\text{merge}} = 1 - \alpha_{\text{split}}$.
 \end{frame}
+
+
+
+\begin{frame}{Performance indexes: Kullback-Leibler}
+    
+    Suppose that we have two multivariate normal distributions, with means $\mu_0, \mu_1$ and with (non-singular) covariance matrices $\Sigma_0, \Sigma_1$. If the two distributions have the same dimension, $k$, then the relative entropy between the distributions is as follows:
+    \[
+        D_{\mathrm{KL}}\left(\mathcal{N}_0 \| \mathcal{N}_1\right)=\frac{1}{2}\left(\operatorname{tr}\left(\Sigma_1^{-1} \Sigma_0\right)-k+\left(\mu_1-\mu_0\right)^{\top} \Sigma_1^{-1}\left(\mu_1-\mu_0\right)+\ln \left(\frac{\operatorname{det} \Sigma_1}{\operatorname{det} \Sigma_0}\right)\right)
+    \]
+\end{frame}
+
+
+\begin{frame}{Performance indexes: Rand index}
+    Given a set of $n$ elements $S=\left\{o_1, \ldots, o_n\right\}$ and two partitions of $S$ to compare, $X=\left\{X_1, \ldots, X_r\right\}$, a partition of $S$ into $r$ subsets, and $Y=\left\{Y_1, \ldots, Y_s\right\}$, a partition of $S$ into $s$ subsets, define the following:
+    \begin{itemize}
+        \item $a$, the number of pairs of elements in $S$ that are in the same subset in $X$ and in the same subset in $Y$
+        \item $b$, the number of pairs of elements in $S$ that are in different subsets in $X$ and in different subsets in $Y$
+        \item c, the number of pairs of elements in $S$ that are in the same subset in $X$ and in different subsets in $Y$
+        \item $d$, the number of pairs of elements in $S$ that are in different subsets in $X$ and in the same subset in $Y$
+    \end{itemize}
+    The Rand index, $R$, is:
+    \[
+    R=\frac{a+b}{a+b+c+d}=\frac{a+b}{\binom{n}{2}}
+    \]
+    %Intuitively, $a+b$ can be considered as the number of agreements between $X$ and $Y$ and $c+d$ as the number of disagreements between $X$ and $Y$.
+\end{frame}
