@@ -104,13 +104,14 @@ $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_s
 \begin{frame}{Posterior analysis}
 We performed posterior analysis using the following metrics and plots:
     \begin{enumerate}
-        \item $\theta$ and $\sigma$ traceplot
-        \item Estimated \alert{p-links} matrix (probability that a link is included in the graph) vs generating adjacency matrix
-        \item Estimated \alert{precision matrix} vs generating precision matrix
-        \item Estimated vs generating partition, i.e. \alert{changepoint frequency} distribution
-        \item Rand Index traceplot
-        \item \alert{Kullback-Leibler} distance curve
+        \item The partition $\bm{\rho}$ is estimated by solving a minimization problem using decision theory restricted to the space of visited partitions using the \alert{VI} loss function
         \item Mean acceptance rate
+        \item The \alert{Rand index} to measure the similarity between partitions
+        \item The adjacency matrix is estimated by taking the \alert{p-links} matrix (probability that a link is included in the graph) and choosing a threshold value $s$ using BFDR
+        \item Plot of the estimated \alert{precision matrix} vs generating precision matrix
+        \item \alert{Kullback-Leibler} distance comparing the precision matrices
+        \item Frequency barplot of how often a node was a splitting node
+        \item $\theta$ and $\sigma$ traceplot
     \end{enumerate}
 
 \begin{table}[H]
