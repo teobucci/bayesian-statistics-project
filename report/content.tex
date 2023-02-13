@@ -300,6 +300,12 @@ It is unfeasible to scan the entire space $\mathcal{C}$. We restrict the optimiz
 
 \section{Simulation study}
 
+\fg{1}{../output/data/simulation_02/indexes.pdf}
+
+
+
+
+
 \begin{table}[H]
 \centering
 \resizebox{\linewidth}{!}{
@@ -372,9 +378,6 @@ It is unfeasible to scan the entire space $\mathcal{C}$. We restrict the optimiz
 In this work, we have introduced a flexible prior to infer a block-structured graph under an ordering constraint on the nodes, borrowing concepts from the theory of changepoint models and using an adaptive approach. To carry out posterior inference, we have fully implemented a Block Gibbs sampling strategy which allowed us to simultaneously perform structural learning of the graph and clustering of the nodes. From the numerical simulations ran to test and evaluate the model, we obtained that the graph selection based on the BFDR led to a precise identification of the underlying graph structure and the variable clustering, as confirmed by the values of the indexes used to assess the model performance (\emph{i.e.}, VI, RI, KL).
 
 Due to the nature of the work and the limitation of the project timeline to one semester, several challenges remain open for further investigation. One possible direction for future development is, for example, finer hyperparameter tuning. Indeed, for several aspects of the model (\emph{e.g.}, the hyperparameter of the prior for $\theta$ and $\sigma$ in the partition prior), we relied on hyperparameters validated in the literature. Even if the selected ones yielded results coherent with the nature of the problem, more structured approaches such as hyperpriors or Bayesian optimization could be introduced to tackle the problem. Furthermore, another crucial step will entail evaluating the model on existing data.
-
-
-\fg{0.7}{../output/data/simulation_01/indexes.pdf}
 
 
 
