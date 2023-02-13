@@ -76,34 +76,6 @@ where
 \section{Simulations and Posterior analysis}
 
 
-\begin{frame}{Posterior analysis}
-
-\begin{table}[h]
-\centering
-\begin{tabular}{llllll}
-\cmidrule(l{1pt}r{1pt}){1-5}  %6
-$\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL \\ % & \texttt{time}\\
-\midrule
-\end{tabular}
-\end{table}
-
-    \begin{enumerate}
-        \item $\bm{\rho}$ estimated by solving a minimization problem on the space of \emph{visited} partitions using  \alert{Variation of Information} (\alert{VI}) loss function
-        \item Mean \alert{acceptance rate}
-        \item \alert{Rand index} (\alert{RI}) used to measure the similarity between partitions
-        \item \alert{Kullback-Leibler} (\alert{KL}) distance to compare generating and estimated precision matrices
-    \end{enumerate}
-
-        \pause
-
-    The adjacency matrix estimated by taking the \alert{p-links} matrix (probability that a link is included in the graph) and choosing a threshold value $s$ using BFDR.
-
-        %\item Plot of the estimated \emph{vs} generating \alert{precision matrix} 
-        %\item Frequency barplot of how often a node was a splitting node
-        %\item $\theta$ and $\sigma$ traceplot
-
-\end{frame}
-
 
 \begin{frame}{Simulations structure}
 The Beta was reparametrized with mean and variance, with mean set to the graph density.
@@ -146,6 +118,36 @@ $n$ & $p$ & \texttt{data\_gen} & \texttt{seed} & $\bm{\rho}_0$ & \texttt{beta\_s
 %\midrule
 %\end{tabular}
 %\end{table}
+
+
+
+\begin{frame}{Posterior analysis}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{llllll}
+\cmidrule(l{1pt}r{1pt}){1-5}  %6
+$\bm{\rho}_{\text{est}}$ & \texttt{accept} & VI & RI & KL \\ % & \texttt{time}\\
+\midrule
+\end{tabular}
+\end{table}
+
+    \begin{enumerate}
+        \item $\bm{\rho}$ estimated by solving a minimization problem on the space of \emph{visited} partitions using  \alert{Variation of Information} (\alert{VI}) loss function
+        \item Mean \alert{acceptance rate}
+        \item \alert{Rand index} (\alert{RI}) used to measure the similarity between partitions
+        \item \alert{Kullback-Leibler} (\alert{KL}) distance to compare generating and estimated precision matrices
+    \end{enumerate}
+
+        \pause
+
+    The adjacency matrix estimated by taking the \alert{p-links} matrix (probability that a link is included in the graph) and choosing a threshold value $s$ using BFDR.
+
+        %\item Plot of the estimated \emph{vs} generating \alert{precision matrix} 
+        %\item Frequency barplot of how often a node was a splitting node
+        %\item $\theta$ and $\sigma$ traceplot
+
+\end{frame}
 
 
 
