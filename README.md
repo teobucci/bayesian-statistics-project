@@ -16,10 +16,6 @@ This project was developed for the course of **Bayesian Statistics** for the MSc
 - [Running the analysis](#running-the-analysis)
 - [Final results](#final-results)
 - [Authors](#authors)
-- [Developer notes](#developer-notes)
-  - [How to update the submodule](#how-to-update-the-submodule)
-  - [How to format R code](#how-to-format-r-code)
-  - [Some help for debugging on macOS](#some-help-for-debugging-on-macos)
 
 
 # Installation
@@ -170,37 +166,3 @@ Supervisor: Alessandro Colombi ([@alessandrocolombi](https://github.com/alessand
 - Flavia Petruso ([@fl-hi1](https://github.com/fl-hi1))
 - Andrea Puricelli ([@apuri99](https://github.com/apuri99))
 - Giulio Venturini ([@Vinavil334](https://github.com/Vinavil334))
-
-# Developer notes
-
-## How to update the submodule
-
-```
-git pull origin master
-git submodule foreach git pull
-git commit -a -m 'Update submodule with fixes'
-git push origin master
-```
-
-## How to format R code
-
-Using [this guide](https://bookdown.org/dli/rguide/r-style-guide.html).
-
-In R you can use the commands: `Code` > `Reformat Code` to format the selected chunk of code.
-
-## Some help for debugging on macOS
-
-Open an R console in this way
-```
-R -d lldb
-```
-then
-```
-run
-```
-then
-```
-source("src/main.R")
-```
-
-More [stuff here](https://blog.davisvaughan.com/posts/2019-04-05-debug-r-package-with-cpp/).
