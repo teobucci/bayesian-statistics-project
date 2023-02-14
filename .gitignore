@@ -72,7 +72,6 @@ rsconnect/
 *.ps
 
 *main.pdf
-*Stochastic_Block_Model_Prior_with_Ordering_Constraints_for_Gaussian_Graphical_Models.pdf
 
 .vscode/launch.json
 output/**/*.rds
