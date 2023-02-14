@@ -149,7 +149,11 @@ The final presentations can be found here:
 - [Presentation 2023-01-09](./slides/presentation-2023-01-09/Bucci_Cipriani_Pagella_Petruso_Puricelli_Venturini.pdf)
 - [Presentation 2023-02-14](./slides/presentation-2023-02-14/Bucci_Cipriani_Pagella_Petruso_Puricelli_Venturini.pdf)
 
-The results from the simulations can be found here:
+The final report can be found here:
+
+- [`Stochastic_Block_Model_Prior_with_Ordering_Constraints_for_Gaussian_Graphical_Models.pdf`](./report/Stochastic_Block_Model_Prior_with_Ordering_Constraints_for_Gaussian_Graphical_Models.pdf)
+
+The results from the simulations knitted can be found here:
 
 - [`01_simulations_basic.pdf`](./output/01_simulations_basic.pdf)
 - [`02c_simulation_grid_visualization_notebook.pdf`](./output/02c_simulation_grid_visualization_notebook.pdf)
