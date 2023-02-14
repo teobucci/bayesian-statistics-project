@@ -1,7 +1,7 @@
 <!-- omit from toc -->
 # Stochastic Block Model Prior with Ordering Constraints for Gaussian Graphical Models
 
-![GitHub last commit](https://img.shields.io/github/last-commit/teobucci/CNN-Plants-Classifier?logo=github)
+![GitHub last commit](https://img.shields.io/github/last-commit/teobucci/bayesian-statistics-project?logo=github)
 
 This project was developed for the course of **Bayesian Statistics** for the MSc. in Mathematical Engineering at Politecnico di Milano, A.Y. 2022/2023.
 
