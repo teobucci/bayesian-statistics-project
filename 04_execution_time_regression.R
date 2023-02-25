@@ -16,7 +16,10 @@ execution_time = c(
 degree = 2
 model_poly <- lm(execution_time ~ poly(p, degree = degree))
 
-x_grid = seq(range(p)[1], range(p)[2], length.out = 100)
+# choose how many extra point to the right to predict
+extra_p = 100
+
+x_grid = seq(range(p)[1], range(p)[2] + extra_p, length.out = 100)
 newdata = data.frame('p' = x_grid)
 preds = predict(model_poly, newdata = newdata, se = T)
 se.bands = cbind(preds$fit + 2 * preds$se.fit, preds$fit - 2 * preds$se.fit)
@@ -29,7 +32,8 @@ pdf(file = file.path(output_path, "execution_time.pdf"))
 plot(
     p,
     execution_time,
-    xlim = range(p),
+    xlim = c(range(p)[1], range(p)[2] + extra_p), 
+    ylim = range(preds$fit),
     cex = 1,
     col = "black",
     main = "Execution time against number of nodes p",
