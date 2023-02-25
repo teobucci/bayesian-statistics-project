@@ -284,7 +284,7 @@ split_partition <- function(candidate_index, rho) {
             # just passed the element index - I am in the group to be split
             
             # index of the element minus the cumulative
-            # umber of elements in the previous groups only if i!=1
+            # number of elements in the previous groups only if i!=1
             new_rho[i] = candidate_index - (i != 1) * group_indexes[i - 1 * (i != 1)]
             
             # dimension of the original group minus the elements moved to new_rho[i]
