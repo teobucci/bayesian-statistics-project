@@ -3,6 +3,8 @@
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/teobucci/bayesian-statistics-project?logo=github)
 
+> 🏆 This was the highest ranking project in its year batch.
+
 This project was developed for the course of **Bayesian Statistics** for the MSc. in Mathematical Engineering at Politecnico di Milano, A.Y. 2022/2023.
 
 <!-- omit from toc -->
