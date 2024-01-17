@@ -24,7 +24,7 @@ This project was developed for the course of **Bayesian Statistics** for the MSc
 
 ## How to clone the repository
 
-```
+```bash
 git clone https://github.com/teobucci/bayesian-statistics-project
 git submodule update --init
 git submodule update --recursive
@@ -40,11 +40,11 @@ Open the `./FGM/FGM.Rproj` in RStudio and type:
 On macOS on M1 chip you may get an error involving `gfortran`, in which case proceed as follows according to [this](https://stackoverflow.com/a/72997915/16222204):
 
 1. Install `gcc` which includes `gfortran` with
-   ```
+   ```bash
    brew install gcc
    ```
 2. Create a file `~/.R/Makevars` (if it does not exist yet). For example running with a terminal
-    ```
+    ```bash
     mkdir -p ~/.R
     touch ~/.R/Makevars
     ```
@@ -62,7 +62,7 @@ On macOS on M1 chip you may get an error involving `gfortran`, in which case pro
 
 Install the required packages from CRAN
 
-```
+```r
 packages_list <-
     c(
         "tidyverse",
@@ -86,7 +86,7 @@ install.packages(packages_list)
 
 and install the custom utilities by Alessandro Colombi and `mcclust.ext`
 
-```
+```r
 devtools::install_github("alessandrocolombi/ACutils")
 devtools::install_github("sarawade/mcclust.ext")
 ```
@@ -95,7 +95,7 @@ devtools::install_github("sarawade/mcclust.ext")
 
 To compile the presentations, run the following in the root of the repo
 
-```
+```bash
 make prese1
 make prese2
 make prese3
@@ -103,25 +103,25 @@ make prese3
 
 To compile the report, run
 
-```
+```bash
 make report
 ```
 
 To compile everything, run
 
-```
+```bash
 make pdf
 ```
 
 To remove temporary `LaTeX` files, run
 
-```
+```bash
 make clean
 ```
 
 To remove both temporary and pdf files, run
 
-```
+```bash
 make distclean
 ```
 
